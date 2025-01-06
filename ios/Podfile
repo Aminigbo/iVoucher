@@ -1,12 +1,52 @@
-# Resolve react_native_pods.rb with node to allow for hoisting
-require Pod::Executable.execute_command('node', ['-p',
-  'require.resolve(
-    "react-native/scripts/react_native_pods.rb",
+# Define the node_require method
+def node_require(script)
+  # Resolve script with node to allow for hoisting
+  require Pod::Executable.execute_command('node', ['-p',
+    "require.resolve(
+    '#{script}',
     {paths: [process.argv[1]]},
-  )', __dir__]).strip
+    )", __dir__]).strip
+end 
+
+
+  # Use the node_require method to require the necessary scripts
+node_require('react-native/scripts/react_native_pods.rb')
+node_require('react-native-permissions/scripts/setup.rb')
 
 platform :ios, min_ios_version_supported
 prepare_react_native_project!
+
+
+pod 'Firebase', :modular_headers => true
+pod 'FirebaseCoreInternal', :modular_headers => true
+pod 'GoogleUtilities', :modular_headers => true
+pod 'FirebaseCore', :modular_headers => true
+
+permissions_path = '../node_modules/react-native-permissions/ios' 
+pod 'Permission-Notifications', :path => "#{permissions_path}/Notifications"
+
+setup_permissions([
+  'AppTrackingTransparency',
+  'Bluetooth',
+  'Calendars',
+  'CalendarsWriteOnly',
+  'Camera',
+  'Contacts',
+  'FaceID',
+  'LocationAccuracy',
+  'LocationAlways',
+  'LocationWhenInUse',
+  'MediaLibrary',
+  'Microphone',
+  'Motion',
+  'Notifications',
+  'PhotoLibrary',
+  'PhotoLibraryAddOnly',
+  'Reminders',
+  'Siri',
+  'SpeechRecognition',
+  'StoreKit',
+])
 
 linkage = ENV['USE_FRAMEWORKS']
 if linkage != nil
@@ -14,7 +54,7 @@ if linkage != nil
   use_frameworks! :linkage => linkage.to_sym
 end
 
-target 'pocket_voucher' do
+target 'iVoucher' do
   config = use_native_modules!
 
   use_react_native!(
@@ -23,7 +63,7 @@ target 'pocket_voucher' do
     :app_path => "#{Pod::Config.instance.installation_root}/.."
   )
 
-  target 'pocket_voucherTests' do
+  target 'iVoucherTests' do
     inherit! :complete
     # Pods for testing
   end
