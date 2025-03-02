@@ -1,20 +1,21 @@
 import React from 'react';
-import { Text, Box, VStack, HStack, Icon, Button, ScrollView, Stack, Actionsheet, Center, Image, ArrowForwardIcon, Divider, FlatList, ShareIcon, WarningOutlineIcon } from 'native-base';
+import { Text, Box, VStack, HStack, Icon, Button, ScrollView, Stack, Actionsheet, Center, Image, ArrowForwardIcon, Divider, FlatList, ShareIcon, WarningOutlineIcon, View } from 'native-base';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { BackIcon, CloseIcon, CopyIcon, CreateToken, DeleteIcon, EmptyRecord, HeartIcon, InIcon, LogoutIcon, OutIcon, QRcodeIcon, ResolveTokenIcon, ScanQRIcon } from '../global-components/icons';
 import { Color } from '../global-components/colors';
 import { BoldText, BoldText1 } from '../global-components/texts';
-import { ActivityIndicator, Alert, ImageBackground, PermissionsAndroid, RefreshControl, Share, TouchableOpacity } from 'react-native';
+import { ActivityIndicator, Alert, ImageBackground, PermissionsAndroid, RefreshControl, Share, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
-import { formatDate, NumberWithCommas } from '../utilities'; 
+import { formatDate, NumberWithCommas } from '../utilities';
 import { FetchTransactionsModel } from '../home/service';
-import { DeactivateTokenService, FetchActiveTokenService, RemoveMerchantService } from './services';
+import { DeactivateTokenService, FetchActiveTokenService, RemoveMerchantService, TopUpService } from './services';
 import { FetchUserInfoService } from '../auth/service';
 import { captureRef } from 'react-native-view-shot';
 import ShareLib from 'react-native-share';
 import RNFS from 'react-native-fs';
 import { Loader } from '../global-components/loader';
 import { appState } from '../state';
+import { PictureInPicture, PlusSquare, Scan } from 'lucide-react-native';
 
 
 const Colors = Color()
@@ -30,6 +31,7 @@ function Merchantprofile({ navigation, route, }) {
     const [SingleToken, setSingleToken] = React.useState(null)
     const [balLoading, setbalLoading] = React.useState(false)
     const [heavyLoading, setheavyLoading] = React.useState(false)
+    const [amount, setAmount] = React.useState(0)
 
 
     const handleFetchTransactions = () => {
@@ -149,27 +151,6 @@ function Merchantprofile({ navigation, route, }) {
 
     }, [navigation]);
 
-
-    // const onShare = async () => {
-    //     // console.log(User.reffCode)
-    //     try {
-    //         const result = await Share.share({
-    //             message: data.address
-    //         });
-    //         if (result.action === Share.sharedAction) {
-    //             if (result.activityType) {
-    //                 // shared with activity type of result.activityType
-    //             } else {
-    //                 // shared
-    //             }
-    //         } else if (result.action === Share.dismissedAction) {
-    //             // dismissed
-    //         }
-    //     } catch (error) {
-    //         Alert.alert(error.message);
-    //     }
-    // };
-
     const qrCodeRef = React.useRef();
 
     const onShare = async () => {
@@ -253,7 +234,7 @@ function Merchantprofile({ navigation, route, }) {
                         buttonPositive: 'OK',
                     },
                 );
-                if (granted === PermissionsAndroid.RESULTS.GRANTED) { 
+                if (granted === PermissionsAndroid.RESULTS.GRANTED) {
                     navigation.navigate("Scan", { user: User.id })
                 } else {
                     Alert.alert("Permision Error", "You need to allow us access to your camera")
@@ -266,13 +247,48 @@ function Merchantprofile({ navigation, route, }) {
         }
     };
 
+
+    const handleWalletTopup = (txn) => {
+        setheavyLoading(true)
+        setbottomSheet(false)
+        TopUpService({
+            amount, user: User.id, merchant: data.id
+        })
+            .then(response => {
+
+                if (response.success == false) {
+                    setheavyLoading(false)
+                    Alert.alert("Error", response.message)
+                } else {
+                    Alert.alert("Success", response.message, [
+                        {
+                            text: "Done", onPress: () => {
+                                login({
+                                    ...User,
+                                    ...response.data
+                                })
+                                handleFetchTransactions()
+                                handleFetchActiveToken()
+                                FetchUserInfo()
+                            }
+                        }
+                    ])
+                    setheavyLoading(false)
+                }
+
+            })
+            .catch(error => {
+                console.log(error)
+                Alert.alert("Error", "An error occured")
+                setheavyLoading(false)
+            })
+    }
+
+
     // return (
     return !User ? navigation.replace("Login") : (
 
         <>
-            {/* {console.log(data)} */}
-
-
             <SafeAreaView style={{ display: "flex", flex: 1 }} >
 
                 <HStack alignItems="center" justifyContent="space-between" >
@@ -304,6 +320,7 @@ function Merchantprofile({ navigation, route, }) {
 
                                 {/* Balance Card */}
 
+
                                 <Box style={{
                                     position: "relative",
                                 }} bg={Colors.dark} p={4} borderRadius="lg">
@@ -315,13 +332,15 @@ function Merchantprofile({ navigation, route, }) {
                                         </VStack>
                                         <Button bg="white" size="sm" variant="outline"
                                             onPress={() => {
-                                                navigation.navigate("Topup", { data,User })
+                                                // navigation.navigate("Topup", { data,User })
+                                                setbottomSheet(!bottomSheet)
+                                                setbottomSheetAction("TOPUP")
                                             }}
                                             colorScheme={Colors.primary} borderRadius="full">
                                             + Add Money
                                         </Button>
                                     </HStack>
-                                    <Text mt={2} color="white" fontSize="xs">Available Balance</Text>
+                                    <Text mt={2} color="white" fontSize="xs">{data.name} Balance</Text>
 
                                     <Stack style={{
                                         height: 80,
@@ -333,6 +352,7 @@ function Merchantprofile({ navigation, route, }) {
                                         top: 10,
                                         left: 30
                                     }} />
+
                                     <Stack style={{
                                         height: 30,
                                         width: 30,
@@ -340,7 +360,7 @@ function Merchantprofile({ navigation, route, }) {
                                         backgroundColor: Colors.primary,
                                         opacity: 0.2,
                                         position: "absolute",
-                                        bottom:0,
+                                        bottom: 0,
                                         right: 30
                                     }} />
                                 </Box>
@@ -352,46 +372,57 @@ function Merchantprofile({ navigation, route, }) {
                                             navigation.navigate("resolve-token", { data })
                                         }} >
                                             <VStack alignItems="center" space={1}>
-                                                <ResolveTokenIcon />
-                                                <Text style={{ fontSize: 12, color: "grey" }} >Resolve code</Text>
+                                                {/* <ResolveTokenIcon /> */}
+                                                <Center style={{
+                                                    borderWidth: 0,
+                                                    borderRadius: 50,
+                                                    // borderColor: Colors.primary,
+                                                    width: 40,
+                                                    height: 40,
+                                                }} >
+                                                    <Icon as={<PictureInPicture size={25} />} color={Colors.primary} />
+                                                </Center>
+                                                <Text fontSize="sm" light>Resolve voucher</Text>  
                                             </VStack>
                                         </TouchableOpacity>
                                         <TouchableOpacity onPress={() => {
                                             navigation.push("create-token", { data })
                                         }} >
                                             <VStack alignItems="center" space={1}>
-                                                <CreateToken />
-                                                <Text style={{ fontSize: 12, color: "grey" }} >Create code</Text>
+                                                {/* <CreateToken /> */}
+                                                <Center style={{
+                                                    borderWidth: 0,
+                                                    borderRadius: 50,
+                                                    // borderColor: Colors.primary,
+                                                    width: 40,
+                                                    height: 40
+                                                }} >
+                                                    <Icon as={<PlusSquare size={25} />} color={Colors.primary} />
+                                                </Center>
+                                                <Text fontSize="sm" light>Create voucher</Text> 
                                             </VStack>
 
                                         </TouchableOpacity>
-                                        <TouchableOpacity onPress={() => { 
+                                        <TouchableOpacity onPress={() => {
                                             requestNotificationPermission()
                                         }
                                         } >
                                             <VStack alignItems="center" space={1}>
-                                                <ScanQRIcon />
-                                                <Text style={{ fontSize: 12, color: "grey" }} >Scan & Send</Text>
+                                                {/* <ScanQRIcon /> */}
+                                                <Center style={{
+                                                    borderWidth: 0,
+                                                    borderRadius: 50,
+                                                    // borderColor: Colors.primary,
+                                                    width: 40,
+                                                    height: 40
+                                                }} >
+                                                    <Icon as={<Scan size={25} />} color={Colors.primary} />
+                                                </Center>
+                                                <Text fontSize="sm" light>Scan & Send</Text>
                                             </VStack>
                                         </TouchableOpacity>
                                     </HStack>
                                 </VStack>
-                                
-                                 <TouchableOpacity>
-                                    <HStack alignItems="center" justifyContent="space-between" style={{
-                                        borderColor: "lightgrey",
-                                        borderWidth: 0.4,
-                                        width: "100%",
-                                        paddingVertical: 17,
-                                        textAlign: "center",
-                                        borderRadius: 4,
-                                        overflow: "scroll",
-                                        position: "relative",
-                                    }}  >
-                                        <Text color="gray.400"  > {data.address} </Text> 
-                                    </HStack>
-                                </TouchableOpacity>
-
 
 
                                 {/* Active token */}
@@ -441,13 +472,18 @@ function Merchantprofile({ navigation, route, }) {
                                             <BoldText1 text="Recent activities" color="#000" />
 
                                             {Transactions.filter(e => e.data.address == data.address).map((items, index) => {
-                                                return <HStack key={index} mt={4} alignItems="center" space={3} >
-                                                    {items.flow == "IN" ? <InIcon /> : <OutIcon />}
-                                                    <VStack  >
-                                                        <Text>{items.data.message}</Text>
-                                                        <Text fontWeight={500} >{formatDate(items.created_at)}</Text>
-                                                    </VStack>
-                                                </HStack>
+                                                return <TouchableOpacity
+                                                    onPress={() => {
+                                                        navigation.navigate("view-transaction", { data: items })
+                                                    }}
+                                                > <HStack key={index} mt={4} alignItems="center" space={3} >
+                                                        {items.flow == "IN" ? <InIcon /> : <OutIcon />}
+                                                        <VStack  >
+                                                            <Text fontWeight="medium" >{items.message}</Text>
+                                                            <Text fontWeight="light" >{formatDate(items.created_at)}</Text>
+                                                        </VStack>
+                                                    </HStack>
+                                                </TouchableOpacity>
                                             })}
 
                                         </Stack> :
@@ -473,7 +509,6 @@ function Merchantprofile({ navigation, route, }) {
                     }
 
                 />
-
             </SafeAreaView>
 
             {heavyLoading == true && <Loader loading={heavyLoading} />}
@@ -545,7 +580,8 @@ function Merchantprofile({ navigation, route, }) {
                             <Divider marginVertical={16} bgColor="gray.200" />
 
                             <TouchableOpacity style={{
-                                marginBottom: 10
+                                marginBottom: 10,
+                                opacity: data.bal > 0 ? 0.2 : 1
                             }} onPress={() => {
                                 if (data.bal < 1) {
                                     setbottomSheet(!bottomSheet)
@@ -596,16 +632,58 @@ function Merchantprofile({ navigation, route, }) {
                             </TouchableOpacity>
                         </Stack>
                     </>}
-                    {/* handleDeactivateToken */}
+
+                    {bottomSheetAction == "TOPUP" && <>
+                        <Text style={{ fontSize: 16, fontWeight: 'bold', textAlign: 'center', marginBottom: 25 }}>
+                            Topup {data.name} wallet
+                        </Text>
+                        <View style={{ padding: 15, width: "100%" }}>
+                            <BoldText text="Enter amount" color="#000" />
+                            <TextInput style={styles.input} placeholder="20000" onChangeText={setAmount} keyboardType='numeric' />
+                            <Text style={{ fontSize: 13, textAlign: 'center', marginBottom: 15 }}>
+                                The amount will be deducted from your Pocket Voucher wallet. The minimum top up is NGN500
+                            </Text>
+
+                            <TouchableOpacity
+                                onPress={() => {
+                                    handleWalletTopup()
+                                }}
+                                style={[{
+                                    marginTop: 80,
+                                    borderRadius: 10,
+                                    paddingVertical: 17,
+                                    // width: 100,
+                                    alignItems: "center",
+                                    backgroundColor: Colors.dark,
+                                }]}>
+                                <BoldText text="Top up" color="#fff" />
+                            </TouchableOpacity>
+
+                        </View>
+                    </>}
 
 
                 </Actionsheet.Content>
             </Actionsheet>
+
         </>
     );
 }
 
- 
 
 
 export default Merchantprofile;
+
+const styles = StyleSheet.create({
+    container: { flex: 1, padding: 20, backgroundColor: '#FFF', display: "flex" },
+    input: { width: '100%', padding: 15, marginVertical: 10, borderColor: '#ddd', borderWidth: 1, borderRadius: 5 },
+    selectBtn: {
+        borderRadius: 10,
+        paddingVertical: 10,
+        // width: 100,
+        alignItems: "center",
+        flex: 1
+
+    }
+
+});

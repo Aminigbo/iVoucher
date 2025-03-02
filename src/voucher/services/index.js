@@ -66,7 +66,7 @@ export async function CreateTokenService({
         "amount": amount,
         "merchant": merchant,
         "walletAdress": walletAdress,
-        "expiry": expiry
+        "expiry": expiry, 
     });
 
     var requestOptions = {
@@ -108,6 +108,35 @@ export async function FetchActiveTokenService({
 
     try {
         const response = await fetch(`${BaseURL}user/fetch-active-token`, requestOptions);
+        const result_1 = await response.text();
+        // console.log(result_1)
+        const data = JSON.parse(result_1)
+        return data;
+    } catch (error) {
+        return error;
+    }
+}
+
+
+export async function FetchAllUserActiveTokenService({
+    user
+}) {
+    var myHeaders = new Headers();
+    myHeaders.append("Content-Type", "application/json");
+
+    const raw = JSON.stringify({
+        "user": user, 
+    });
+
+    var requestOptions = {
+        method: 'POST',
+        headers: myHeaders,
+        body: raw,
+        redirect: 'follow'
+    };
+
+    try {
+        const response = await fetch(`${BaseURL}user/fetch-All-user-active-token`, requestOptions);
         const result_1 = await response.text();
         // console.log(result_1)
         const data = JSON.parse(result_1)
@@ -242,7 +271,6 @@ export async function TopUpService({
     const raw = JSON.stringify({
         "amount": amount,
         "user": user,
-        "data": data,
         "merchant": merchant,
     });
 

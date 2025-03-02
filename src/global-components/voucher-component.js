@@ -2,24 +2,27 @@ import React from 'react';
 import { Text, Box, VStack, HStack, Divider, Stack } from 'native-base';
 import { Dimensions } from 'react-native';
 import { Color } from './colors';
-import { Eye, EyeClose } from './icons';
+import { Eye, EyeClose, VisaIcon } from './icons';
 import { NumberWithCommas } from '../utilities';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 const Colors = Color()
-const VoucherComponent = ({ User, totalAmount, seeBal, setseeBal }) => {
+export const VoucherComponent = ({ User, totalAmount, seeBal, setseeBal }) => {
     const screenWidth = Dimensions.get('window').width;
 
     return <>
-        <VStack>
+        <VStack >
             <HStack
                 width={screenWidth - 16}
-                  height={130}
+                height={130}
                 // borderRadius="md"
                 overflow="hidden"
                 shadow={2}
                 // mt={4}
                 // mb={4}
                 alignSelf="center"
+                style={{
+                    borderRadius: 10
+                }}
             >
                 {/* Left Section (Red Background) */}
                 <Box
@@ -37,14 +40,14 @@ const VoucherComponent = ({ User, totalAmount, seeBal, setseeBal }) => {
                         </Text>
                     </VStack>
                     <Text color="white" fontSize="xs" mt={2}>
-                        {User.id.slice(0, 17)}
+                        {User.bankInfo.account_number} - {User.bankInfo.bank_name}
                     </Text>
 
                     <Stack style={{
                         height: 130,
                         width: 130,
                         borderRadius: 130,
-                        backgroundColor: Colors.dark,
+                        backgroundColor: Colors.primary,
                         opacity: 0.1,
                         position: "absolute",
                         top: -3,
@@ -67,19 +70,19 @@ const VoucherComponent = ({ User, totalAmount, seeBal, setseeBal }) => {
                             </Text>
                             {seeBal ?
                                 <TouchableOpacity onPress={() => {
-                                    setseeBal(false) 
+                                    setseeBal(false)
                                 }} >
                                     <EyeClose />
                                 </TouchableOpacity>
                                 : <TouchableOpacity onPress={() => {
-                                    setseeBal(true) 
+                                    setseeBal(true)
                                 }} >
                                     <Eye />
                                 </TouchableOpacity>}
                         </HStack>
 
                         <Text color="white" fontSize={25} fontWeight="bold">
-                            {seeBal ? <>  ₦{NumberWithCommas(totalAmount)}</> : " *****"}
+                            {seeBal ? <>  ₦{NumberWithCommas(User.wallet)}</> : " *****"}
                         </Text>
                     </VStack>
                     <Stack style={{
@@ -176,4 +179,108 @@ const VoucherComponent = ({ User, totalAmount, seeBal, setseeBal }) => {
     </>
 };
 
-export default VoucherComponent;
+
+
+export const CardComponent = ({ User, CardInfo }) => {
+    const screenWidth = Dimensions.get('window').width;
+    return <>
+        <VStack >
+            <HStack
+                width={screenWidth - 30}
+                height={200}
+                // borderRadius="md"
+                overflow="hidden"
+                shadow={2}
+                // mt={4}
+                // mb={4}
+                alignSelf="center"
+                style={{
+                    borderRadius: 10
+                }}
+            >
+                {/* Left Section (Red Background) */}
+                <Box
+                    flex={1} style={{
+                        backgroundColor: Colors.dark,
+                        position: "relative",
+                        // borderLeftColor: Colors.primary,
+                        // borderLeftWidth: 3,
+                    }} p={3} justifyContent="space-between">
+                    <VStack space={1}>
+                        <Text color="white" style={{
+                            zIndex: 100
+                        }} fontSize="2xl" fontWeight="bold">
+                            Pocket Voucher
+                        </Text>
+                    </VStack>
+                    <VStack>
+                        <Text color="white" fontSize="lg">
+                            {CardInfo ? `${CardInfo.card_holder.first_name} ${CardInfo.card_holder.last_name}` : "-- --"}
+                        </Text>
+                        <Text color="white" fontSize="xs" >
+                            {CardInfo ? `.... ${CardInfo.last_four}` : "-- --"}
+                        </Text>
+                    </VStack>
+
+                    <Stack style={{
+                        height: 130,
+                        width: 130,
+                        borderRadius: 130,
+                        backgroundColor: Colors.white,
+                        opacity: 0.1,
+                        position: "absolute",
+                        top: -3,
+                        left: -30
+                    }} />
+
+                </Box>
+
+                {/* Right Section (Black Background) */}
+                <Box flex={1}
+                    style={{
+                        backgroundColor: Colors.dark,
+                        position: "relative",
+                        display: "flex",
+                        alignItems: "flex-end"
+                    }}
+                    p={6} justifyContent="space-between">
+                    <VStack space={2}>
+                        <Text color="white" fontSize={25} fontWeight="bold">
+                            ...
+                        </Text>
+                    </VStack>
+
+                    <VStack >
+                        <VisaIcon />
+                    </VStack>
+                    <Stack style={{
+                        height: 150,
+                        width: 150,
+                        borderRadius: 150,
+                        backgroundColor: Colors.white,
+                        opacity: 0.2,
+                        position: "absolute",
+                        bottom: -20,
+                        left: -70,
+                        zIndex: 1
+                    }} />
+                    <Stack style={{
+                        height: 60,
+                        width: 60,
+                        borderRadius: 60,
+                        backgroundColor: Colors.white,
+                        opacity: 0.2,
+                        position: "absolute",
+                        bottom: -22,
+                        right: 10,
+                        zIndex: 1
+                    }} />
+                </Box>
+            </HStack>
+
+        </VStack>
+    </>
+};
+
+
+// export default VoucherComponent;

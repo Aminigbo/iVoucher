@@ -1,15 +1,15 @@
 export function Color() {
     return {
-        primary:"#EA4B45",
-        // primary:"#D46828",
-        // primary:"darkorange",
+        // primary:"#EA4B45",
+        primary:"#D46828",
+        // primary:"#2B110F",
         // primary:"#336799",
         primaryLight:"#0E5132",
-        background:"#FFF",
+        background:"#E9DFDE",
         secondary:"#E9FBF6",
-        white:"#FFF",
+        white:"#FAF7F7",
         // dark:"#241E20",
-        dark:"#000",
+        dark:"#2B110F",
         primaryDark:"#082B21"
  
     }

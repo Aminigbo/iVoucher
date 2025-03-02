@@ -1,43 +1,48 @@
+import { launchCamera, launchImageLibrary } from "react-native-image-picker";
+
+export const BaseURL = "http://192.168.1.121:9090/APP/"   //home
+// export const BaseURL = "http://192.168.1.60:9090/APP/"  //office
+// export const BaseURL = "http://192.168.115.218:9090/APP/"   //phone  
+// export const BaseURL = "http://192.168.104.218:9090/APP/"   //Steawrt 
 
 
-// export const BaseURL = "http://192.168.1.121:9090/AP'P/"  
-export const BaseURL = "https://i-voucher-server.vercel.app//APP/" 
+// export const BaseURL = "https://i-voucher-server.vercel.app//APP/" 
 
 
 export const formatDate = (inputDate) => {
-    const date = new Date(inputDate);
-  
-    const day = date.getDate();
-    const year = date.getFullYear();
-  
-    // Define an array to get the month name in the desired format
-    const months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
-    ];
-  
-    // Get the month in the desired format from the array
-    const month = months[date.getMonth()];
-  
-    // Get the ordinal suffix for the day (e.g., 1st, 2nd, 3rd, etc.)
-    const getOrdinalSuffix = (day) => {
-      if (day > 3 && day < 21) return 'th';
-      switch (day % 10) {
-        case 1: return 'st';
-        case 2: return 'nd';
-        case 3: return 'rd';
-        default: return 'th';
-      }
-    };
-  
-    const ordinalDay = `${day}${getOrdinalSuffix(day)}`;
-  
-    // Construct the formatted date string
-    const formattedDate = `${ordinalDay} ${month} ${year}`;
-    // const formattedDate = `${ordinalDay} ${month}`;
-  
-    return formattedDate;
+  const date = new Date(inputDate);
+
+  const day = date.getDate();
+  const year = date.getFullYear();
+
+  // Define an array to get the month name in the desired format
+  const months = [
+    'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+  ];
+
+  // Get the month in the desired format from the array
+  const month = months[date.getMonth()];
+
+  // Get the ordinal suffix for the day (e.g., 1st, 2nd, 3rd, etc.)
+  const getOrdinalSuffix = (day) => {
+    if (day > 3 && day < 21) return 'th';
+    switch (day % 10) {
+      case 1: return 'st';
+      case 2: return 'nd';
+      case 3: return 'rd';
+      default: return 'th';
+    }
   };
+
+  const ordinalDay = `${day}${getOrdinalSuffix(day)}`;
+
+  // Construct the formatted date string
+  const formattedDate = `${ordinalDay} ${month} ${year}`;
+  // const formattedDate = `${ordinalDay} ${month}`;
+
+  return formattedDate;
+};
 
 
 
@@ -57,59 +62,108 @@ export function generateRandomString() {
 
   return result;
 }
- 
- 
 
-export function ImagePicker({
-  setPickedImage, prop
-}) {
+
+
+// export async function ImagePicker({
+//   setPickedImage, prop
+// }) { 
+
+//   const options = {
+//     storageOptions: {
+//       path: "images",
+//       mediaType: "photo"
+//     },
+//     includeBase64: true,
+//     quality: 0.7
+//   }
+//   launchImageLibrary(options, response => { 
+
+//     if (response.didCancel) {
+//       console.log("Here")
+//     } else if (response.error) {
+//       console.log("Here")
+//     } else if (response.customButton) {
+//       console.log(response.customButton)
+//     } else {
+//       const source = {
+//         uri: response.assets[0].uri
+//       }
+
+
+//       const fileExt = response.assets[0].uri.substring(response.assets[0].uri.lastIndexOf(".") + 1);
+//       const fileName = `${Math.random()}.${fileExt}`;
+//       var formData = new FormData();
+//       formData.append("files", {
+//         uri: response.assets[0].uri,
+//         name: fileName,
+//         type: `image/${fileExt}`
+//       })
+
+//       // console.log(formData)
+//       setPickedImage({
+//         source,
+//         fileName,
+//         formData,
+//         height: response.assets[0].height,
+//         width: response.assets[0].width,
+//         status: true,
+//         type: prop
+//       })
+
+//     }
+//   })
+
+// }
+
+export async function ImagePicker({ setPickedImage, prop }) {
   const options = {
     storageOptions: {
       path: "images",
-      mediaType: "photo"
+      mediaType: "photo",
     },
-    includeBase64: true,
-    quality: 0.7
-  }
-  launchImageLibrary(options, response => {
-    // console.log("ResponseXX", response.assets.id)
+    includeBase64: true, // Ensures base64 data is included
+    quality: 0.7,
+  };
 
+  launchImageLibrary(options, (response) => {
     if (response.didCancel) {
-
+      console.log("User cancelled image picker");
     } else if (response.error) {
-
+      console.log("ImagePicker Error: ", response.error);
     } else if (response.customButton) {
-      console.log(response.customButton)
+      console.log("User tapped custom button: ", response.customButton);
     } else {
-      const source = {
-        uri: response.assets[0].uri
-      }
+      const asset = response.assets[0];
 
+      if (!asset) return;
 
-      const fileExt = response.assets[0].uri.substring(response.assets[0].uri.lastIndexOf(".") + 1);
+      const { uri, base64, height, width } = asset;
+      const fileExt = uri.substring(uri.lastIndexOf(".") + 1);
       const fileName = `${Math.random()}.${fileExt}`;
+      const base64Image = `data:image/${fileExt};base64,${base64}`;
+
       var formData = new FormData();
       formData.append("files", {
-        uri: response.assets[0].uri,
+        uri,
         name: fileName,
-        type: `image/${fileExt}`
-      })
+        type: `image/${fileExt}`,
+      });
 
-      console.log(formData)
       setPickedImage({
-        source,
+        source: { uri },
         fileName,
         formData,
-        height: response.assets[0].height,
-        width: response.assets[0].width,
+        base64: base64Image, // This is the Base64 string you need
+        height,
+        width,
         status: true,
-        type: prop
-      })
-
+        type: prop,
+      });
     }
-  })
-
+  });
 }
+
 
 export const nigerianBanks = [
   {

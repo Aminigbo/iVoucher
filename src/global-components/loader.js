@@ -1,10 +1,11 @@
 import { Center } from "native-base";
 import { ActivityIndicator } from "react-native";
-import { Color } from "./colors";
+import { Color } from "./colors"; 
+import { Text } from "react-native";
 
 const Colors = Color()
 
-export function Loader({ loading }) {
+export function Loader({ loading,text }) {
     return loading ? <Center
         style={{
             position: "absolute",
@@ -16,6 +17,7 @@ export function Loader({ loading }) {
             zIndex:100
         }}
     >
-        <ActivityIndicator color={Colors.primary} />
+        <ActivityIndicator color={Colors.white} />
+        <Text style={{ color: Colors.white }}>{text}</Text>
     </Center> : ""
 }

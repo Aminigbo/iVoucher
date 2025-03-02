@@ -20,7 +20,7 @@ const Colors = Color()
 
 function CreateToken({ route, navigation }) {
     const { User, login } = appState()
-    
+
     const [amount, setamount] = React.useState("")
     const [data, setData] = React.useState(route.params.data)
     const [loading, setLoading] = React.useState(false)
@@ -45,8 +45,7 @@ function CreateToken({ route, navigation }) {
 
     // Calculate the maximum date as a day after tomorrow
     const maximumDate = new Date();
-    maximumDate.setDate(maximumDate.getDate() + 12); // Add 2 days
-
+    maximumDate.setDate(maximumDate.getDate() + 12); // Add 2 days 
 
     function handleCreateToken() {
         Keyboard.dismiss()
@@ -56,7 +55,7 @@ function CreateToken({ route, navigation }) {
             amount,
             merchant: data.id,
             walletAdress: data.address,
-            expiry: isExpiry ? date : "false"
+            expiry: isExpiry ? date : "false", 
         })
             .then(response => {
                 setLoading(false)
@@ -71,10 +70,10 @@ function CreateToken({ route, navigation }) {
 
                 Alert.alert("Success", response.message, [
                     {
-                        onPress: () => { 
+                        onPress: () => {
                             // console.log(response.data.merchants.filter(e=> e.id == data.id))
                             navigation.pop()
-                         },
+                        },
                         text: "Done"
                     }
                 ])
@@ -102,10 +101,10 @@ function CreateToken({ route, navigation }) {
 
                         <HStack p={3} justifyContent="center" alignItems="center" >
 
-                            <Input
+                            <TextInput
                                 onChangeText={(e) => setamount(e)}
                                 value={amount}
-                                style={{ fontSize: 17, }}
+                                style={[styles.input, { fontSize: 17, }]}
                                 w={{ md: "95%" }}
                                 height={60}
                                 flex={5}
@@ -122,7 +121,7 @@ function CreateToken({ route, navigation }) {
 
 
 
-                    {isExpiry ?
+                    {/* {isExpiry ?
                         <TouchableOpacity onPress={() => {
                             setisExpiry(!isExpiry)
                         }} >
@@ -137,23 +136,21 @@ function CreateToken({ route, navigation }) {
                                 <Text fontSize="xs" fontWeight="bold">Add expiry date</Text>
                             </HStack>
                         </TouchableOpacity>
-                    }
+                    } */}
 
 
 
-                    {
+                    {/* {
                         showPicker && (
                             <DateTimePicker
                                 testID="dateTimePicker"
                                 value={date}
                                 mode="date" // Set mode to 'time' for time-only picker or 'datetime' for both date and time
                                 display="default" // Set display options: 'default', 'spinner', 'calendar'
-                                onChange={onChange}
-                            // minimumDate={minimumDate} // Set the minimumDate
-                            // maximumDate={maximumDate} // Set the maximumDate
+                                onChange={onChange} 
                             />
                         )
-                    }
+                    } */}
 
 
                 </VStack>
@@ -161,7 +158,7 @@ function CreateToken({ route, navigation }) {
             </SafeAreaView>
 
 
-            <Stack p={5} bgColor="#fff" >
+            <Stack p={5} bgColor="#fff" my={10} >
                 <CustomButtons callBack={handleCreateToken}
                     primary Loading={loading}
                     LoadingText="Creating token..."
@@ -218,9 +215,9 @@ function CreateToken({ route, navigation }) {
     );
 }
 
- 
 
-export default  CreateToken;
+
+export default CreateToken;
 
 
 const styles = StyleSheet.create({
@@ -243,5 +240,6 @@ const styles = StyleSheet.create({
         // marginBottom: 30,
 
 
-    }
+    },
+    input: { width: '100%', padding: 15, marginVertical: 10, borderColor: '#ddd', borderWidth: 1, borderRadius: 5 },
 });

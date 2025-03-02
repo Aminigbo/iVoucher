@@ -1,6 +1,6 @@
 import React from 'react';
 import { Text, Box, IconButton, VStack, HStack, Icon, Button, ScrollView, Stack, Divider, AddIcon, Input, CheckCircleIcon, Actionsheet, ArrowForwardIcon } from 'native-base';
-import { Keyboard, TouchableOpacity, View } from 'react-native';
+import { Keyboard, TouchableOpacity, View, TextInput, StyleSheet } from 'react-native';
 import { BoldText, BoldText1, BoldText2 } from '../global-components/texts';
 import { AcceptanceIcon, BackIcon, Eye, FastIcon, HelpCenterIcon, InIcon, MerchantIcon, NotificationIcon, OutIcon, ScanIcon, SecureIcon, SendVoucherIcon, ShopIcon, VoucherIcon } from '../global-components/icons';
 import VoucherComponent from '../global-components/voucher-component';
@@ -131,13 +131,13 @@ function Topup({ route, navigation }) {
 
                             <HStack p={3} justifyContent="center" alignItems="center" >
 
-                                <Input
+                                <TextInput
                                     onChange={(value) => {
                                         setAmount(value.nativeEvent.text)
                                     }}
                                     keyboardType='numeric'
                                     value={amount}
-                                    style={{ textAlign: "center", fontSize: 30, }}
+                                    style={[{ textAlign: "center", fontSize: 30, },styles.input]}
                                     w={{ md: "95%" }}
                                     height={70}
                                     flex={5}
@@ -292,6 +292,9 @@ function Topup({ route, navigation }) {
 }
 
 
-
-
 export default Topup;
+
+const styles = StyleSheet.create({ 
+
+    input: { width: '100%', padding: 15, marginVertical: 10, borderColor: '#ddd', borderWidth: 1, borderRadius: 5 },
+});

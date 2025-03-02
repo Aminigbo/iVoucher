@@ -23,7 +23,7 @@ pod 'GoogleUtilities', :modular_headers => true
 pod 'FirebaseCore', :modular_headers => true
 
 permissions_path = '../node_modules/react-native-permissions/ios' 
-pod 'Permission-Notifications', :path => "#{permissions_path}/Notifications"
+# pod 'Permission-Notifications', :path => "#{permissions_path}/Notifications"
 
 setup_permissions([
   'AppTrackingTransparency',

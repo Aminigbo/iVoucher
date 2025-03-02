@@ -1,6 +1,6 @@
 import React from 'react';
 import { Text, VStack, HStack, Stack, Input, } from 'native-base';
-import { Alert, Keyboard, StyleSheet, } from 'react-native';
+import { Alert, Keyboard, StyleSheet, TextInput, } from 'react-native';
 import { BackIcon } from '../global-components/icons';
 
 import { Color } from '../global-components/colors';
@@ -74,10 +74,10 @@ function ResolveToken({ navigation, route }) {
 
                         <HStack p={3} justifyContent="center" alignItems="center" >
 
-                            <Input
+                            <TextInput
                                 onChangeText={settoken}
                                 value={token}
-                                style={{ fontSize: 17, }}
+                                style={[styles.input, { fontSize: 17, }]}
                                 w={{ md: "95%" }}
                                 // height={70}
                                 flex={5}
@@ -137,5 +137,7 @@ const styles = StyleSheet.create({
         // marginBottom: 30,
 
 
-    }
+    },
+
+    input: { width: '100%', padding: 15, marginVertical: 10, borderColor: '#ddd', borderWidth: 1, borderRadius: 5 },
 });

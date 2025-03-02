@@ -1,5 +1,5 @@
 import { Alert } from "react-native"
-import { FetchUserInfoService } from "../auth/service"
+import { FetchAllUsersService, FetchUserInfoService } from "../auth/service"
 
 export function FetchUserInfo({
     setloading,
@@ -29,6 +29,26 @@ export function FetchUserInfo({
         })
         .catch(error => {
             setloading(false)
+            console.log(error)
+        })
+}
+
+export function FetcAllhUsers(setAllUsers) {
+    FetchAllUsersService()
+        .then(response => {
+            if (response.success == false) {
+                Alert.alert("Error", response.message)
+            } else {
+                if (response.success == true) {
+                    setAllUsers(response.data)
+                } else {
+                    setAllUsers([])
+                }
+            }
+
+        })
+        .catch(error => {
+            setAllUsers([])
             console.log(error)
         })
 }

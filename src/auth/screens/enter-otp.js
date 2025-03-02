@@ -1,6 +1,6 @@
 // screens/LoginScreen.js
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Alert, ActivityIndicator } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Alert, ActivityIndicator, Modal } from 'react-native';
 
 import { Button, Center, HStack, VStack } from 'native-base';
 import { Color } from '../../global-components/colors';
@@ -11,6 +11,7 @@ import { AppIcon, BackIcon } from '../../global-components/icons.js';
 import { Loader } from '../../global-components/loader.js';
 import { RequestOtpController, VerifyAccountController } from '../controllers/index.js';
 import { BoldText, BoldText1 } from '../../global-components/texts.js';
+import { CircleCheck } from 'lucide-react-native';
 
 const Colors = Color()
 
@@ -24,6 +25,7 @@ function Biometrics({ navigation, route }) {
     const [inputs, setInputs] = useState(['', '', '', '', '']);
     const [currentIndex, setCurrentIndex] = useState(0);
     const [error, setError] = useState(false);
+    const [modalVisible, setModalVisible] = useState(false);
 
     const handleKeyPress = (key) => {
         if (key === 'Del') {
@@ -53,7 +55,7 @@ function Biometrics({ navigation, route }) {
                         navigation.replace("Reset-pwd", { data: data.data })
                     } else {
                         setloading(true)
-                        VerifyAccountController({ setloading, Alert, navigation, data: data, login })
+                        VerifyAccountController({ setloading, Alert, navigation, data: data, login, setModalVisible })
                     }
                 }
             }
@@ -73,13 +75,14 @@ function Biometrics({ navigation, route }) {
 
     return (
         <>
+        {console.log(data)}
             <SafeAreaView style={styles.container}>
                 <Center mt={30} style={{
                     marginTop: 50,
                 }} >
 
                     <AppIcon />
-                    <Text style={[styles.headerText,{marginTop:20}]}>Verify your account</Text>
+                    <Text style={[styles.headerText, { marginTop: 20 }]}>Verify your account</Text>
                     <Text style={styles.subHeaderText}>Enter the 5-digit code sent to your email or phone</Text>
 
                     <View style={{
@@ -134,28 +137,36 @@ function Biometrics({ navigation, route }) {
 
             <Loader loading={loading} />
 
-            {/* <HStack
-                space={16}
-                style={{
-                    flex: 1,
-                    paddingBottom: 20,
-                    backgroundColor: "#fff",
-                    justifyContent: "center",
-                    alignItems: "center",
-                }} >
-                {miniloading ? <ActivityIndicator /> :
+            <Modal
+                animationType="slide"
+                transparent={true}
+                visible={modalVisible}
+                onRequestClose={() => {
+                    setModalVisible(!modalVisible);
+                }}>
+                <View style={styles.overlay}>
+                    <View style={styles.modalView}>
+                        <CircleCheck size={150} strokeWidth={0.8} color={Colors.dark} />
 
-                    <TouchableOpacity
-                        onPress={handleResendOtp}
-                    >
                         <BoldText1
-                            size={13}
-                            text="Resend OTP"
+                            size={20}
                             color={Colors.dark}
+                            style={{
+                                textAlign: "center"
+                            }}
+                            text="Account verified successfully."
                         />
-                    </TouchableOpacity>
-                }
-            </HStack> */}
+
+                        <TouchableOpacity style={styles.registerButton} onPress={() => {
+                             setModalVisible(false);
+                            navigation.replace("kyc-onboarding")
+                        }} >
+                            {loading ? <ActivityIndicator color={Colors.white} /> : <Text style={styles.registerButtonText}>Complete KYC</Text>}
+                        </TouchableOpacity>
+                    </View>
+
+                </View>
+            </Modal>
 
         </>
     );
@@ -176,7 +187,7 @@ const styles = StyleSheet.create({
 
     container: {
         backgroundColor: "#fff",
-        flex:1
+        flex: 1
     },
     inputContainer: {
         flexDirection: 'row',
@@ -245,4 +256,52 @@ const styles = StyleSheet.create({
     subHeaderText: { fontSize: 16, color: '#666', marginBottom: 10, textAlign: 'center' },
 
 
+
+    // =====
+
+    overlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0,0,0,0.5)', // Semi-transparent overlay
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    modalView: {
+        width: "80%",
+        // height: 300,
+        margin: 20,
+        backgroundColor: 'white',
+        borderRadius: 10,
+        padding: 35,
+        alignItems: 'center',
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+        elevation: 5,
+    },
+    button: {
+        borderRadius: 20,
+        padding: 10,
+        elevation: 2,
+    },
+    buttonOpen: {
+        backgroundColor: '#F194FF',
+    },
+    buttonClose: {
+        backgroundColor: '#2196F3',
+    },
+    textStyle: {
+        color: 'white',
+        fontWeight: 'bold',
+        textAlign: 'center',
+    },
+    modalText: {
+        marginBottom: 15,
+        textAlign: 'center',
+    },
+    registerButton: { backgroundColor: '#000', paddingVertical: 15, width: '90%', alignItems: 'center', borderRadius: 5, marginVertical: 10, marginTop: 50, height: 55, alignSelf: "center" },
+    registerButtonText: { color: '#FFF', fontWeight: 'bold' },
 });

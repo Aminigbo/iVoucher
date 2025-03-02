@@ -154,6 +154,21 @@
 			<key>isShown</key>
 			<false/>
 		</dict>
+		<key>RNCAsyncStorage-RNCAsyncStorage_resources.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
+		<key>RNCAsyncStorage.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
+		<key>RNCClipboard.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
 		<key>RNCPushNotificationIOS.xcscheme</key>
 		<dict>
 			<key>isShown</key>
@@ -545,6 +560,16 @@
 			<false/>
 		</dict>
 		<key>react-native-biometrics.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
+		<key>react-native-image-picker-RNImagePickerPrivacyInfo.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
+		<key>react-native-image-picker.xcscheme</key>
 		<dict>
 			<key>isShown</key>
 			<false/>

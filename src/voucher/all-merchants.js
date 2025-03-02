@@ -1,6 +1,6 @@
 import React from 'react';
 import { Text, Box, VStack, HStack, Stack, AddIcon, Image, FlatList, Center } from 'native-base';
-import { Alert, RefreshControl, TouchableOpacity } from 'react-native';
+import { Alert, Dimensions, RefreshControl, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { BoldText, } from '../global-components/texts';
 import { ArrowForward, EmptyRecord, } from '../global-components/icons';
 import { Color } from '../global-components/colors';
@@ -9,7 +9,11 @@ import { Merchant } from '../utilities/data';
 import { FetchUserInfoService } from '../auth/service';
 import { NumberWithCommas } from '../utilities';
 import { appState } from '../state';
+import Svg, { Path, Circle } from "react-native-svg";
+import LinearGradient from "react-native-linear-gradient";
+import { FetchAllUserActiveTokenService } from './services';
 
+const { width, height } = Dimensions.get("window");
 
 const Colors = Color()
 
@@ -18,6 +22,7 @@ function AllMerchants({ navigation }) {
     const [Search, setSearch] = React.useState("")
     const [suggestions, setSuggestions] = React.useState([]);
     const [loading, setLoading] = React.useState(false);
+    const [ActiveTokens, setActiveTokens] = React.useState([])
 
     const handleInputChange = (text) => {
         setSearch(text);
@@ -51,13 +56,38 @@ function AllMerchants({ navigation }) {
     }
 
 
+    const handleFetchActiveToken = () => {
+        setLoading(true)
+
+        FetchAllUserActiveTokenService({
+            user: User.id
+        })
+            .then(response => {
+                setLoading(false)
+
+                if (response.success == false) {
+                    setActiveTokens([])
+                } else {
+                    setActiveTokens(response.data)
+                }
+
+            })
+            .catch(error => {
+                setActiveTokens([])
+                setLoading(false)
+            })
+    }
+
+
     React.useEffect(() => {
         FetchUserInfo()
+        handleFetchActiveToken()
     }, [])
 
     // return (
     return !User ? navigation.replace("Login") : (
         <>
+            {/* {console.log(ActiveTokens.length)} */}
             <SafeAreaView style={{ display: "flex", backgroundColor: "#fff", flex: 1 }} >
                 <HStack
                     space={7}
@@ -89,6 +119,7 @@ function AllMerchants({ navigation }) {
                 <FlatList
                     data={[0]}
                     renderItem={() => {
+                        // let item = items.item
                         return <>
                             <VStack p={4} space={4} mb={20}>
 
@@ -150,6 +181,12 @@ function AllMerchants({ navigation }) {
 
 
                             </VStack>
+                            {/* {console.log(item.gradientColors)}
+                            <LinearGradient colors={item.gradientColors} style={styles.voucher}>
+                                <Text style={styles.title}>Discount Voucher</Text>
+                                <Text style={styles.description}>Get 20% off on your next purchase</Text>
+                                <Text style={styles.code}>CODE: SAVE20</Text>
+                            </LinearGradient> */}
                         </>
 
                     }}
@@ -157,6 +194,7 @@ function AllMerchants({ navigation }) {
                     refreshControl={
                         <RefreshControl refreshing={loading} onRefresh={() => {
                             FetchUserInfo()
+                            handleFetchActiveToken()
                         }} />
                     }
 
@@ -169,3 +207,34 @@ function AllMerchants({ navigation }) {
 
 
 export default AllMerchants;
+
+const styles = StyleSheet.create({
+
+    voucher: {
+        // width: width - 40,
+        padding: 20,
+        borderRadius: 15,
+        alignItems: "center",
+        height: 170,
+        marginVertical: -10
+    },
+    title: {
+        fontSize: 22,
+        fontWeight: "bold",
+        color: "#fff",
+    },
+    description: {
+        fontSize: 16,
+        color: "#fff",
+        marginVertical: 10,
+    },
+    code: {
+        fontSize: 18,
+        fontWeight: "bold",
+        color: "#fff",
+        backgroundColor: "rgba(0,0,0,0.2)",
+        paddingHorizontal: 10,
+        paddingVertical: 5,
+        borderRadius: 5,
+    },
+});

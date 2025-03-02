@@ -27,6 +27,14 @@ import NetInfo from '@react-native-community/netinfo';
 import ServiceResetPwdScreen from "./src/support/change-password";
 import SplashScreen from "react-native-splash-screen";
 import Biometrics from "./src/auth/screens/biometrics";
+import KycOnboarding from "./src/auth/screens/kyc-onboarding";
+import BankTransfer from "./src/voucher/send-to-bank";
+import SearchBanks from "./src/voucher/search-banks";
+import PocketVoucherTransfer from "./src/voucher/send-to-pv";
+import TransactionDetails from "./src/home/view-transaction";
+import { HandleFPN } from "./src/utilities/messaging-service";
+import { CreditCard, Ticket, User } from "lucide-react-native";
+import Card from "./src/home/card";
 
 const Stack = createStackNavigator()
 const Tab = createBottomTabNavigator();
@@ -43,10 +51,10 @@ const tabs = [
   {
     name: 'Search',
     screen: Home,
-  },
+  }, 
   {
-    name: 'Favorite',
-    screen: Home,
+    name: 'Card',
+    screen: Card,
   },
 ];
 
@@ -66,6 +74,7 @@ function App() {
       }
     };
 
+    Platform.OS == "android" && HandleFPN();
     // Subscribe to network state changes
     const unsubscribe = NetInfo.addEventListener(handleConnectivityChange);
 
@@ -151,12 +160,17 @@ function App() {
               }
               else if (route.name === 'Profile') {
                 return <>
-                  <UserIcon status={focused} />
+                  <User color="grey" status={focused} />
                 </>
               }
               else if (route.name === 'Vouchers') {
                 return <>
-                  <VoucherIcon status={focused} />
+                  <Ticket color="grey" status={focused} />
+                </>
+              }
+              else if (route.name === 'Cards') {
+                return <>
+                  <CreditCard color="grey" status={focused} />
                 </>
               }
 
@@ -194,6 +208,16 @@ function App() {
               },
             }}
           />
+          {/* <Tab.Screen
+            listeners={{
+              focus: () => {
+                Animated.spring(offsetAnimation, {
+                  toValue: 1 * (width / tabs.length),
+                  useNativeDriver: true,
+                }).start();
+              },
+            }} name="Vouchers" component={AllMerchants} options={{ header: () => null, tabBarLabel: "Vouchers" }} /> */}
+
           <Tab.Screen
             listeners={{
               focus: () => {
@@ -202,7 +226,8 @@ function App() {
                   useNativeDriver: true,
                 }).start();
               },
-            }} name="Vouchers" component={AllMerchants} options={{ header: () => null, tabBarLabel: "Vouchers" }} />
+            }} name="Cards" component={Card} options={{ header: () => null, tabBarLabel: "Card" }} />
+
           <Tab.Screen
             listeners={{
               focus: () => {
@@ -258,6 +283,9 @@ function App() {
         >
           <Stack.Screen name="Home" component={HomeStacks} options={{ header: () => null }} />
           <Stack.Screen name="Topup" component={Topup} options={{ header: () => null }} />
+          <Stack.Screen name="Send-to-bank" component={BankTransfer} options={{ header: () => null }} />
+          <Stack.Screen name="Send-to-pv" component={PocketVoucherTransfer} options={{ header: () => null }} />
+          <Stack.Screen name="Search-banks" component={SearchBanks} options={{ header: () => null }} />
           <Stack.Screen name="Merchants" component={Merchants} options={{ header: () => null }} />
           <Stack.Screen name="Merchant-profile" component={Merchantprofile} options={{ header: () => null }} />
           <Stack.Screen name="create-token" component={CreateToken} options={{ header: () => null }} />
@@ -265,9 +293,11 @@ function App() {
           <Stack.Screen name="Support" component={Support} options={{ header: () => null }} />
           <Stack.Screen name="Scan" component={Scan} options={{ header: () => null }} />
           <Stack.Screen name="Notifications" component={Notification} options={{ header: () => null }} />
+          <Stack.Screen name="view-transaction" component={TransactionDetails} options={{ header: () => null }} />
           <Stack.Screen name="Onboarding" component={Onboarding} options={{ header: () => null }} />
           <Stack.Screen name="Biometrics" component={Biometrics} options={{ header: () => null }} />
           <Stack.Screen name="Login" component={LoginScreen} options={{ header: () => null }} />
+          <Stack.Screen name="kyc-onboarding" component={KycOnboarding} options={{ header: () => null }} />
           <Stack.Screen name="Register" component={RegisterScreen} options={{ header: () => null }} />
           <Stack.Screen name="Enter-otp" component={VerifyOtpScreen} options={{ header: () => null }} />
           <Stack.Screen name="Request-otp" component={RequestOTP} options={{ header: () => null }} />

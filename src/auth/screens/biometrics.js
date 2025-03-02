@@ -85,6 +85,7 @@ function Biometrics({ navigation }) {
 
 
     const handleKeyPress = (key) => {
+        // navigation.replace("kyc-onboarding")
         if (key === 'Del') {
             setError(false)
             if (currentIndex > 0) {
@@ -112,8 +113,8 @@ function Biometrics({ navigation }) {
                     setCurrentIndex(0)
                 } else {
                     setError(false)
-                    FetchUserInfo()
-                    console.log("same")
+                    FetchUserInfo() 
+                   
                 }
             }
 
@@ -134,7 +135,14 @@ function Biometrics({ navigation }) {
                     ...User,
                     ...response.data
                 })
-                navigation.replace("Home")
+
+                if (response.data.kyc == false) {
+                    navigation.replace("kyc-onboarding")
+                } else {
+                    navigation.replace("Home")
+                }
+
+                // navigation.replace("Home")
 
             })
     }
@@ -175,7 +183,7 @@ function Biometrics({ navigation }) {
                                     />
 
                                     <Text style={[styles.registerText, { marginTop: 10, marginBottom: 50 }]}>
-                                        {User.name.split(" ")[0]}
+                                        {User.firstname}
                                         <BoldText1 color="#000" text={`(${User.email.slice(0, 2)}***${User.email.slice(-6)})`} />
                                     </Text>
 
@@ -186,7 +194,7 @@ function Biometrics({ navigation }) {
                                 {User.pin ? <>
 
                                     <Text style={[styles.registerText, { marginTop: 10, }]}>
-                                        {User.name.split(" ")[0]}
+                                        {User.firstname}
                                         <BoldText1 color="#000" text={`(${User.email.slice(0, 2)}***${User.email.slice(-6)})`} />
                                     </Text>
 
@@ -245,7 +253,7 @@ function Biometrics({ navigation }) {
                                                 />
 
                                                 <Text style={[styles.registerText, { marginTop: 10, marginBottom: 30 }]}>
-                                                    {User.name.split(" ")[0]}
+                                                    {User.firstname}
                                                     <BoldText1 color="#000" text={`(${User.email.slice(0, 2)}***${User.email.slice(-6)})`} />
                                                 </Text>
 
@@ -335,7 +343,7 @@ function Biometrics({ navigation }) {
                 }} >
 
                     <Text style={[styles.registerText, { marginTop: 10, marginBottom: 30 }]}>
-                        {User.name.split(" ")[0]}
+                        {User.firstname}
                         <BoldText1 color="#000" text={`(${User.email.slice(0, 2)}***${User.email.slice(-6)})`} />
                     </Text>
 

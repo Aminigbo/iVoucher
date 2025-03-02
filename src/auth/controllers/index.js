@@ -1,4 +1,7 @@
-import { LoginService, RegisterService, RequestOtpService, ResetPwdService, VerifyAccountService } from "../service";
+import { Alert } from "react-native";
+import { CardWithdrawalService, ConversionRateService, CreateCardService, FetchBanksModel, FetchTransactionModel, FundCardService, GetCardDetailsHistoryModel, InitiatePayout, LoginService, RegisterService, RequestOtpService, ResetPwdService, ResolveBankModel, UpdateKycModel, UpdateNINModel, VerifyAccountService } from "../service";
+import { FetchTransactionsModel } from "../../home/service";
+import { supabase } from "../../../configurations/supabase-config";
 
 
 export function LoginController({ setloading, Alert, navigation, email, password, fcmToken, login, setmodalData, modalData, Initialize }) {
@@ -12,7 +15,7 @@ export function LoginController({ setloading, Alert, navigation, email, password
             if (response.action == "ENTER OTP") {
                 navigation.navigate("Enter-otp", { data: response.data })
             } else {
-                console.log(response)
+                // console.log(response)
                 if (!response.data) {
                     setloading(false)
                     return setmodalData({
@@ -26,7 +29,13 @@ export function LoginController({ setloading, Alert, navigation, email, password
                 }
                 login(response.data)
                 Initialize(response.data.id)
-                navigation.replace("Home")
+                if (response.data.kyc == false) {
+                    navigation.replace("kyc-onboarding")
+                } else {
+                    navigation.replace("Home")
+                }
+                // setloading(false)
+
 
                 // setmodalData({
                 //     isTrue: true,
@@ -42,57 +51,59 @@ export function LoginController({ setloading, Alert, navigation, email, password
         })
         .catch(error => {
             setloading(false)
-            console.log(error)
+            // console.log(error)
             return Alert.alert("Error", "An error occured",)
         })
 }
 
-export function RegisterController({ setloading, Alert, email, phone, name, pwd1, fcmToken, navigation }) {
-    RegisterService({ email, phone, name, pwd1, fcmToken })
+export function RegisterController({ setloading, Alert, email, phone, name, pwd1, fcmToken, navigation, lastName }) {
+    RegisterService({ email, phone, name, pwd1, lastName, fcmToken })
         .then(response => {
             if (response.success == false) {
                 setloading(false)
                 return Alert.alert("Error", response.message,)
             }
-            navigation.navigate("Enter-otp", { data: response.data })
+            if (response && response.data) {
+                navigation.navigate("Enter-otp", { data: response.data })
+            }
             setloading(false)
+            // console.log
         })
         .catch(error => {
             setloading(false)
-            console.log(error)
+            // console.log(error)
             return Alert.alert("Error", "An error occured",)
         })
 }
 
-export function VerifyAccountController({ setloading, Alert, navigation, data, login }) {
+export function VerifyAccountController({ setloading, Alert, navigation, data, login, setModalVisible }) {
     VerifyAccountService(data.data.userData.id)
         .then(response => {
+            setloading(false)
             if (response.success == false) {
-                setloading(false)
                 return Alert.alert("Error", response.message,)
             }
-            // disp_Login(data.data.userData)
+            login(data.data.userData)
             // navigation.replace("Home", { data: data.data })
 
-            Alert.alert("Success", "OTP verified successfully. Proceed to login to your account", [
-                {
-                    onPress: () => {
-                        navigation.replace("Login")
-                        setloading(false)
-                    },
-                    text: "Login"
-                }
-            ])
+            // Alert.alert("Success", "OTP verified successfully. Proceed to login to your account", [
+            //     {
+            //         onPress: () => {
+            //             navigation.replace("Login")
+            //             setloading(false)
+            //         },
+            //         text: "Login"
+            //     }
+            // ])
+            setModalVisible(true)
 
         })
         .catch(error => {
             setloading(false)
-            console.log(error)
+            // console.log(error)
             return Alert.alert("Error", "An error occured",)
         })
 }
-
-
 
 export function RequestOtpController({ setloading, Alert, navigation, email }) {
     RequestOtpService(email)
@@ -106,7 +117,7 @@ export function RequestOtpController({ setloading, Alert, navigation, email }) {
         })
         .catch(error => {
             setloading(false)
-            console.log(error)
+            // console.log(error)
             return Alert.alert("Error", "An error occured",)
         })
 }
@@ -123,7 +134,283 @@ export function ResetPwdController({ setloading, Alert, navigation, password, us
         })
         .catch(error => {
             setloading(false)
+            // console.log(error)
+            return Alert.alert("Error", "An error occured",)
+        })
+}
+
+export function UpdateKycController(setLoading, login, user, data, email, name, phone, User, setModalVisible) {
+
+    let { bvn, address, gender, state, city, country, zipCode } = data
+
+    UpdateKycModel(user, gender, address, bvn, email, name, phone, state, city, country, zipCode)
+        .then(response => {
+            if (response.success == false) {
+                setLoading(false)
+                return Alert.alert("Error", response.message,)
+            }
+            login({
+                ...User,
+                ...response.data,
+            })
+            setLoading(false)
+            setModalVisible(true)
+        })
+        .catch(error => {
+            setLoading(false)
+            // console.log(error)
+            return Alert.alert("Error", "An error occured",)
+        })
+}
+
+
+// verify NIN
+export function UpdateNINController(setLoading, login, user, data, email, name, phone, User, setclaimCard,) {
+
+    let { nin, yy, mm, dd, PickedImage } = data;
+    supabase.storage
+        .from("NIN")
+        .upload(PickedImage.fileName, PickedImage.formData)
+        .then(response => {
+
+            // console.log(response) base64
+            let Img = response.data.path;
+
+            UpdateNINModel(user, nin, yy, mm, dd, email, phone, Img, PickedImage.base64)
+                .then(response => {
+                    if (response.success == false) {
+                        setLoading(false)
+                        return Alert.alert("Error", response.message,)
+                    }
+                    login({
+                        ...User,
+                        ...response.data,
+                    })
+                    console.log(response.data)
+                    setLoading(false)
+                })
+                .catch(error => {
+                    setLoading(false)
+                    // console.log(error)
+                    return Alert.alert("Error", "An error occured",)
+                })
+
+        })
+        .catch(error => {
             console.log(error)
+            setLoading(false)
+        })
+
+
+}
+
+
+
+
+// fetch all transaction history
+export function FetchTransactionHistorycController(setLoading, login, user, account_number) {
+
+    FetchTransactionModel(user, account_number)
+        .then(response => {
+            if (response.success == false) {
+                setLoading(false)
+                return Alert.alert("Error", response.message,)
+            }
+            // console.log("response.data,", response.data)
+            setLoading(false)
+        })
+        .catch(error => {
+            setLoading(false)
+            // console.log(error)
+            return Alert.alert("Error", "An error occured",)
+        })
+}
+
+// Fetch all banks
+export function FetcAllBanksController(setLoading, SaveBanks) {
+    FetchBanksModel()
+        .then(response => {
+            if (response.success == false) {
+                setLoading(false)
+                return Alert.alert("Error", response.message,)
+            }
+            // console.log("response.data,", response.data)
+            SaveBanks(response.data)
+            setLoading(false)
+        })
+        .catch(error => {
+            setLoading(false)
+            // console.log(error)
+            return Alert.alert("Error", "An error occured",)
+        })
+}
+
+// resolve bank
+export function ResolveBankController(setLoading, bank, account, setAccountHolder, setEnterAmountPop, SelectedBank) {
+    ResolveBankModel(bank, account)
+        .then(response => {
+            if (response.success == false) {
+                setLoading(false)
+                return Alert.alert("Error", response.message,)
+            }
+            setEnterAmountPop(true)
+            let data = {
+                ...response.data,
+                logo: SelectedBank.logo
+            }
+            // console.log("response.data,", data)
+            setAccountHolder(data)
+            setLoading(false)
+        })
+        .catch(error => {
+            setLoading(false)
+            console.log(error)
+            return Alert.alert("Error", "An error occured",)
+        })
+}
+
+// initiate payout
+export function InitiatePayoutController({ setLoading, payoutType, amount, naration, bankCode, account, name, email, id, accountName, receiver, bank_name, navigation, GetAllTransactions, bankLogo }) {
+    InitiatePayout({ payoutType, amount, naration, bankCode, account, name, email, id, accountName, receiver, bank_name, bankLogo })
+        .then(response => {
+            if (response.success == false) {
+                setLoading(false)
+                return Alert.alert("Error", response.message,)
+            }
+            // Alert.alert("Success", response.message)
+            // console.log(response.data)
+            GetAllTransactions()
+            navigation.navigate("view-transaction", { data: response.data })
+            setLoading(false)
+        })
+        .catch(error => {
+            setLoading(false)
+            return Alert.alert("Error", "An error occured",)
+        })
+}
+
+export function FetchAllTransactions(Userid, SaveTrxn) {
+    FetchTransactionsModel(Userid)
+        .then(response => {
+            if (response.success == false) {
+                SaveTrxn([])
+            } else {
+                SaveTrxn(response.data)
+            }
+
+        })
+        .catch(error => {
+            disp_transactions([])
+        })
+}
+
+// conversion rate
+export function ConversionRateController(setLoading, amount, setResponse, setloadingText, setclaimCard, setbottomSheetType, type) {
+    setloadingText("Getting the best exchange rate for you.")
+    ConversionRateService(amount, type)
+        .then(response => {
+            if (response.success == false) {
+                setLoading(false)
+                return Alert.alert("Error", response.message,)
+            }
+            setLoading(false)
+            setResponse(response.data)
+            setloadingText("")
+            setclaimCard(true)
+            setbottomSheetType && setbottomSheetType("Rate")
+        })
+        .catch(error => {
+            console.log(error)
+            setLoading(false)
+            setloadingText('')
+            return Alert.alert("Error", "An error occured",)
+        })
+}
+
+// create card
+export function CreateCardController(setLoading, id, card_holder_reference, login, User, amount) {
+    CreateCardService(card_holder_reference, id, amount)
+        .then(response => {
+            if (response.success == false) {
+                setLoading(false)
+                return Alert.alert("Error", response.message,)
+            }
+            login({
+                ...User,
+                ...response.data,
+            })
+            setLoading(false)
+        })
+        .catch(error => {
+            setLoading(false)
+            return Alert.alert("Error", "An error occured",)
+        })
+}
+
+// get card details
+export function GetCardDetailsController(setLoading, reference, setCardInfo, setclaimCard, setbottomSheetType) {
+    GetCardDetailsHistoryModel(reference)
+        .then(response => {
+            if (response.success == false) {
+                setLoading(false)
+                return Alert.alert("Error", response.message,)
+            }
+            setCardInfo(response.data)
+            setclaimCard && setclaimCard(true)
+            setbottomSheetType && setbottomSheetType("SHOW-DETAILS")
+            setLoading(false)
+        })
+        .catch(error => {
+            setLoading(false)
+            return Alert.alert("Error", "An error occured",)
+        })
+}
+
+// fund card controller
+export function FundCardController(setLoading, amount, chargeAmount, card_ref, setloadingText, user, setCardInfo, GetCardDetails, login, User) {
+    setloadingText("Funding your card")
+    FundCardService(amount, chargeAmount, card_ref, user)
+        .then(response => {
+            if (response.success == false) {
+                setLoading(false)
+                return Alert.alert("Error", response.message,)
+            }
+            setLoading(false)
+            setloadingText("")
+            GetCardDetails(setCardInfo)
+            login({
+                ...User,
+                ...response.data
+            })
+        })
+        .catch(error => {
+            setLoading(false)
+            setloadingText('')
+            return Alert.alert("Error", "An error occured",)
+        })
+}
+
+// withdraw card controller
+export function WithdrawCardController(setLoading, setloadingText, login, User, amount, card_ref, GetCardDetails, setCardInfo) {
+    setloadingText("Withdrawing from card")
+    CardWithdrawalService(amount, User.id, card_ref)
+        .then(response => {
+            if (response.success == false) {
+                setLoading(false)
+                return Alert.alert("Error", response.message,)
+            }
+            setLoading(false)
+            setloadingText("")
+            GetCardDetails(setCardInfo)
+            login({
+                ...User,
+                ...response.data
+            })
+        })
+        .catch(error => {
+            console.log(error)
+            setLoading(false)
+            setloadingText('')
             return Alert.alert("Error", "An error occured",)
         })
 }

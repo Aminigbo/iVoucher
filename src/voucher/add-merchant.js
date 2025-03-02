@@ -1,5 +1,5 @@
 import React from 'react';
-import { Text, Box, IconButton, VStack, HStack, Icon, Button, ScrollView, Stack, Divider, AddIcon, CheckCircleIcon, Input, Actionsheet, Image, Center, AlertDialog } from 'native-base';
+import { Text, Box, IconButton, VStack, HStack, Icon, Button, ScrollView, Stack, Divider, AddIcon, CheckCircleIcon, Actionsheet, Image, Center, AlertDialog } from 'native-base';
 import { ActivityIndicator, Alert, FlatList, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
 import { BoldText, BoldText1, BoldText2 } from '../global-components/texts';
 import { AcceptanceIcon, ArrowForward, BackIcon, Eye, FastIcon, HelpCenterIcon, InIcon, MerchantIcon, NotificationIcon, OutIcon, ScanIcon, SecureIcon, SendVoucherIcon, ShopIcon, VoucherIcon } from '../global-components/icons';
@@ -15,7 +15,7 @@ import { appState } from '../state';
 
 const Colors = Color()
 
-function Merchants({ navigation }) { 
+function Merchants({ navigation }) {
     const { User, login } = appState()
     const [Search, setSearch] = React.useState("")
     const [showmerchantInfo, setshowmerchantInfo] = React.useState(false)
@@ -58,7 +58,7 @@ function Merchants({ navigation }) {
                         merchants: response.data.merchants
                     })
                     let actualMerchant = response.data.merchants.filter(e => e.id == merchantObject.id)[0]
-                    navigation.push("Merchant-profile", { data: actualMerchant })
+                    navigation.replace("Merchant-profile", { data: actualMerchant })
                 }
             })
             .catch(error => {
@@ -84,16 +84,16 @@ function Merchants({ navigation }) {
 
                         <HStack p={3} justifyContent="center" alignItems="center" >
 
-                            <Input
+                            <TextInput
                                 onChangeText={handleInputChange}
                                 value={Search}
-                                style={{ fontSize: 17, }}
+                                style={[styles.input, { fontSize: 17, }]}
                                 w={{ md: "95%" }}
                                 // height={21}
                                 flex={5}
                                 rounded={10}
                                 justifyContent="center"
-                                placeholder='Enter merchant name'
+                                placeholder='Enter merchant name to search'
                                 // InputLeftElement={<SearchAlt />}
                                 size={25} color="red.400" />
 
@@ -177,7 +177,8 @@ function Merchants({ navigation }) {
                             style={{
                                 width: "40%",
                                 zIndex: 1000,
-                                marginRight: 10
+                                marginRight: 10,
+                                marginTop: 20
                             }}
                             source={{
                                 uri: merchantObject.img
@@ -190,27 +191,14 @@ function Merchants({ navigation }) {
                             <Text color="gray.500" p={7} >You will be able to transaction with {merchantObject.name} when you add them to your merchant list</Text>
                         </Center>
 
-
-
-                        <Actionsheet.Item
-
-                            style={[styles.paymentBtns, {
-                                marginVertical: 30,
-                                opacity: 3 == 2 ? 0.2 : 1
-                            }]}
-                            onPress={() => {
-                                setshowmerchantInfo(!showmerchantInfo)
-                                handleAddMerchant()
-                            }} >
-                            <HStack style={{
-                                justifyContent: "space-between",
-                                width: "100%",
-                            }} >
+                        <TouchableOpacity style={styles.registerButton} onPress={() => {
+                            setshowmerchantInfo(!showmerchantInfo)
+                            handleAddMerchant()
+                        }} >
+                            <Text style={styles.registerButtonText}>
                                 {merchantObject && <BoldText color={Colors.white} size={16} text={`Add ${merchantObject.name}`} />}
-
-                                <ArrowForward />
-                            </HStack>
-                        </Actionsheet.Item>
+                            </Text>
+                        </TouchableOpacity>
 
                     </Actionsheet.Content>
                 }
@@ -234,9 +222,9 @@ function Merchants({ navigation }) {
     );
 }
 
- 
 
-export default  Merchants;
+
+export default Merchants;
 
 
 const styles = StyleSheet.create({
@@ -255,9 +243,10 @@ const styles = StyleSheet.create({
         width: "90%",
         borderWidth: 1,
         height: 55,
-        // marginTop: 30,
-        // marginBottom: 30,
+    },
 
+    input: { width: '100%', padding: 15, marginVertical: 10, borderColor: '#ddd', borderWidth: 1, borderRadius: 5 },
 
-    }
+    registerButton: { backgroundColor: Colors.dark, paddingVertical: 15, width: '90%', alignItems: 'center', borderRadius: 5, marginVertical: 10, marginTop: 50, height: 55, alignSelf: "center" },
+    registerButtonText: { color: '#FFF', fontWeight: 'bold' },
 });
