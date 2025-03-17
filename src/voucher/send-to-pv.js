@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Box, VStack, Text, Input, Button, HStack, Image, Pressable, ScrollView, Divider, Select, CheckIcon, Center, Icon, Actionsheet, Stack } from "native-base";
-import { FlatList, Keyboard, StyleSheet, TextInput, TouchableOpacity, View } from "react-native";
+import { FlatList, Keyboard, RefreshControl, StyleSheet, TextInput, TouchableOpacity, View } from "react-native";
 import { ArrowLeft, Landmark, Wifi } from "lucide-react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ArrowForward, BackIcon } from "../global-components/icons";
@@ -8,12 +8,13 @@ import { Color } from "../global-components/colors";
 import { appState } from "../state";
 import { BoldText, BoldText1, BoldText2 } from "../global-components/texts";
 import { Loader } from "../global-components/loader";
+import { CustomButtons } from "../global-components/buttons";
 
 const Colors = Color()
 
 
 const PocketVoucherTransfer = ({ navigation }) => {
-    const { Transactions, Loading, SelectedBank, AllUsers, InitiatePayout, GetAllUsers } = appState()
+    const { Transactions, Loading, SelectedBank, AllUsers, InitiatePayout, GetAllUsers, User, GetAllTransactions } = appState()
     const [AccountNumber, setAccountNumber] = useState("")
     const [Amount, setAmount] = useState(0);
     const [AccountHolder, setAccountHolder] = useState(null)
@@ -34,7 +35,7 @@ const PocketVoucherTransfer = ({ navigation }) => {
     React.useEffect(() => {
 
         const unsubscribe = navigation.addListener('focus', async () => {
-
+            GetAllTransactions()
             GetAllUsers()
         });
 
@@ -53,122 +54,139 @@ const PocketVoucherTransfer = ({ navigation }) => {
 
     return (
         <>
-            {/* {console.log(AllUsers)} */}
-            <SafeAreaView>
+            {/* {console.log(User.phone)} */}
+            <SafeAreaView style={{
+                display: "flex",
+                flex: 1,
+                backgroundColor:Colors.white
+            }} >
                 <HStack space={7} bg="#fff" alignItems="center" paddingVertical={18} pt={6} pb={6} p={2}>
                     <BackIcon />
                     <Text fontSize="lg" fontWeight="bold">Transfer to Pocket Voucher</Text>
                 </HStack>
 
-                {/* Banner */}
-                <Image
-                    source={{ uri: "https://www.myheartland.bank/hs-fs/hubfs/EHASWT%20-%20Feature%20Banners%20(44).png?width=1500&height=420&name=EHASWT%20-%20Feature%20Banners%20(44).png" }}
-                    alt="Banner"
-                    w="90%"
-                    h={20}
-                    style={{
-                        alignSelf: "center"
+
+                <FlatList
+                    data={[0]}
+                    renderItem={() => {
+                        return <>
+                            {/* Banner */}
+                            <Image
+                                source={{ uri: "https://www.myheartland.bank/hs-fs/hubfs/EHASWT%20-%20Feature%20Banners%20(44).png?width=1500&height=420&name=EHASWT%20-%20Feature%20Banners%20(44).png" }}
+                                alt="Banner"
+                                w="90%"
+                                h={20}
+                                style={{
+                                    alignSelf: "center"
+                                }}
+                            />
+
+                            {/* Input Fields */}
+                            <VStack p={4} space={3} mt={8}
+                                style={[{
+                                    backgroundColor: "#EAEAEA",
+                                    width: "95%",
+                                    alignSelf: "center",
+                                    borderRadius: 10,
+                                }, styles.shadowBox]}>
+                                <Text fontWeight="bold">Recipient Account</Text>
+
+                                <TextInput style={{ marginTop: 10, borderWidth: 0.4, padding: 15, borderColor: "grey", borderRadius: 10 }}
+                                    // onChangeText={setAccountNumber}
+                                    onChangeText={handleInputChange}
+                                    value={AccountNumber}
+                                    placeholderTextColor='grey'
+                                    placeholder="Phone Number./ Name / Email" />
+
+
+                                <Text color="#459978" fontWeight="light">Free, Fast, & Easy</Text>
+
+                            </VStack>
+
+
+                            {AccountNumber.length > 0 && suggestions.length > 0 &&
+
+                                suggestions.map((item, index) => {
+                                    return <Stack>
+                                        {item.phone.slice(-10) != User.phone &&
+                                            <TouchableOpacity
+                                                key={index}
+                                                onPress={() => {
+                                                    setEnterAmountPop(true)
+                                                    setAccountHolder({
+                                                        AccountNumber: item.phone.slice(-10),
+                                                        account_name: `${item.firstName} ${item.lastName}`,
+                                                        id: item.userID,
+                                                    })
+                                                }}
+                                                style={{
+                                                    backgroundColor: "#F6F6F6",
+                                                    marginBottom: 4,
+                                                    paddingVertical: 10,
+                                                    paddingRight: 10,
+                                                    paddingLeft: 20,
+                                                    width: "100%",
+                                                    borderRadius: 5,
+                                                    flexDirection: "row",
+                                                }} >
+                                                <VStack alignItems="flex-start" py={3} >
+                                                    <Text fontWeight="medium" >{`${item.firstName} ${item.lastName}`}</Text>
+                                                    <Text color="gray.400">Pocket Voucher - {item.phone.slice(-10)}</Text>
+                                                </VStack>
+                                            </TouchableOpacity>
+                                        }
+
+                                    </Stack>
+                                })
+                            }
+
+
+                            {Transactions && Transactions.filter(e => e.type == "PV-PAYOUT").length > 0 &&
+
+                                <VStack px={4} py={3} mt={10}
+                                    style={[{
+                                        backgroundColor: "#EAEAEA",
+                                        width: "95%",
+                                        alignSelf: "center",
+                                        borderRadius: 10,
+                                    }, styles.shadowBox]} >
+                                    <HStack justifyContent="space-between" mb={5} >
+                                        <Text fontWeight="medium">Recents</Text>
+                                    </HStack>
+                                    {uniqueData.filter(e => e.type == "PV-PAYOUT").map((item, index) => {
+                                        return <TouchableOpacity onPress={() => {
+                                            setEnterAmountPop(true)
+                                            setAccountHolder({
+                                                AccountNumber: item.data.bank_account.account,
+                                                account_name: item.data.bank_account.name,
+                                                id: item.to,
+                                            })
+                                        }} >
+                                            <HStack alignItems="center" py={3} >
+                                                <VStack ml={3} flex={1}>
+                                                    <Text fontWeight="medium" >{item.data.receiverName}</Text>
+                                                    <Text color="gray.400">{item.data.bank_account.account} - {item.data.bank_account.bank_name}</Text>
+                                                </VStack>
+                                            </HStack>
+                                        </TouchableOpacity>
+                                    })}
+
+                                </VStack>
+                            }
+                        </>
+
                     }}
+
+                    refreshControl={
+                        <RefreshControl refreshing={Loading} onRefresh={() => {
+                            GetAllTransactions();
+                            GetAllUsers()
+                        }} />
+                    }
+
+
                 />
 
-                {/* Input Fields */}
-                <VStack p={4} space={3} mt={8}
-                    style={[{
-                        backgroundColor: "#EAEAEA",
-                        width: "95%",
-                        alignSelf: "center",
-                        borderRadius: 10,
-                    }, styles.shadowBox]}>
-                    <Text fontWeight="bold">Recipient Account</Text>
-
-                    <TextInput style={{ marginTop: 10, borderWidth: 0.4, padding: 15, borderColor: "grey", borderRadius: 10 }}
-                        // onChangeText={setAccountNumber}
-                        onChangeText={handleInputChange}
-                        value={AccountNumber}
-                        placeholder="Phone Number./ Name / Email" />
-
-
-                    <Text color="#459978" fontWeight="light">Free, Fast, & Easy</Text>
-
-                </VStack>
-
-
-
-                {AccountNumber.length > 0 && suggestions.length > 0 &&
-                    <FlatList
-                        data={AccountNumber.length > 0 && suggestions}
-                        renderItem={({ item, index }) => (
-                            <Stack>
-                                <TouchableOpacity
-                                    key={index}
-                                    onPress={() => {
-                                        setEnterAmountPop(true)
-                                        setAccountHolder({
-                                            AccountNumber: item.phone.slice(-10),
-                                            account_name: `${item.firstName} ${item.lastName}`,
-                                            id: item.userID,
-                                        })
-                                    }}
-                                    style={{
-                                        backgroundColor: "#F6F6F6",
-                                        marginBottom: 4,
-                                        paddingVertical: 10,
-                                        paddingRight: 10,
-                                        paddingLeft: 20,
-                                        width: "100%",
-                                        borderRadius: 5,
-                                        flexDirection: "row",
-                                    }} >
-                                    <VStack alignItems="flex-start" py={3} >
-                                        <Text fontWeight="medium" >{`${item.firstName} ${item.lastName}`}</Text>
-                                        <Text color="gray.400">Pocket Voucher - {item.phone.slice(-10)}</Text>
-                                    </VStack>
-                                </TouchableOpacity>
-
-                            </Stack>
-                        )}
-                        keyExtractor={(item, index) => index.toString()}
-                    />
-                }
-
-
-
-                {Transactions && Transactions.filter(e => e.type == "PV-PAYOUT").length > 0 &&
-
-
-                    <VStack px={4} py={3} mt={10}
-                        style={[{
-                            backgroundColor: "#EAEAEA",
-                            width: "95%",
-                            alignSelf: "center",
-                            borderRadius: 10,
-                        }, styles.shadowBox]} >
-                        <HStack justifyContent="space-between" mb={5} >
-                            <Text fontWeight="medium">Recents</Text>
-                        </HStack>
-                        <FlatList
-                            data={uniqueData.filter(e => e.type == "PV-PAYOUT")}
-                            keyExtractor={(item) => item.id}
-                            renderItem={({ item }) => (
-                                <TouchableOpacity onPress={() => {
-                                    setEnterAmountPop(true)
-                                    setAccountHolder({
-                                        AccountNumber: item.data.bank_account.account,
-                                        account_name: item.data.bank_account.name,
-                                        id: item.to,
-                                    })
-                                }} >
-                                    <HStack alignItems="center" py={3} borderBottomWidth={1} borderColor="gray.200">
-                                        <VStack ml={3} flex={1}>
-                                            <Text fontWeight="medium" >{item.data.receiverName}</Text>
-                                            <Text color="gray.400">{item.data.bank_account.account} - {item.data.bank_account.bank_name}</Text>
-                                        </VStack>
-                                    </HStack>
-                                </TouchableOpacity>
-                            )}
-                        />
-                    </VStack>
-                }
             </SafeAreaView >
 
             <Actionsheet isOpen={EnterAmountPop} onClose={() => {
@@ -194,7 +212,7 @@ const PocketVoucherTransfer = ({ navigation }) => {
                                     alignItems: "center",
                                 }} >
                                     <BoldText2 text="₦" color="#000" />
-                                    <TextInput style={[styles.input, { fontSize: 20, fontWeight: 500, color: "#000" }]} placeholder="5,000.00 - 1,000,000.00" onChangeText={setAmount} value={Amount} keyboardType='numeric' />
+                                    <TextInput style={[styles.input, { fontSize: 20, fontWeight: 500, color: "#000", width: "95%", padding: 10 }]} placeholder="5,000.00 - 1,000,000.00" onChangeText={setAmount} value={Amount} keyboardType='numeric' />
                                 </HStack>
                                 <Divider />
                                 <HStack mt={4} justifyContent="space-between" paddingVertical={10} >
@@ -220,13 +238,12 @@ const PocketVoucherTransfer = ({ navigation }) => {
 
                             <View style={[{ padding: 15, width: "100%", marginTop: 20 }, styles.shadowBox]}>
                                 <BoldText text={`Remark`} color="#000" />
-                                <TextInput style={[styles.input, { fontSize: 15, fontWeight: 300, color: "#000", marginTop: 25 }]}
+                                <TextInput style={[styles.input, { fontSize: 15, fontWeight: 300, color: "#000", marginTop: 25, }]}
                                     placeholder="What's the payment for?(optional)" onChangeText={setRemark} value={Remark} />
                             </View>
 
-
-                            <TouchableOpacity
-                                onPress={() => {
+                            <CustomButtons
+                                callBack={() => {
                                     if (Amount > 99) {
                                         setEnterAmountPop(!EnterAmountPop)
                                         setSuggestions([])
@@ -246,17 +263,11 @@ const PocketVoucherTransfer = ({ navigation }) => {
                                         })
                                     }
                                 }}
-                                style={[{
-                                    backgroundColor: Colors.dark,
-                                    padding: 17,
-                                    borderRadius: 20,
-                                    alignItems: "center",
-                                    marginTop: 50,
-                                    width: "95%",
-                                    opacity: Amount < 100 ? 0.2 : 1
-                                }]}>
-                                <BoldText text="Make payment" color="#fff" />
-                            </TouchableOpacity>
+                                primary={Amount > 99 && true}
+                                opacity={Amount < 100 ? 0.2 : 1}
+                                text="Make payment"
+                            />
+
                         </>
                     }
                 </Actionsheet.Content>

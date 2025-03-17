@@ -44,6 +44,7 @@ endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
+  include("/Users/aminigbo/Documents/apps/iVoucher/android/app/.cxx/RelWithDebInfo/d5kl262i/armeabi-v7a/rnasyncstorage_autolinked_build/cmake_install.cmake")
   include("/Users/aminigbo/Documents/apps/iVoucher/android/app/.cxx/RelWithDebInfo/d5kl262i/armeabi-v7a/RNDateTimePickerCGen_autolinked_build/cmake_install.cmake")
   include("/Users/aminigbo/Documents/apps/iVoucher/android/app/.cxx/RelWithDebInfo/d5kl262i/armeabi-v7a/rngesturehandler_codegen_autolinked_build/cmake_install.cmake")
   include("/Users/aminigbo/Documents/apps/iVoucher/android/app/.cxx/RelWithDebInfo/d5kl262i/armeabi-v7a/RNImagePickerSpec_autolinked_build/cmake_install.cmake")

@@ -7,6 +7,8 @@ import { HStack } from 'native-base';
 import { Color } from '../../global-components/colors';
 import { RequestOtpController } from '../controllers';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Input } from '../../global-components/input';
+import { CustomButtons } from '../../global-components/buttons';
 
 const Colors = Color()
 export default function RequestOTP({ navigation }) {
@@ -24,7 +26,7 @@ export default function RequestOTP({ navigation }) {
         })
     }
     return (
-        <SafeAreaView flex={1} style={{backgroundColor:"#fff"}} >
+        <SafeAreaView flex={1} style={{ backgroundColor: "#fff" }} >
             <View style={styles.container}>
                 <HStack alignItems="flex-start" justifyContent="flex-start" mb={20} >
                     <TouchableOpacity onPress={() => navigation.replace("Login")}>
@@ -35,14 +37,25 @@ export default function RequestOTP({ navigation }) {
                 <Text style={styles.welcomeText}>Forgot password</Text>
                 <Text style={styles.orText}>If you have an account with us, an OTP will be sent to your email.</Text>
 
-                <TextInput style={styles.input} placeholder="Enter your email" onChangeText={setEmail} />
+                {/* <TextInput style={styles.input} placeholder="Enter your email" onChangeText={setEmail} /> */}
+
+                <Input
+                    Placeholder="example@email.com"
+                    Label
+                    LabelText="Enter your Email"
+                    onChange={setEmail}
+                />
             </View>
 
-            <View style={{ padding: 20 }}>
-                <TouchableOpacity onPress={handleRequestOTP}
-                    style={styles.loginButton}>
-                    {loading ? <ActivityIndicator color={Colors.white} /> : <Text style={styles.loginButtonText}>Proceed</Text>}
-                </TouchableOpacity>
+            <View style={{ padding: 20 }}> 
+
+                <CustomButtons
+                    text="Proceed"
+                    primary
+                    Loading={loading} 
+                    callBack={handleRequestOTP}
+                />
+
             </View>
         </SafeAreaView>
     );
@@ -55,7 +68,7 @@ const styles = StyleSheet.create({
     forgotPassword: { alignSelf: 'flex-end', marginVertical: 10 },
     loginButton: { backgroundColor: '#000', paddingVertical: 15, width: '100%', alignItems: 'center', borderRadius: 5, marginVertical: 10 },
     loginButtonText: { color: '#FFF', fontWeight: 'bold' },
-    orText: { marginBottom: 40, marginTop: -10 },
+    orText: { marginBottom: 20, marginTop: -10 },
     socialButtons: { flexDirection: 'row', justifyContent: 'space-between', width: '60%' },
     registerText: { color: Colors.dark, marginTop: 20, textAlign: "center" },
 });

@@ -246,20 +246,21 @@ export function FetcAllBanksController(setLoading, SaveBanks) {
 }
 
 // resolve bank
-export function ResolveBankController(setLoading, bank, account, setAccountHolder, setEnterAmountPop, SelectedBank) {
+export function ResolveBankController(setLoading, bank, account, setAccountHolder, setEnterAmountPop, SelectedBank, navigation) {
     ResolveBankModel(bank, account)
         .then(response => {
             if (response.success == false) {
                 setLoading(false)
                 return Alert.alert("Error", response.message,)
             }
-            setEnterAmountPop(true)
+            // setEnterAmountPop(true)
             let data = {
                 ...response.data,
                 logo: SelectedBank.logo
             }
             // console.log("response.data,", data)
-            setAccountHolder(data)
+            // setAccountHolder(data)
+            navigation.navigate("Amount-page", { data: data })
             setLoading(false)
         })
         .catch(error => {
@@ -280,7 +281,7 @@ export function InitiatePayoutController({ setLoading, payoutType, amount, narat
             // Alert.alert("Success", response.message)
             // console.log(response.data)
             GetAllTransactions()
-            navigation.navigate("view-transaction", { data: response.data })
+            navigation.replace("view-transaction", { data: response.data })
             setLoading(false)
         })
         .catch(error => {
@@ -289,7 +290,7 @@ export function InitiatePayoutController({ setLoading, payoutType, amount, narat
         })
 }
 
-export function FetchAllTransactions(Userid, SaveTrxn) {
+export function FetchAllTransactions(Userid, SaveTrxn, setLoading) {
     FetchTransactionsModel(Userid)
         .then(response => {
             if (response.success == false) {
@@ -297,9 +298,10 @@ export function FetchAllTransactions(Userid, SaveTrxn) {
             } else {
                 SaveTrxn(response.data)
             }
-
+            setLoading(false)
         })
         .catch(error => {
+            setLoading(false)
             disp_transactions([])
         })
 }
@@ -311,6 +313,7 @@ export function ConversionRateController(setLoading, amount, setResponse, setloa
         .then(response => {
             if (response.success == false) {
                 setLoading(false)
+                setloadingText("")
                 return Alert.alert("Error", response.message,)
             }
             setLoading(false)
@@ -367,12 +370,13 @@ export function GetCardDetailsController(setLoading, reference, setCardInfo, set
 }
 
 // fund card controller
-export function FundCardController(setLoading, amount, chargeAmount, card_ref, setloadingText, user, setCardInfo, GetCardDetails, login, User) {
+export function FundCardController(setLoading, amount, chargeAmount, card_ref, setloadingText, user, setCardInfo, GetCardDetails, login, User, GetAllTransactions) {
     setloadingText("Funding your card")
     FundCardService(amount, chargeAmount, card_ref, user)
         .then(response => {
             if (response.success == false) {
                 setLoading(false)
+                setloadingText("")
                 return Alert.alert("Error", response.message,)
             }
             setLoading(false)
@@ -382,6 +386,7 @@ export function FundCardController(setLoading, amount, chargeAmount, card_ref, s
                 ...User,
                 ...response.data
             })
+            GetAllTransactions()
         })
         .catch(error => {
             setLoading(false)
@@ -391,12 +396,13 @@ export function FundCardController(setLoading, amount, chargeAmount, card_ref, s
 }
 
 // withdraw card controller
-export function WithdrawCardController(setLoading, setloadingText, login, User, amount, card_ref, GetCardDetails, setCardInfo) {
+export function WithdrawCardController(setLoading, setloadingText, login, User, amount, card_ref, GetCardDetails, setCardInfo, GetAllTransactions) {
     setloadingText("Withdrawing from card")
     CardWithdrawalService(amount, User.id, card_ref)
         .then(response => {
             if (response.success == false) {
                 setLoading(false)
+                setloadingText("")
                 return Alert.alert("Error", response.message,)
             }
             setLoading(false)
@@ -406,6 +412,7 @@ export function WithdrawCardController(setLoading, setloadingText, login, User, 
                 ...User,
                 ...response.data
             })
+            GetAllTransactions()
         })
         .catch(error => {
             console.log(error)

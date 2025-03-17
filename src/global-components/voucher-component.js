@@ -1,10 +1,11 @@
 import React from 'react';
-import { Text, Box, VStack, HStack, Divider, Stack } from 'native-base';
-import { Dimensions } from 'react-native';
+import { Text, Box, VStack, HStack, Divider, Stack, Center } from 'native-base';
+import { Dimensions, Platform } from 'react-native';
 import { Color } from './colors';
-import { Eye, EyeClose, VisaIcon } from './icons';
+import { AppIcon, Eye, EyeClose, VisaIcon } from './icons';
 import { NumberWithCommas } from '../utilities';
 import { TouchableOpacity } from 'react-native-gesture-handler';
+import { Asterisk } from 'lucide-react-native';
 const Colors = Color()
 export const VoucherComponent = ({ User, totalAmount, seeBal, setseeBal }) => {
     const screenWidth = Dimensions.get('window').width;
@@ -38,6 +39,7 @@ export const VoucherComponent = ({ User, totalAmount, seeBal, setseeBal }) => {
                         }} fontSize="2xl" fontWeight="bold">
                             Pocket Voucher
                         </Text>
+                        {/* <AppIcon color={Colors.secondary} /> */}
                     </VStack>
                     <Text color="white" fontSize="xs" mt={2}>
                         {User.bankInfo.account_number} - {User.bankInfo.bank_name}
@@ -181,13 +183,13 @@ export const VoucherComponent = ({ User, totalAmount, seeBal, setseeBal }) => {
 
 
 
-export const CardComponent = ({ User, CardInfo }) => {
+export const CardComponent = ({ User, CardInfo, setCardInfo, setclaimCard, setbottomSheetType, GetCardDetails }) => {
     const screenWidth = Dimensions.get('window').width;
     return <>
         <VStack >
             <HStack
                 width={screenWidth - 30}
-                height={200}
+                height={Platform.OS === 'ios' ? 180 : 150}
                 // borderRadius="md"
                 overflow="hidden"
                 shadow={2}
@@ -207,10 +209,16 @@ export const CardComponent = ({ User, CardInfo }) => {
                         // borderLeftWidth: 3,
                     }} p={3} justifyContent="space-between">
                     <VStack space={1}>
+                        <Text fontSize={14}
+                            fontWeight="light"
+                            color={Colors.white}
+                        >
+                            Card balance
+                        </Text>
                         <Text color="white" style={{
                             zIndex: 100
                         }} fontSize="2xl" fontWeight="bold">
-                            Pocket Voucher
+                            {CardInfo ? `$ ${NumberWithCommas(CardInfo.balance)}.00` : "--.--"}
                         </Text>
                     </VStack>
                     <VStack>
@@ -218,7 +226,7 @@ export const CardComponent = ({ User, CardInfo }) => {
                             {CardInfo ? `${CardInfo.card_holder.first_name} ${CardInfo.card_holder.last_name}` : "-- --"}
                         </Text>
                         <Text color="white" fontSize="xs" >
-                            {CardInfo ? `.... ${CardInfo.last_four}` : "-- --"}
+                            {CardInfo ? <> <Asterisk size={12} color="white" /> <Asterisk size={12} color="white" /> <Asterisk size={12} color="white" /> <Asterisk size={12} color="white" /> {CardInfo.last_four}</> : "-- --"}
                         </Text>
                     </VStack>
 
@@ -245,25 +253,37 @@ export const CardComponent = ({ User, CardInfo }) => {
                     }}
                     p={6} justifyContent="space-between">
                     <VStack space={2}>
-                        <Text color="white" fontSize={25} fontWeight="bold">
-                            ...
-                        </Text>
+                        <TouchableOpacity
+                            style={{
+                                padding: 10,
+                                borderRadius: 10
+                            }}
+                            onPress={() => {
+                                CardInfo && GetCardDetails(setCardInfo, setclaimCard, setbottomSheetType)
+                            }} >
+                            <Text color="white" fontSize={25} fontWeight="bold">
+                                ...
+                            </Text>
+                        </TouchableOpacity>
                     </VStack>
 
                     <VStack >
                         <VisaIcon />
                     </VStack>
-                    <Stack style={{
-                        height: 150,
-                        width: 150,
+                    <Center style={{
+                        height: Platform.OS === 'ios' ? 150 : 120,
+                        width: Platform.OS === 'ios' ? 150 : 120,
                         borderRadius: 150,
                         backgroundColor: Colors.white,
-                        opacity: 0.2,
+                        opacity: 0.4,
                         position: "absolute",
                         bottom: -20,
-                        left: -70,
+                        left: Platform.OS === 'ios' ? -70 : -50,
                         zIndex: 1
-                    }} />
+                    }} >
+                        <AppIcon color={Colors.dark} />
+                    </Center>
+
                     <Stack style={{
                         height: 60,
                         width: 60,

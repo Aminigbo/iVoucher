@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Text, Box, IconButton, VStack, HStack, Icon, Button, ScrollView, Stack, Divider, AddIcon, Image, Center, FlatList, Overlay, Actionsheet, CheckCircleIcon } from 'native-base';
+import { Text, Box, IconButton, VStack, HStack, Icon, Button, ScrollView, Stack, Divider, AddIcon, Image, Center, FlatList, Overlay, Actionsheet, CheckCircleIcon, ArrowForwardIcon, Avatar } from 'native-base';
 import { ActivityIndicator, Alert, AppState, Modal, PermissionsAndroid, Platform, RefreshControl, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { BoldText, BoldText1, BoldText2 } from '../global-components/texts';
 import { AcceptanceIcon, ArrowForward, CopyIcon, EmptyRecord, Eye, FastIcon, HelpCenterIcon, InIcon, MerchantIcon, NotificationIcon, OutIcon, RefeeralIcon, ScanIcon, SecureIcon, SendVoucherIcon, ScanQRIcon, VoucherIcon, CloseIcon, DeleteIcon, BiometricIcon } from '../global-components/icons';
@@ -10,17 +10,49 @@ import { Merchant } from '../utilities/data';
 // import { Transactions_action, User } from '../redux';
 import { connect } from 'react-redux';
 import { CreatePinController, FetchTransactionsModel, GetAppConfigService } from './service';
-import { formatDate, NumberWithCommas } from '../utilities';
+import { formatDate, NumberWithCommas, timeAgo } from '../utilities';
 import ShareLib from 'react-native-share';
 import { FetchUserInfoService } from '../auth/service';
 import { appState } from '../state';
 import { Loader } from '../global-components/loader';
 import { LinkButtons } from '../global-components/buttons';
-import { ArrowBigDown, ArrowBigUp, BadgePlus, CreditCard, IdCard, Landmark, PlusCircleIcon, Send, Share, Share2Icon, ShieldEllipsis, UserCheck } from 'lucide-react-native';
+import { ArrowBigDown, ArrowBigUp, BadgePlus, CopyCheck, CreditCard, IdCard, Landmark, PlusCircleIcon, Send, Share, Share2Icon, ShieldEllipsis, Ticket, TicketCheck, TicketCheckIcon, UserCheck, Wallet } from 'lucide-react-native';
+import Animated, {
+    useSharedValue,
+    withTiming,
+    useAnimatedStyle,
+    withRepeat,
+    withSequence,
+} from 'react-native-reanimated';
+import { CardIcon, ReferralCard } from '../assets/svgs';
+
 
 const Colors = Color()
 
 function Card({ navigation, disp_transactions, }) {
+
+
+    const offset = useSharedValue(0);
+
+    const style = useAnimatedStyle(() => ({
+        transform: [{ translateX: offset.value }],
+    }));
+
+    const OFFSET = 40;
+    const TIME = 250;
+
+    const handlePress = () => {
+        offset.value = withSequence(
+            // start from -OFFSET
+            withTiming(-OFFSET, { duration: TIME / 2 }),
+            // shake between -OFFSET and OFFSET 5 times
+            withRepeat(withTiming(OFFSET, { duration: TIME }), 5, true),
+            // go back to 0 at the end
+            withTiming(0, { duration: TIME / 2 })
+        );
+    };
+
+
 
     const [inputs, setInputs] = useState(['', '', '', '']);
     const [currentIndex, setCurrentIndex] = useState(0);
@@ -34,12 +66,14 @@ function Card({ navigation, disp_transactions, }) {
     const [Overlay, setOverlay] = React.useState(false)
     const [app_State, setApp_State] = useState(AppState.currentState);
     const [modalVisible, setModalVisible] = useState(false);
+    const [SingleToken, setSingleToken] = React.useState(null)
+    const [Vouchers, setVouchers] = useState([])
     const [loading, setLoading] = React.useState({
         transactions: false,
         pin: false
     })
 
-    let { User, Transactions, login, SaveTrxn, VerifyKYC } = appState()
+    let { User, Transactions, login, SaveTrxn, VerifyKYC, handleFetchVoucher, handleDeactivateToken, Loading, loadingText } = appState()
 
 
     const requestNotificationPermission = async () => {
@@ -149,6 +183,7 @@ function Card({ navigation, disp_transactions, }) {
             handleFetchTransactions()
             handleFetchAppConfig()
             FetchUserInfo()
+            handleFetchVoucher(setVouchers)
 
         });
 
@@ -270,23 +305,44 @@ function Card({ navigation, disp_transactions, }) {
     return !User ? navigation.replace("Login") : (
         // return (
         <>
-            
+            {/* {console.log(Vouchers.length)} */}
+
             <SafeAreaView style={{
                 backgroundColor: "#fff", display: "flex", flex: 1,
             }} >
 
-                <HStack alignItems="center" justifyContent="space-between" paddingVertical={18} pt={6} pb={4} p={2} >
-                    <Text fontSize="sm" fontWeight="bold">{User && User.firstName + " " + User.lastName}</Text>
-                    <HStack space={7} style={{ marginRight: 15 }} >
-                        <TouchableOpacity onPress={() => { navigation.navigate("Support", { user: User.id }) }} >
+                <HStack alignItems="center" justifyContent="space-between"
+                    paddingVertical={18} pt={6} pb={4} p={2} >
+
+
+                    <HStack space={3} style={{ marginRight: 15, alignItems: "center" }} >
+                        <TouchableOpacity
+                            onPress={() => { navigation.navigate("Support", { user: User.id }) }}
+                        // onPress={handlePress}
+                        >
+                            <Avatar size="md" />
+                        </TouchableOpacity >
+
+                        <VStack>
+                            <Text fontSize="lg" fontWeight="normal">Welcome</Text>
+                            <Text fontSize="lg" fontWeight="bold">{User && User.firstName}</Text>
+                        </VStack>
+
+                    </HStack>
+
+                    <HStack space={12} style={{ marginRight: 15 }} >
+                        <TouchableOpacity
+                            onPress={() => { navigation.navigate("Support", { user: User.id }) }}
+                        // onPress={handlePress}
+                        >
                             <HelpCenterIcon />
                         </TouchableOpacity >
 
-                        {/* <TouchableOpacity onPress={() => {
+                        <TouchableOpacity onPress={() => {
                             navigation.navigate("Notifications")
                         }}>
                             <NotificationIcon />
-                        </TouchableOpacity> */}
+                        </TouchableOpacity>
 
                     </HStack>
                 </HStack>
@@ -296,89 +352,104 @@ function Card({ navigation, disp_transactions, }) {
                     data={[0]}
                     renderItem={() => {
                         return <>
-                            <VStack space={4} >
+                            <VStack space={4} mt={4} >
                                 <VoucherComponent
-                                    User={User} 
+                                    User={User}
                                     seeBal={seeBal}
                                     setseeBal={setseeBal}
                                 />
+
+                                {/* <Animated.View style={[{
+                                    width: 100,
+                                    height: 100,
+                                    margin: 50,
+                                    borderRadius: 15,
+                                    backgroundColor: '#b58df1',
+                                }, style]} /> */}
+
                                 {/* Quick Action Buttons */}
                                 <VStack bg="white" shadow={0.1}>
-                                    <HStack bg="white" space={4} alignItems="center" p={4} justifyContent="space-around" >
-                                        <TouchableOpacity onPress={() => navigation.navigate("Merchants")} >
-                                            <VStack alignItems="center" space={2}>
-                                                <Center style={{
-                                                    borderWidth: 0.4,
-                                                    borderRadius: 50,
-                                                    borderColor: Colors.primary,
-                                                    width: 40,
-                                                    height: 40
-                                                }} >
-                                                    <Icon as={<UserCheck size={15} />} color={Colors.primary} />
-                                                </Center>
-                                                <Text fontSize="sm" light>Merchants</Text>
-                                            </VStack>
-                                        </TouchableOpacity>
-                                        <TouchableOpacity onPress={onShareToken}>
-                                            <VStack alignItems="center" space={2}>
-                                                <Center style={{
-                                                    borderWidth: 0.4,
-                                                    borderRadius: 50,
-                                                    borderColor: Colors.primary,
-                                                    width: 40,
-                                                    height: 40
-                                                }} >
-                                                    <Icon as={<Share2Icon size={15} />} color={Colors.primary} />
-                                                </Center>
-                                                <Text fontSize="sm" light>Refer & Earn</Text>
-                                            </VStack>
+                                    <HStack
+                                        bg="white"
+                                        alignItems="center" p={4}
+                                        justifyContent="space-around"
+                                    >
 
+                                        <TouchableOpacity onPress={() => navigation.navigate("Voucher")} >
+                                            <VStack alignItems="center" space={2}>
+                                                <Center style={{
+                                                    borderWidth: 0,
+                                                    borderRadius: 50,
+                                                    backgroundColor: Colors.accent,
+                                                    width: 45,
+                                                    height: 45
+                                                }} >
+                                                    <Icon as={<Ticket size={25} strokeWidth={1.6} />} color={Colors.primary} />
+                                                </Center>
+                                                <Text fontSize="sm" light>Voucher</Text>
+                                            </VStack>
                                         </TouchableOpacity>
 
                                         <TouchableOpacity onPress={() => {
-                                            setbottomSheet(!bottomSheet)
-                                            setbottomSheetType("SEND-MONEY")
+                                            navigation.navigate("Send-to-pv");
                                         }}>
                                             <VStack alignItems="center" space={2}>
                                                 <Center style={{
-                                                    borderWidth: 0.4,
+                                                    borderWidth: 0,
                                                     borderRadius: 50,
-                                                    borderColor: Colors.primary,
-                                                    width: 40,
-                                                    height: 40
+                                                    backgroundColor: Colors.accent,
+                                                    width: 45,
+                                                    height: 45
                                                 }} >
-                                                    <Icon as={<Send size={15} />} color={Colors.primary} />
+                                                    <Icon as={<Wallet size={25} strokeWidth={1.6} />} color={Colors.primary} />
                                                 </Center>
-                                                <Text fontSize="sm" light>Send</Text>
+                                                <Text fontSize="sm" light>To Pocket</Text>
                                             </VStack>
 
                                         </TouchableOpacity>
 
                                         <TouchableOpacity onPress={() => {
+                                            navigation.navigate("Send-to-bank");
+                                        }}>
+                                            <VStack alignItems="center" space={2}>
+                                                <Center style={{
+                                                    borderWidth: 0,
+                                                    borderRadius: 50,
+                                                    backgroundColor: Colors.accent,
+                                                    width: 45,
+                                                    height: 45
+                                                }} >
+                                                    <Icon as={<Landmark size={25} strokeWidth={1.6} />} color={Colors.primary} />
+                                                </Center>
+                                                <Text fontSize="sm" light>To Bank</Text>
+                                            </VStack>
+
+                                        </TouchableOpacity>
+
+                                        {/* <TouchableOpacity onPress={() => {
                                             navigation.navigate("Cards")
 
                                         }} >
                                             <VStack alignItems="center" space={2}>
                                                 <Center style={{
-                                                    borderWidth: 0.4,
+                                                    borderWidth: 0,
                                                     borderRadius: 50,
-                                                    borderColor: Colors.primary,
+                                                    // borderColor: Colors.primary,
                                                     width: 40,
                                                     height: 40
                                                 }} >
-                                                    <Icon as={<CreditCard size={15} />} color={Colors.primary} />
+                                                    <Icon as={<CreditCard size={25} strokeWidth={1} />} color={Colors.primary} />
                                                 </Center>
                                                 <Text fontSize="sm" light>Card</Text>
                                             </VStack>
-                                        </TouchableOpacity>
+                                        </TouchableOpacity> */}
                                     </HStack>
-
 
                                     <HStack
                                         space={5}
                                         style={{
                                             height: 120,
-                                            backgroundColor: Colors.white,
+                                            backgroundColor: Colors.accent,
                                             // backgroundColor: "#E6E6E6",
                                             margin: 15,
                                             position: "relative",
@@ -386,6 +457,7 @@ function Card({ navigation, disp_transactions, }) {
                                             justifyContent: "center",
                                             alignItems: "center",
                                             padding: 15,
+                                            marginTop: 20,
                                             // opacity: 0.3, 
                                         }} >
                                         <VStack
@@ -395,72 +467,94 @@ function Card({ navigation, disp_transactions, }) {
                                                 justifyContent: "flex-start",
                                                 alignItems: "flex-start",
                                             }}>
-                                            <BoldText2
+                                            <BoldText
                                                 color={Colors.dark}
-                                                size={16}
-                                                text="You’ll get 2% voucher token when you refeer a friend to use iVoucher"
+                                                size={14}
+                                                text="Refer a friend to Pocket Voucher and earn a 2% voucher token as a reward!"
                                             />
                                             <LinkButtons
+                                                Style={{
+                                                    backgroundColor: Colors.dark,
+                                                    borderRadius: 5,
+                                                    paddingHorizontal: 10,
+                                                    paddingVertical: 5,
+                                                }}
+                                                Color={Colors.white}
                                                 callBack={onShareToken}
                                                 text="Refeer" />
                                         </VStack>
 
                                         <Center flex={1} style={{ marginTop: 20 }} >
-                                            <RefeeralIcon />
+                                            <ReferralCard />
                                         </Center>
                                     </HStack>
 
 
-
-                                    {User && User.merchants.length < 1 ? <>
-
-                                        <Center style={{ marginVertical: 25 }} >
-                                            {/* <EmptyRecord /> */}
-                                            <VStack alignItems="center" justifyContent="center" mt={4} >
-                                                <TouchableOpacity onPress={() => {
-                                                    navigation.navigate("Merchants")
-                                                    // console.log(User.firstName)
-                                                }} style={{
-                                                    alignItems: "center"
-                                                }} >
-                                                    {/* <AddIcon style={{ color: Colors.dark, zIndex: 100 }} /> */}
-                                                    <Center style={{
-                                                        borderWidth: 0.9,
-                                                        borderRadius: 50,
-                                                        borderColor: Colors.primary,
-                                                        width: 60,
-                                                        height: 60
-                                                    }} >
-                                                        <Icon as={<UserCheck size={27} />} color={Colors.primary} />
-                                                    </Center>
-                                                    <BoldText text="Add first merchant" color="#000" style={{ marginTop: 15 }} />
-                                                </TouchableOpacity>
+                                    {!User.card &&
+                                        <HStack
+                                            space={5}
+                                            style={{
+                                                height: 120,
+                                                backgroundColor: Colors.accent,
+                                                margin: 15,
+                                                position: "relative",
+                                                borderRadius: 10,
+                                                justifyContent: "center",
+                                                alignItems: "center",
+                                                padding: 15,
+                                            }} >
+                                            <VStack
+                                                space={3}
+                                                style={{
+                                                    flex: 2,
+                                                    justifyContent: "flex-start",
+                                                    alignItems: "flex-start",
+                                                }}>
+                                                <BoldText
+                                                    color={Colors.dark}
+                                                    size={14}
+                                                    text="Claim your first Pocket Voucher virtual USD card"
+                                                />
+                                                <LinkButtons
+                                                    Style={{
+                                                        backgroundColor: Colors.dark,
+                                                        borderRadius: 5,
+                                                        paddingHorizontal: 10,
+                                                        paddingVertical: 5,
+                                                    }}
+                                                    Color={Colors.white}
+                                                    callBack={onShareToken}
+                                                    text="Create" />
                                             </VStack>
-                                        </Center>
 
+                                            <Center flex={1} style={{ marginTop: 20 }} >
+                                                <CardIcon size={70} strokeWidth={1} color={Colors.primary} />
+                                            </Center>
+                                        </HStack>
+                                    }
 
-                                    </> : <>
-
+                                    {Vouchers.length > 0 && <>
 
                                         <HStack justifyContent="space-between" alignItems="center" p={2} mb={-2} style={{ paddingLeft: 20, marginTop: 20 }} >
-                                            <BoldText text="Your Merchants" color="#000" />
+                                            <BoldText text="Active vouchers" color="#000" />
+                                            {Vouchers && Vouchers.length > 3 &&
+                                                <TouchableOpacity onPress={() => {
+                                                    navigation.navigate("Voucher")
+                                                }} >
+                                                    <HStack justifyContent="flex-end" alignItems="center" space={4} >
+                                                        <Text fontWeight={500} color={Colors.primary} >See All</Text>
+                                                        <ArrowForward color={Colors.primary} />
+                                                    </HStack>
+                                                </TouchableOpacity>
+                                            }
                                         </HStack>
 
                                         <Stack p={2} mx={4} shadow={0.5} >
                                             <Box mb={11} >
                                                 {
-                                                    // console.log(User.merchants.length)
 
-                                                    User && User.merchants.slice(0, 3).map((items, index) => {
+                                                    Vouchers.slice(0, 3).map((items, index) => {
                                                         return <HStack alignItems="center" mt={6} space={2} >
-                                                            <Image
-                                                                style={{
-                                                                    height: 30, width: 30, borderRadius: 40, zIndex: 1000, marginRight: 10
-                                                                }}
-                                                                source={{
-                                                                    uri: items.img
-                                                                }} alt={items.name} size="xl" />
-                                                            {/* <VStack ml={2}> */}
                                                             <TouchableOpacity
                                                                 style={{
                                                                     display: "flex",
@@ -470,30 +564,33 @@ function Card({ navigation, disp_transactions, }) {
                                                                     alignItems: "center"
                                                                 }}
                                                                 onPress={() => {
-                                                                    navigation.push("Merchant-profile", { data: items })
-                                                                    // console.log(items)
+                                                                    setbottomSheetType("REVERSE TOKEN")
+                                                                    setSingleToken(items)
+                                                                    setbottomSheet(true)
                                                                 }} >
-                                                                <Stack>
-                                                                    <Text fontWeight="bold">{items.name}</Text>
-                                                                    <Text color={Colors.primary}>₦{NumberWithCommas(items.bal)}</Text>
-                                                                </Stack>
-                                                                <ArrowForward />
+                                                                <HStack space={3} >
+                                                                    <TicketCheckIcon color={items.resolved == false ? "mediumseagreen" : "crimson"} />
+                                                                    <VStack >
+                                                                        <HStack>
+                                                                            <Text fontWeight="medium" color={Colors.primary} >{items.token} </Text>
+                                                                        </HStack>
+                                                                        <Text fontWeight="light" >₦{NumberWithCommas(items.amount)} {items.remark && items.remark.slice(0, 15)}{items.remark.length > 15 && "..."}</Text>
+                                                                    </VStack>
+                                                                </HStack>
+                                                                <Text fontWeight="light" >{timeAgo(items.created_at)}</Text>
+                                                                {/* <ArrowForward /> */}
 
                                                             </TouchableOpacity>
-                                                            {/* </VStack> */}
                                                         </HStack>
 
                                                     })
                                                 }
                                             </Box>
-                                        </Stack>
-
-                                        {/* <Divider marginVertical={15} /> */}
+                                        </Stack>  *
                                     </>}
 
 
-                                    {/* {console.log(Transactions[0].type)} */}
-                                    {Transactions && Transactions.filter(e => e.type == "BANK-PAYOUT" || e.type == "PV-PAYOUT").length > 0 && <Divider style={{ opacity: 0.4 }} />}
+                                    {Transactions && Transactions.filter(e => e.type == "BANK-PAYOUT" || e.type == "PV-PAYOUT").length > 0 && <Divider style={{ opacity: 0.4, marginVertical: 20 }} />}
 
                                     <Stack p={5}  >
 
@@ -516,7 +613,7 @@ function Card({ navigation, disp_transactions, }) {
 
 
 
-                                        {Transactions && Transactions.filter(e => e.type == "BANK-PAYOUT" || e.type == "PV-PAYOUT").slice(0, 3).map((items, index) => {
+                                        {Transactions && Transactions.filter(e => e.type == "BANK-PAYOUT" || e.type == "PV-PAYOUT").slice(0, 4).map((items, index) => {
                                             return <TouchableOpacity
                                                 onPress={() => {
                                                     navigation.navigate("view-transaction", { data: items })
@@ -525,7 +622,6 @@ function Card({ navigation, disp_transactions, }) {
                                                 <HStack key={index} mt={5} alignItems="center" space={3} >
 
                                                     {items.type == "BANK-PAYOUT" && <Center style={{
-                                                        // borderWidth: 0.4,
                                                         borderRadius: 30,
                                                         backgroundColor: "#FEF4EA",
                                                         width: 35,
@@ -534,7 +630,6 @@ function Card({ navigation, disp_transactions, }) {
                                                         <Icon as={<ArrowBigUp size={19} />} color={Colors.primary} />
                                                     </Center>}
                                                     {items.type == "MERCHANT-TOPUP" && <Center style={{
-                                                        // borderWidth: 0.4,
                                                         borderRadius: 30,
                                                         backgroundColor: "#FEEAFD",
                                                         width: 30,
@@ -544,7 +639,6 @@ function Card({ navigation, disp_transactions, }) {
                                                     </Center>}
 
                                                     {items.type == "PV-PAYOUT" && <Center style={{
-                                                        // borderWidth: 0.4,
                                                         borderRadius: 30,
                                                         backgroundColor: "#EAFBF5",
                                                         width: 30,
@@ -561,7 +655,6 @@ function Card({ navigation, disp_transactions, }) {
                                                         </VStack>
 
                                                         <VStack  >
-                                                            {/* <Text fontWeight={700} > ₦{NumberWithCommas(items.amount)}</Text> */}
                                                             <Text style={{
                                                                 color: items.status == "processing" ? "#E0B77E" : items.status == "success" ? "#7EE0B9" : "#E07E80",
                                                                 paddingHorizontal: 5,
@@ -578,8 +671,6 @@ function Card({ navigation, disp_transactions, }) {
                                         })}
 
                                     </Stack>
-
-                                    {/* </>} */}
 
                                 </VStack>
                             </VStack>
@@ -676,76 +767,57 @@ function Card({ navigation, disp_transactions, }) {
             }}>
                 <Actionsheet.Content>
 
-                    {bottomSheetType == "SEND-MONEY" && <>
-                        <BoldText1 text="Choose destination" color={Colors.dark} style={{ marginTop: 30, }} />
-                        <HStack
-                            space={4}
-                            style={{
-                                // height: 400,
-                                padding: 20,
-                                width: "100%",
-                                // backgroundColor: "red",
-                                justifyContent: "space-between",
-                                alignItems: "center",
-                                marginBottom: 70
-                            }} >
-                            <VStack bg="gray.100" alignItems="flex-start" space={3} style={{
-                                // backgroundColor: "#E9DFDE",
-                                borderRadius: 10,
-                                height: 160,
-                                padding: 20,
-                                flex: 1
-                            }} >
-                                <TouchableOpacity onPress={() => {
-                                    navigation.navigate("Send-to-pv");
-                                    setbottomSheet(false)
+                    {bottomSheetType == "REVERSE TOKEN" && SingleToken && <>
+                        {/* {console.log(SingleToken)} */}
+                        <BoldText text={SingleToken && SingleToken.token} color="lightgrey" style={{ marginTop: 10 }} />
+
+                        <Stack mt={5} mb={10} style={{
+                            width: "100%",
+                            padding: 15
+                        }} >
+
+                            <TouchableOpacity onPress={() => { Clipboard.setString(SingleToken.token) }} >
+                                <HStack space={3} mb={5} >
+                                    <CopyCheck color={Colors.primary} />
+                                    <VStack >
+                                        <HStack justifyContent="space-between" width="95%">
+                                            <Text fontWeight="medium" fontSize={18} color={Colors.primary} >{SingleToken.token} </Text>
+                                            <Text fontWeight="bold" fontSize={18} >₦{NumberWithCommas(SingleToken.amount)}</Text>
+                                        </HStack>
+
+                                    </VStack>
+                                </HStack>
+                            </TouchableOpacity>
+                            {SingleToken.remark &&
+                                <Text fontWeight="light" style={{ margin: 10 }} >{SingleToken.remark}</Text>
+                            }
+
+                            <Text fontWeight="light" style={{ margin: 10 }} >{timeAgo(SingleToken.created_at)}</Text>
+
+                            <TouchableOpacity onPress={() => {
+                                setbottomSheet(false)
+                                handleDeactivateToken(SingleToken.token, setVouchers)
+                            }}  >
+                                <HStack alignItems="center" justifyContent="space-between" backgroundColor={Colors.dark} style={{
+                                    padding: 10,
+                                    borderRadius: 10,
+                                    marginTop: 30
                                 }} >
-
-                                    <HStack alignItems="center" space={1} mb={5}>
-                                        <Center style={{
-                                            borderRadius: 50,
-                                            backgroundColor: Colors.primary,
-                                            width: 25,
-                                            height: 25
-                                        }} >
-                                            <Icon as={<UserCheck size={15} />} color={Colors.background} />
-                                        </Center>
-                                        <BoldText1 text="Pocket Voucher" size={11} color={Colors.primary} />
+                                    <HStack space={4}>
+                                        <DeleteIcon />
+                                        <VStack>
+                                            <BoldText1 text="Deactivate Token" color={Colors.white} />
+                                            <BoldText
+                                                style={{ marginTop: 5 }}
+                                                text={`${NumberWithCommas(SingleToken.amount)} will be reversed to your wallet`} color="grey" />
+                                        </VStack>
                                     </HStack>
-                                    <Text style={{ fontWeight: 200 }} >Transfer to Pocket Voucher account</Text>
-
-                                </TouchableOpacity>
-                            </VStack>
-
-                            <VStack bg="gray.100" alignItems="flex-start" space={3} style={{
-                                // backgroundColor: "#E9DFDE",
-                                borderRadius: 10,
-                                height: 160,
-                                padding: 20,
-                                flex: 1
-                            }} >
-                                <TouchableOpacity onPress={() => {
-                                    navigation.navigate("Send-to-bank");
-                                    setbottomSheet(false)
-                                }} >
-                                    <HStack alignItems="center" space={3} mb={5}>
-                                        <Center style={{
-                                            borderRadius: 50,
-                                            backgroundColor: Colors.primary,
-                                            width: 25,
-                                            height: 25
-                                        }} >
-                                            <Icon as={<Landmark size={15} />} color={Colors.background} />
-                                        </Center>
-                                        <BoldText1 text="To Bank" size={11} color={Colors.primary} />
-                                    </HStack>
-                                    <Text style={{ fontWeight: 200 }} >Transfer to a bank account</Text>
-
-                                </TouchableOpacity>
-                            </VStack>
-                        </HStack>
-
+                                    <ArrowForwardIcon />
+                                </HStack>
+                            </TouchableOpacity>
+                        </Stack>
                     </>}
+
 
                 </Actionsheet.Content>
             </Actionsheet>
@@ -760,13 +832,14 @@ function Card({ navigation, disp_transactions, }) {
                 }}>
                 <View style={styles.overlay}>
                     <View style={styles.modalView}>
-                        <ShieldEllipsis size={150} strokeWidth={0.8} color={Colors.primary} />
+                        <ShieldEllipsis size={150} strokeWidth={1} color={Colors.primary} />
 
                         <BoldText
                             size={18}
                             color={Colors.dark}
                             style={{
-                                textAlign: "center"
+                                textAlign: "center",
+                                fontWeight: "bold"
                             }}
                             text="Your 4-digit pin has been set successfully."
                         />
@@ -775,7 +848,7 @@ function Card({ navigation, disp_transactions, }) {
 
                         <HStack space={4} style={{
                             alignItems: "center",
-                            paddingHorizontal: 10
+                            justifyContent: "space-between"
                         }} >
                             <Center style={{
                                 borderRadius: 30,
@@ -784,20 +857,20 @@ function Card({ navigation, disp_transactions, }) {
                                 height: 45,
                                 display: "flex",
                                 flexDirection: "row",
-                                justifyContent: "center"
+                                justifyContent: "center",
                             }} >
-                                <ArrowBigUp size={25} />
-                                <ArrowBigDown size={25} />
+                                <ArrowBigUp size={20} />
+                                <ArrowBigDown size={20} />
                             </Center>
-                            <Text fontSize="lg" fontWeight="light" color={Colors.dark}>
+                            <Text flex={1} fontSize="lg" fontWeight="normal" color={Colors.dark}>
                                 Send and receive money with your account seamlessly
                             </Text>
                         </HStack>
 
                         <HStack space={4} style={{
                             alignItems: "center",
+                            justifyContent: "space-between",
                             marginTop: 30,
-                            paddingHorizontal: 10
                         }} >
                             <Center style={{
                                 borderRadius: 30,
@@ -810,23 +883,28 @@ function Card({ navigation, disp_transactions, }) {
                             }} >
                                 <PlusCircleIcon size={25} color={Colors.primary} />
                             </Center>
-                            <Text fontSize="lg" fontWeight="light" color={Colors.dark}>
+                            <Text flex={1} fontSize="lg" fontWeight="normal" color={Colors.dark}>
                                 Add a merchant, top, and make purchases from your merchant wallets directly.
                             </Text>
                         </HStack>
 
 
-                        <TouchableOpacity style={styles.registerButton} onPress={() => {
-                            setModalVisible(false);
-                            requestNotificationPermission()
-                        }} >
-                            <Text style={styles.registerButtonText}>Okay</Text>
+                        <TouchableOpacity
+                            style={{
+                                marginVertical: 30,
+                            }}
+                            onPress={() => {
+                                setModalVisible(false);
+                                requestNotificationPermission()
+                            }} >
+                            <Text style={{ color: Colors.primary }}>Okay</Text>
                         </TouchableOpacity>
                     </View>
 
                 </View>
             </Modal>
 
+            <Loader loading={Loading} text={loadingText} />
         </>
     );
 }
@@ -916,7 +994,7 @@ const styles = StyleSheet.create({
         margin: 20,
         backgroundColor: 'white',
         borderRadius: 10,
-        padding: 35,
+        padding: 15,
         alignItems: 'center',
         shadowColor: '#000',
         shadowOffset: {

@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { Text, Box, IconButton, VStack, HStack, Icon, Button, ScrollView, Stack, Divider, AddIcon, Image, Center, FlatList, Overlay, Actionsheet, CheckCircleIcon, Alert, SmallCloseIcon } from 'native-base';
-import { Clipboard, Modal, PermissionsAndroid, Platform, RefreshControl, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
-import { BoldText, BoldText1, BoldText2 } from '../global-components/texts';
-import { AcceptanceIcon, ArrowForward, CopyIcon, EmptyRecord, Eye, FastIcon, HelpCenterIcon, InIcon, MerchantIcon, NotificationIcon, OutIcon, RefeeralIcon, ScanIcon, SecureIcon, SendVoucherIcon, ScanQRIcon, VoucherIcon, CloseIcon, DeleteIcon, BiometricIcon } from '../global-components/icons';
+import { Text, Box, VStack, HStack, Icon, Stack, Divider, AddIcon, Image, Center, FlatList, Overlay, Actionsheet, CheckCircleIcon, Alert, SmallCloseIcon } from 'native-base';
+import { Modal, PermissionsAndroid, Platform, RefreshControl, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
+import { BoldText, } from '../global-components/texts';
+import { ArrowForward } from '../global-components/icons';
 import { CardComponent } from '../global-components/voucher-component';
 import { Color } from '../global-components/colors';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -10,7 +10,7 @@ import { formatDate, ImagePicker, NumberWithCommas } from '../utilities';
 import { appState } from '../state';
 import { Loader } from '../global-components/loader';
 import { CustomButtons, LinkButtons } from '../global-components/buttons';
-import { Activity, ArrowBigDown, ArrowBigUp, ArrowDownUp, BadgePlus, ChartPie, CheckCheck, CheckCircle, Copy, CreditCard, Delete, DollarSign, Download, Ellipsis, EyeIcon, Globe, IdCard, Landmark, Plus, PlusCircleIcon, Send, Share, Share2Icon, ShieldEllipsis, Snowflake, UploadCloud, UserCheck } from 'lucide-react-native';
+import { Activity, ArrowBigDown, ArrowBigUp, ArrowDownUp, BadgePlus, ChartPie, CheckCheck, CheckCircle, Copy, CreditCard, Delete, DollarSign, Download, Ellipsis, EyeIcon, Globe, IdCard, Landmark, Menu, Minus, Plus, PlusCircleIcon, Send, Share, Share2Icon, ShieldEllipsis, Snowflake, UploadCloud, UserCheck } from 'lucide-react-native';
 
 const Colors = Color()
 
@@ -37,7 +37,7 @@ function Card({ navigation, disp_transactions, }) {
     const [yy, setYY] = React.useState("")
     const [nin, setNIN] = React.useState("")
 
-    let { User, Loading, Transactions, CardWithdrawal, SaveTrxn, VerifyNIN, CreateCard, ConversionRate, loadingText, GetCardDetails, FundCard } = appState()
+    let { User, Loading, Transactions, CardWithdrawal, SaveTrxn, VerifyNIN, CreateCard, ConversionRate, loadingText, GetCardDetails, FundCard, GetAllTransactions } = appState()
 
 
     const requestNotificationPermission = async () => {
@@ -72,7 +72,8 @@ function Card({ navigation, disp_transactions, }) {
     React.useEffect(() => {
 
         const unsubscribe = navigation.addListener('focus', async () => {
-            GetCardDetails(setCardInfo)
+            User.card && GetCardDetails(setCardInfo);
+            GetAllTransactions()
         });
 
         return unsubscribe;
@@ -91,7 +92,7 @@ function Card({ navigation, disp_transactions, }) {
             }} >
 
                 <HStack alignItems="center" justifyContent="space-between" paddingVertical={18} pt={6} pb={4} p={2} >
-                    <Text fontSize="xl" fontWeight="bold">Pocket Voucher Card</Text>
+                    <Text fontSize="xl" fontWeight="bold">USD Virtual Card</Text>
                 </HStack>
 
 
@@ -103,6 +104,10 @@ function Card({ navigation, disp_transactions, }) {
                                 <CardComponent
                                     User={User}
                                     CardInfo={CardInfo}
+                                    setCardInfo={setCardInfo}
+                                    setclaimCard={setclaimCard}
+                                    setbottomSheetType={setbottomSheetType}
+                                    GetCardDetails={GetCardDetails}
                                 />
                                 {/* Quick Action Buttons */}
                                 <VStack bg="white" shadow={0.1}>
@@ -111,24 +116,24 @@ function Card({ navigation, disp_transactions, }) {
                                         <>
                                             {User.card && <>
                                                 <Center style={{ marginVertical: 15 }} >
-                                                    <Text fontSize={14}
+                                                    <Text fontSize={12}
                                                         fontWeight="light"
-                                                        color={Colors.dark}
+                                                        color="grey"
                                                     >
-                                                        Card balance
+                                                        USD balance
                                                     </Text>
-                                                    <Text fontSize={24}
+                                                    <Text fontSize={20}
                                                         color={Colors.dark}
                                                         fontWeight="bold">
-                                                        {CardInfo ? `USD ${NumberWithCommas(NumberWithCommas(CardInfo.balance))}.00` : "--.--"}
+                                                        {User.UsdBal ? `USD ${NumberWithCommas(User.UsdBal)}.00` : "USD 0.00"}
                                                     </Text>
 
                                                 </Center>
                                             </>}
 
-                                            <HStack bg="white" space={12} alignItems="center" justifyContent="center"
+                                            <HStack bg="white" space={16} alignItems="center" justifyContent="center"
                                                 style={{
-                                                    marginVertical: 20,
+                                                    marginVertical: 15,
                                                     opacity: CardInfo ? 1 : 0.2
                                                 }}>
                                                 <TouchableOpacity onPress={() => {
@@ -140,11 +145,11 @@ function Card({ navigation, disp_transactions, }) {
                                                         <Center style={{
                                                             borderWidth: 0,
                                                             borderRadius: 50,
-                                                            borderColor: Colors.primary,
+                                                            backgroundColor: Colors.accent,
                                                             width: 40,
                                                             height: 40
                                                         }} >
-                                                            <Icon as={<Plus size={25} />} color={Colors.primary} />
+                                                            <Icon as={<CreditCard size={20} strokeWidth={2} />} color={Colors.primary} />
                                                         </Center>
                                                         <Text fontSize="sm" light>Top up</Text>
                                                     </VStack>
@@ -159,34 +164,14 @@ function Card({ navigation, disp_transactions, }) {
                                                         <Center style={{
                                                             borderWidth: 0,
                                                             borderRadius: 50,
-                                                            borderColor: Colors.primary,
+                                                            backgroundColor: Colors.accent,
                                                             width: 40,
                                                             height: 40
                                                         }} >
-                                                            <Icon as={<Download size={25} />} color={Colors.primary} />
+                                                            <Icon as={<Download size={20} strokeWidth={2} />} color={Colors.primary} />
                                                         </Center>
                                                         <Text fontSize="sm" light>Withdraw</Text>
                                                     </VStack>
-                                                </TouchableOpacity>
-
-                                                <TouchableOpacity onPress={() => {
-                                                    GetCardDetails(setCardInfo, setclaimCard, setbottomSheetType)
-                                                    // setclaimCard(true)
-                                                    // setbottomSheetType("SHOW-DETAILS")
-                                                }}>
-                                                    <VStack alignItems="center" space={2}>
-                                                        <Center style={{
-                                                            borderWidth: 0,
-                                                            borderRadius: 50,
-                                                            borderColor: Colors.primary,
-                                                            width: 40,
-                                                            height: 40
-                                                        }} >
-                                                            <Icon as={<EyeIcon size={25} />} color={Colors.primary} />
-                                                        </Center>
-                                                        <Text fontSize="sm" light>Details</Text>
-                                                    </VStack>
-
                                                 </TouchableOpacity>
 
                                                 <TouchableOpacity onPress={() => {
@@ -197,11 +182,11 @@ function Card({ navigation, disp_transactions, }) {
                                                         <Center style={{
                                                             borderWidth: 0,
                                                             borderRadius: 50,
-                                                            borderColor: Colors.primary,
+                                                            backgroundColor: Colors.accent,
                                                             width: 40,
                                                             height: 40
                                                         }} >
-                                                            <Icon as={<Ellipsis size={25} />} color={Colors.primary} />
+                                                            <Icon as={<Menu size={20} strokeWidth={2} />} color={Colors.primary} />
                                                         </Center>
                                                         <Text fontSize="sm" light>More</Text>
                                                     </VStack>
@@ -234,9 +219,9 @@ function Card({ navigation, disp_transactions, }) {
                                                 alignItems: "center",
                                                 marginBottom: 10
                                             }} >
-                                                {Transactions && Transactions.filter(e => e.type == "BANK-PAYOUT" || e.type == "PV-PAYOUT").length > 0 && <BoldText text="Transactions" color="#000" />}
+                                                {Transactions && Transactions.filter(e => e.type == "CARD").length > 0 && <BoldText text="Transactions" color="#000" />}
 
-                                                {Transactions && Transactions.filter(e => e.type == "BANK-PAYOUT" || e.type == "PV-PAYOUT").length > 5 &&
+                                                {Transactions && Transactions.filter(e => e.type == "CARD").length > 5 &&
                                                     <TouchableOpacity onPress={() => navigation.navigate("Notifications")} >
                                                         <HStack justifyContent="flex-end" alignItems="center" space={4} >
                                                             <Text fontWeight={500} color={Colors.primary} >See All</Text>
@@ -246,23 +231,27 @@ function Card({ navigation, disp_transactions, }) {
                                                 }
                                             </HStack>
 
-                                            {Transactions && Transactions.filter(e => e.type == "BANK-PAYOUT" || e.type == "PV-PAYOUT").slice(0, 3).map((items, index) => {
+                                            {Transactions && Transactions.filter(e => e.type == "CARD").slice(0, 3).map((items, index) => {
                                                 return <TouchableOpacity
                                                     onPress={() => {
                                                         navigation.navigate("view-transaction", { data: items })
                                                     }}
                                                 >
                                                     <HStack key={index} alignItems="center" space={3} style={{
-                                                        marginVertical: 20
+                                                        marginTop: 20
                                                     }} >
 
                                                         <Center style={{
                                                             borderRadius: 30,
-                                                            backgroundColor: "#EAFBF5",
+                                                            backgroundColor: items.flow == "IN" ? "#EAFBF5" : "#F9F1F1",
                                                             width: 30,
                                                             height: 30,
                                                         }} >
-                                                            <Icon as={<ArrowBigUp size={19} />} color={Colors.primary} />
+
+                                                            {items.flow == "IN" ?
+                                                                <Icon as={<ArrowBigDown size={19} />} color={Colors.primary} /> :
+                                                                <Icon as={<ArrowBigUp size={19} />} color={Colors.primary} />
+                                                            }
                                                         </Center>
                                                         <HStack style={{ justifyContent: "space-between", flex: 1 }} >
                                                             <VStack  >
@@ -270,14 +259,20 @@ function Card({ navigation, disp_transactions, }) {
                                                                 <Text fontWeight="light" fontSize="xs" >{formatDate(items.created_at)}</Text>
                                                             </VStack>
 
-                                                            <VStack  >
+                                                            <HStack alignItems="center" space={0.3} >
+                                                                {items.flow == "IN" ?
+                                                                    <AddIcon size={3} color="mediumseagreen" />
+                                                                    :
+                                                                    <Icon as={<Minus size={11} />} color="crimson" />
+                                                                }
                                                                 <Text style={{
                                                                     paddingHorizontal: 5,
                                                                     paddingVertical: 1,
+                                                                    // this is the end
                                                                     borderRadius: 6,
                                                                     fontSize: 13,
                                                                 }} >${NumberWithCommas(items.amount)}</Text>
-                                                            </VStack>
+                                                            </HStack>
                                                         </HStack>
                                                     </HStack>
 
@@ -353,14 +348,14 @@ function Card({ navigation, disp_transactions, }) {
                                                         </Text>
 
                                                         <Text fontWeight="light" fontSize={16}>
-                                                            $3.00 non-refundable card creation fee
+                                                            $2.00 non-refundable card creation fee
                                                         </Text>
                                                     </VStack>
                                                 </HStack>
                                             </HStack>
 
 
-                                            <Stack mt={10} >
+                                            <Stack mt={4} >
 
                                                 <LinkButtons text="Terms and Conditions"
                                                     callBack={() => { }}
@@ -369,8 +364,8 @@ function Card({ navigation, disp_transactions, }) {
                                                         marginVertical: 10,
                                                     }} />
                                                 <CustomButtons callBack={() => {
+                                                    setbottomSheetType("Claim")
                                                     setclaimCard(true)
-                                                    setbottomSheet("Claim")
                                                 }}
                                                     primary
                                                     Loading={false}
@@ -388,55 +383,56 @@ function Card({ navigation, disp_transactions, }) {
 
                     refreshControl={
                         <RefreshControl refreshing={loadAll} onRefresh={() => {
-                            GetCardDetails(setCardInfo)
+                            User.card && GetCardDetails(setCardInfo)
+                            GetAllTransactions()
                         }} />
                     }
                 />
 
 
-                {!User.card &&
-                    <Center>
-                        <Alert maxW="400" status="info" colorScheme="info" mb={10} style={{
-                            backgroundColor: "#FAF7F7",
-                            width: "90%"
-                        }}>
-                            <VStack space={2} flexShrink={1} w="100%">
-                                <HStack flexShrink={1} space={2} alignItems="center" justifyContent="space-between">
-                                    <HStack flexShrink={1} space={2} alignItems="center">
-                                        <CheckCircle />
-                                        <Text fontSize="md" fontWeight="medium" color="coolGray.800">
-                                            You're all set to claim your card
-                                        </Text>
+                {User.accountHolderReference && <>
+
+                    {!User.card &&
+                        <Center>
+                            <Alert maxW="400" status="info" colorScheme="info" mb={4} style={{
+                                backgroundColor: "#FAF7F7",
+                                width: "90%"
+                            }}>
+                                <VStack space={2} flexShrink={1} w="100%">
+                                    <HStack flexShrink={1} space={2} alignItems="center" justifyContent="space-between">
+                                        <HStack flexShrink={1} space={2} alignItems="center">
+                                            <CheckCircle />
+                                            <Text fontSize="md" fontWeight="medium" color="coolGray.800">
+                                                You're all set to claim your card
+                                            </Text>
+                                        </HStack>
                                     </HStack>
-                                    {/* <IconButton variant="unstyled" _focus={{
-                                    borderWidth: 0
-                                }} icon={<CloseIcon size="3" />} _icon={{
-                                    color: "coolGray.600"
-                                }} /> */}
-                                </HStack>
-                                <Box pl="6" _text={{
-                                    color: "coolGray.600"
-                                }}>
-                                    There is a $2 fee to create a virtual USD card and a minimum of $3 is required to fund your card.
-                                </Box>
-                            </VStack>
-                        </Alert>
-                        <TouchableOpacity
-                            onPress={() => {
-                                ConversionRate(5, setconversionRate, setclaimCard, setbottomSheetType)
-                            }}
-                            style={[{
-                                width: "90%",
-                                alignSelf: "center",
-                                borderRadius: 10,
-                                paddingVertical: 17,
-                                alignItems: "center",
-                                backgroundColor: Colors.dark,
-                                marginBottom: 20
-                            }]}>
-                            <BoldText text="Claim card" color="#fff" />
-                        </TouchableOpacity>
-                    </Center>
+                                    <Box pl="6" _text={{
+                                        color: "coolGray.600"
+                                    }}>
+                                        There is a $2 fee to create a virtual USD card and a minimum of $3 is required to fund your card.
+                                    </Box>
+                                </VStack>
+                            </Alert>
+                            <TouchableOpacity
+                                onPress={() => {
+                                    ConversionRate(5, setconversionRate, setclaimCard, setbottomSheetType)
+                                }}
+                                style={[{
+                                    width: "90%",
+                                    alignSelf: "center",
+                                    borderRadius: 10,
+                                    paddingVertical: 17,
+                                    alignItems: "center",
+                                    backgroundColor: Colors.dark,
+                                    marginBottom: 20
+                                }]}>
+                                <BoldText text="Claim card" color="#fff" />
+                            </TouchableOpacity>
+                        </Center>
+                    }
+                </>
+
                 }
 
 
@@ -528,7 +524,7 @@ function Card({ navigation, disp_transactions, }) {
                         </Text>
                         <View style={{ padding: 15, width: "100%" }}>
                             <BoldText text="Enter your NIN" color="#000" />
-                            <TextInput style={styles.input} placeholder="00000000000" onChangeText={setNIN} keyboardType='numeric' />
+                            <TextInput style={styles.input} placeholder="0 0 0   0 0 0 0   0 0 0 0" onChangeText={setNIN} keyboardType='numeric' />
                             <BoldText text="Your date of birth" color="#000" style={{ marginTop: 15 }} />
 
                             <HStack space={4} justifyContent="space-between" >
@@ -607,7 +603,7 @@ function Card({ navigation, disp_transactions, }) {
                                 alignItems: "center",
                             }} >
                                 <Text fontSize={17} fontWeight="normal" color={Colors.dark} >  USD </Text>
-                                <TextInput style={[styles.input, { fontSize: 20, fontWeight: 300, color: "#000", width: "80%" }]}
+                                <TextInput style={[styles.input, { fontSize: 20, fontWeight: 300, color: "#000", width: "85%", padding: 10 }]}
                                     placeholder="0.00"
                                     onChangeText={settopupAmount}
                                     value={topupAmount}
@@ -616,7 +612,9 @@ function Card({ navigation, disp_transactions, }) {
                                 />
                             </HStack>
                             <Divider />
-                            <HStack justifyContent="space-between" >
+                            <HStack justifyContent="space-between" style={{
+                                marginBottom: 30,
+                            }} >
                                 <Text fontSize={15} fontWeight="thin" color={Colors.dark} style={{ marginTop: 20 }} >
                                     NGN  <Text fontSize={15} fontWeight="bold" color={Colors.dark} style={{ marginTop: 20 }} >
                                         {conversionRate && NumberWithCommas(Math.round(topupAmount * conversionRate.rate * 100) / 100)}
@@ -631,23 +629,16 @@ function Card({ navigation, disp_transactions, }) {
                                 </Text>
                             </HStack>
 
-
-                            <TouchableOpacity
-                                onPress={() => {
+                            <CustomButtons
+                                callBack={() => {
                                     FundCard(topupAmount, topupAmount * conversionRate.rate, setCardInfo)
                                     setclaimCard(false)
                                     settopupAmount("")
                                 }}
-                                style={[{
-                                    marginTop: 80,
-                                    borderRadius: 10,
-                                    paddingVertical: 17,
-                                    // width: 100,
-                                    alignItems: "center",
-                                    backgroundColor: Colors.dark,
-                                }]}>
-                                <BoldText text="Top up" color="#fff" />
-                            </TouchableOpacity>
+                                primary={topupAmount > 4 && true}
+                                opacity={topupAmount < 5 ? 0.3 : 1}
+                                text="Top up"
+                            />
                         </View>
 
                     </>}
@@ -689,24 +680,16 @@ function Card({ navigation, disp_transactions, }) {
                                 </Text>
                             </HStack>
 
-
-                            <TouchableOpacity
-                                onPress={() => {
+                            <CustomButtons
+                                callBack={() => {
                                     CardWithdrawal(topupAmount, CardInfo.reference, setCardInfo)
                                     setclaimCard(false)
                                     settopupAmount("")
                                 }}
-                                style={[{
-                                    marginTop: 80,
-                                    borderRadius: 10,
-                                    paddingVertical: 17,
-                                    // width: 100,
-                                    alignItems: "center",
-                                    backgroundColor: Colors.dark,
-                                    opacity: topupAmount > CardInfo.balance ? 0.3 : 1
-                                }]}>
-                                <BoldText text="Withdraw funds" color="#fff" />
-                            </TouchableOpacity>
+                                primary={topupAmount > 0 && true}
+                                opacity={topupAmount < 1 ? 0.3 : 1}
+                                text="Withdraw funds"
+                            />
                         </View>
 
                     </>}
@@ -815,7 +798,7 @@ function Card({ navigation, disp_transactions, }) {
                                 </Text>
                             </VStack>
                             <TouchableOpacity onPress={() => {
-                                Clipboard.setString(`${CardInfo.card_holder.first_name} ${CardInfo.card_holder.last_name}`)
+                                // Clipboard.setString(`${CardInfo.card_holder.first_name} ${CardInfo.card_holder.last_name}`)
                             }} >
                                 <Copy />
                             </TouchableOpacity>
@@ -838,7 +821,7 @@ function Card({ navigation, disp_transactions, }) {
                                 </Text>
                             </VStack>
                             <TouchableOpacity onPress={() => {
-                                Clipboard.setString(CardInfo.pan)
+                                // Clipboard.setString(CardInfo.pan)
                             }} >
                                 <Copy />
                             </TouchableOpacity>
@@ -861,7 +844,7 @@ function Card({ navigation, disp_transactions, }) {
                                 </Text>
                             </VStack>
                             <TouchableOpacity onPress={() => {
-                                Clipboard.setString(CardInfo.cvv)
+                                // Clipboard.setString(CardInfo.cvv)
                             }} >
                                 <Copy />
                             </TouchableOpacity>
@@ -885,7 +868,7 @@ function Card({ navigation, disp_transactions, }) {
                             </VStack>
 
                             <TouchableOpacity onPress={() => {
-                                Clipboard.setString(`${CardInfo.expiry_month} / ${CardInfo.expiry_year}`)
+                                // Clipboard.setString(`${CardInfo.expiry_month} / ${CardInfo.expiry_year}`)
                             }} >
                                 <Copy />
                             </TouchableOpacity>
@@ -986,7 +969,7 @@ export default Card;
 
 const styles = StyleSheet.create({
 
-    input: { padding: 15, marginVertical: 10, borderColor: '#ddd', borderBottomWidth: 0, borderRadius: 5, width: "100%" },
+    input: { padding: 15, marginVertical: 10, borderColor: '#ddd', borderBottomWidth: 1, borderRadius: 5, width: "100%" },
 
 
     registerButton: { backgroundColor: Colors.dark, paddingVertical: 15, width: '90%', alignItems: 'center', borderRadius: 5, marginVertical: 10, marginTop: 50, height: 55, alignSelf: "center" },

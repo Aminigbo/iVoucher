@@ -2,9 +2,10 @@ import React, { useState, useContext, useEffect } from 'react';
 import { MMKV } from 'react-native-mmkv';
 import { ConversionRateController, CreateCardController, FetcAllBanksController, FetchAllTransactions, FetchTransactionHistorycController, FundCardController, GetCardDetailsController, InitiatePayoutController, ResolveBankController, UpdateKycController, UpdateNINController, WithdrawCardController } from '../auth/controllers';
 import { FetcAllhUsers } from '../helpers/user';
+import { createVoucherController, deleteVoucherController, fetchVoucherController, resolveVoucherController } from '../services/voucher/voucher-controllers';
 
 // Initialize MMKV instance
-const storage = new MMKV();
+const storage = new MMKV(); // alt async storage
 
 
 
@@ -61,6 +62,37 @@ export const AppProvider = ({ children }) => {
         GetAllUsers()
     }, []);
 
+
+    // ======================================= voucher controllers
+
+    const handleCreateVoucher = (data, setVouchers) => {
+        setLoading(!Loading)
+        createVoucherController(setLoading, login, User, data, handleFetchVoucher, setVouchers)
+    }
+    // fetch vouchers
+    const handleFetchVoucher = (setVouchers) => {
+        // setLoading(!Loading)
+        fetchVoucherController(setLoading, setVouchers, User)
+    }
+
+    // deactivate voucher
+    const handleDeactivateToken = (voucher, setVouchers) => {
+        setloadingText("Deactivating voucher")
+        setLoading(!Loading)
+        deleteVoucherController(setLoading, voucher, handleFetchVoucher, setVouchers)
+    }
+
+    // resolve voucher
+    const handleResolveToken = (voucher, setVouchers) => {
+        setLoading(!Loading)
+        resolveVoucherController(setLoading, voucher, User.id, setVouchers, handleFetchVoucher)
+    }
+
+    // ======================================= voucher controllers end
+
+
+
+
     const VerifyKYC = (data, setModalVisible) => {
         setLoading(!Loading)
         let name = User.firstName + " " + User.lastName
@@ -87,9 +119,9 @@ export const AppProvider = ({ children }) => {
     }
 
     // resolve bank account
-    const ResolveBank = (bank, account, setAccountHolder, setEnterAmountPop, SelectedBank) => {
+    const ResolveBank = (bank, account, setAccountHolder, setEnterAmountPop, SelectedBank, navigation) => {
         setLoading(!Loading)
-        ResolveBankController(setLoading, bank, account, setAccountHolder, setEnterAmountPop, SelectedBank)
+        ResolveBankController(setLoading, bank, account, setAccountHolder, setEnterAmountPop, SelectedBank, navigation)
     }
 
     // initiating payout
@@ -121,13 +153,13 @@ export const AppProvider = ({ children }) => {
     // fun card
     const FundCard = (amount, chargeAmount, setCardInfo) => {
         setLoading(!Loading)
-        FundCardController(setLoading, amount, chargeAmount, User.card.reference, setloadingText, User.id, setCardInfo, GetCardDetails, login, User)
+        FundCardController(setLoading, amount, chargeAmount, User.card.reference, setloadingText, User.id, setCardInfo, GetCardDetails, login, User, GetAllTransactions)
     }
 
     // withdraw from card
     const CardWithdrawal = (amount, card_ref, setCardInfo) => {
         setLoading(!Loading)
-        WithdrawCardController(setLoading, setloadingText, login, User, amount, card_ref, GetCardDetails, setCardInfo)
+        WithdrawCardController(setLoading, setloadingText, login, User, amount, card_ref, GetCardDetails, setCardInfo, GetAllTransactions)
     }
 
     // get users
@@ -138,7 +170,8 @@ export const AppProvider = ({ children }) => {
 
     // fetch transactions
     function GetAllTransactions() {
-        FetchAllTransactions(User.id, SaveTrxn)
+        setLoading(!Loading)
+        FetchAllTransactions(User.id, SaveTrxn, setLoading)
     }
 
     //    =======================================
@@ -222,6 +255,7 @@ export const AppProvider = ({ children }) => {
             Initialized,
             SaveTrxn,
             Transactions,
+            GetAllTransactions,
             AllBanks,
             BiometricAuth,
             isBiometric,
@@ -241,7 +275,13 @@ export const AppProvider = ({ children }) => {
             loadingText,
             GetCardDetails,
             FundCard,
-            CardWithdrawal
+            CardWithdrawal,
+
+            // voucher
+            handleCreateVoucher,
+            handleFetchVoucher,
+            handleDeactivateToken,
+            handleResolveToken
         }}>
             {children}
         </AppContext.Provider>

@@ -18,11 +18,7 @@ const Colors = Color()
 
 function SearchBanks({ navigation }) {
     const { User, login, AllBanks, SelectBank, GetAllBanks } = appState()
-    const [Search, setSearch] = React.useState("")
-    const [showmerchantInfo, setshowmerchantInfo] = React.useState(false)
-    const [merchantObject, setmerchantObject] = React.useState(null)
-    const [loading, setloading] = React.useState(false)
-    const cancelRef = React.useRef(null);
+    const [Search, setSearch] = React.useState("") 
 
     const [suggestions, setSuggestions] = React.useState([]);
 
@@ -35,37 +31,7 @@ function SearchBanks({ navigation }) {
         setSuggestions(filteredSuggestions);
     };
 
-    const handleAddMerchant = () => {
-        setloading(!loading)
-
-        let payload = {
-            merchant: merchantObject,
-            user: User.id
-        }
-
-        AddMerchantService(payload)
-            .then(response => {
-                if (response.success == false) {
-                    setloading(false)
-                    Alert.alert("Error", response.message)
-                } else {
-                    setloading(false)
-                    // User.push({
-                    //     ...User,
-                    //     merchants: response.data.merchants
-                    // })
-                    login({
-                        ...User,
-                        merchants: response.data.merchants
-                    })
-                    let actualMerchant = response.data.merchants.filter(e => e.id == merchantObject.id)[0]
-                    navigation.push("Merchant-profile", { data: actualMerchant })
-                }
-            })
-            .catch(error => {
-                setloading(false)
-            })
-    }
+   
 
     React.useEffect(() => {
 
@@ -235,72 +201,7 @@ function SearchBanks({ navigation }) {
 
                 </VStack>
 
-            </SafeAreaView>
-
-
-            <Actionsheet isOpen={showmerchantInfo} onClose={() => {
-                setshowmerchantInfo(!showmerchantInfo)
-            }}>
-                {merchantObject &&
-                    <Actionsheet.Content>
-
-                        {merchantObject && <Image
-                            style={{
-                                width: "40%",
-                                zIndex: 1000,
-                                marginRight: 10
-                            }}
-                            source={{
-                                uri: merchantObject.img
-                            }} alt={"item.name"} size="xl" />}
-
-
-                        <Center mb={10} mt={5} >
-                            {merchantObject && <Text fontWeight="bold" fontSize={20} >{merchantObject.name}</Text>}
-
-                            <Text color="gray.500" p={7} >You will be able to transaction with {merchantObject.name} when you add them to your merchant list</Text>
-                        </Center>
-
-
-
-                        <Actionsheet.Item
-
-                            style={[styles.paymentBtns, {
-                                marginVertical: 30,
-                                opacity: 3 == 2 ? 0.2 : 1
-                            }]}
-                            onPress={() => {
-                                setshowmerchantInfo(!showmerchantInfo)
-                                handleAddMerchant()
-                            }} >
-                            <HStack style={{
-                                justifyContent: "space-between",
-                                width: "100%",
-                            }} >
-                                {merchantObject && <BoldText color={Colors.white} size={16} text={`Add ${merchantObject.name}`} />}
-
-                                <ArrowForward />
-                            </HStack>
-                        </Actionsheet.Item>
-
-                    </Actionsheet.Content>
-                }
-            </Actionsheet>
-
-
-            {/* Almost there loader */}
-            <AlertDialog leastDestructiveRef={cancelRef} isOpen={loading} onClose={null}>
-                <AlertDialog.Content>
-                    <AlertDialog.Body>
-                        <VStack alignItems="center" space={6}>
-                            <ActivityIndicator size={30} color={Colors.primary} />
-                            <BoldText text="Adding merchant" color={Colors.dark} size={16} />
-                        </VStack>
-                    </AlertDialog.Body>
-                </AlertDialog.Content>
-            </AlertDialog>
-
-
+            </SafeAreaView> 
         </>
     );
 }

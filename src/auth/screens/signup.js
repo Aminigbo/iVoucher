@@ -4,12 +4,15 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ActivityInd
 import Icon from 'react-native-vector-icons/Ionicons';
 import { Color } from '../../global-components/colors';
 import { BackIcon } from '../../global-components/icons';
-import { HStack, ScrollView } from 'native-base';
+import { Center, HStack, ScrollView } from 'native-base';
 import { RegisterController } from '../controllers';
 import { BoldText, BoldText1 } from '../../global-components/texts';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { CircleCheck } from 'lucide-react-native';
 import messaging from '@react-native-firebase/messaging';
+import { Input } from '../../global-components/input';
+import { CustomButtons } from '../../global-components/buttons';
+import { SignupSvgs } from '../../assets/svgs';
 
 const Colors = Color()
 export default function RegisterScreen({ navigation }) {
@@ -66,41 +69,83 @@ export default function RegisterScreen({ navigation }) {
         })
     }
 
+    let inputData = [
+        {
+            placeHolder: "first name",
+            label: true,
+            labelText: "First name",
+            onChange: setName
+        },
+        {
+            placeHolder: "Last name",
+            label: true,
+            labelText: "Last name",
+            onChange: setLastname
+        },
+        {
+            placeHolder: "example@gmail.com",
+            label: true,
+            labelText: "Email",
+            onChange: setEmail
+        },
+        {
+            placeHolder: "+2348060000000",
+            label: true,
+            labelText: "Phone number",
+            onChange: setPhone,
+            type: "numeric"
+        },
+        {
+            placeHolder: "********",
+            label: true,
+            labelText: "Password",
+            onChange: setPwd1,
+            secureTextEntry: true
+
+        }
+    ]
+
     return (
         <SafeAreaView style={styles.container}>
             <ScrollView p={15} >
-                <HStack alignItems="flex-start" justifyContent="flex-start" mb={20} >
+                <HStack alignItems="center" justifyContent="flex-start" space={5} >
                     <TouchableOpacity onPress={() => navigation.replace("Onboarding")}>
                         <BackIcon />
                     </TouchableOpacity>
+                    <Text style={styles.headerText}>Sign up</Text>
                 </HStack>
 
-                <Text style={styles.headerText}>Register to get started</Text>
+                <Center style={{ marginVertical: 40 }} >
+                    <SignupSvgs />
+                </Center>
 
-                <BoldText text="Enter first name" color="#000" />
-                <TextInput style={styles.input} placeholder="first name" onChangeText={setName} />
-                <BoldText text="Enter last name" color="#000" />
-                <TextInput style={styles.input} placeholder="lastname" onChangeText={setLastname} />
-                <BoldText text="Enter email address" color="#000" />
-                <TextInput style={styles.input} placeholder="Email address" onChangeText={setEmail} />
-                <BoldText text="Enter phone number" color="#000" />
-                <TextInput style={styles.input} placeholder="Phone number" keyboardType='numeric' onChangeText={setPhone} />
-                <BoldText text="Choose a password" color="#000" />
-                <TextInput style={styles.input} placeholder="Password" secureTextEntry onChangeText={setPwd1} />
+                {inputData.map((inputs, index) => {
+                    return <Input
+                        Placeholder={inputs.placeHolder}
+                        Label={inputs.label}
+                        LabelText={inputs.labelText}
+                        onChange={inputs.onChange}
+                        LabelMargin={15}
+                        secureTextEntry={inputs.secureTextEntry}
+                        type={inputs.type}
+                    />
+                })}
 
+                <CustomButtons
+                    text="Sign up"
+                    primary
+                    Loading={loading}
+                    callBack={handleSignup}
+                />
 
+                <TouchableOpacity onPress={() => {
+                    // setModalVisible(!modalVisible)
+                    navigation.replace('Login')
+                }}>
+                    <Text style={styles.loginText}>Already have an account? Login Now</Text>
+                </TouchableOpacity>
             </ScrollView>
 
-            <TouchableOpacity style={styles.registerButton} onPress={handleSignup} >
-                {loading ? <ActivityIndicator color={Colors.white} /> : <Text style={styles.registerButtonText}>Register</Text>}
-            </TouchableOpacity>
-
-            <TouchableOpacity onPress={() => {
-                // setModalVisible(!modalVisible)
-                navigation.replace('Login')
-            }}>
-                <Text style={styles.loginText}>Already have an account? Login Now</Text>
-            </TouchableOpacity>
 
 
 
@@ -110,13 +155,8 @@ export default function RegisterScreen({ navigation }) {
 
 const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: '#FFF' },
-    headerText: { fontSize: 20, fontWeight: 'bold', marginBottom: 30 },
-    input: { width: '100%', padding: 15, marginVertical: 10, borderColor: '#ddd', borderWidth: 1, borderRadius: 5 },
-    registerButton: { backgroundColor: Colors.dark, paddingVertical: 15, width: '90%', alignItems: 'center', borderRadius: 5, marginVertical: 10, marginTop: 50, height: 55, alignSelf: "center" },
-    registerButtonText: { color: '#FFF', fontWeight: 'bold' },
-    orText: { marginVertical: 20 },
-    socialButtons: { flexDirection: 'row', justifyContent: 'space-between', width: '60%' },
-    loginText: { color: Colors.dark, marginVertical: 20, textAlign: 'center' },
+    headerText: { fontSize: 20, fontWeight: 'bold' },
+    loginText: { color: Colors.dark, marginTop: -20, marginBottom: 40, textAlign: 'center' },
 
 
 

@@ -1,21 +1,24 @@
 // screens/LoginScreen.js
 import React from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator, Alert, Platform } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator, Alert, Platform, Keyboard } from 'react-native';
 
-import { Button, HStack, VStack } from 'native-base';
+import { Button, Center, HStack, VStack } from 'native-base';
 import { Color } from '../../global-components/colors.js';
-import { LoginController } from '../controllers/index.js';
+import { LoginController } from '../../auth/controllers/index.js';
 import { connect } from 'react-redux';
 // import { initAuth, User } from '../../redux';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { appState } from "../../state/index.js"
 import ModalPop from '../../global-components/modal.js';
-import { BoldText2 } from '../../global-components/texts.js';
+import { BoldText, BoldText2 } from '../../global-components/texts.js';
 import messaging from '@react-native-firebase/messaging';
-import { BiometricIcon } from '../../global-components/icons.js';
+import { BackIcon, BiometricIcon } from '../../global-components/icons.js';
 import { handleBiometricAuth } from '../../helpers/biometrics.js';
 import { FetchUserInfo } from '../../helpers/user.js';
 import { ScrollView } from 'react-native-gesture-handler';
+import { Input } from '../../global-components/input.js';
+import { CustomButtons } from '../../global-components/buttons.js';
+import { LoginSvgs } from '../../assets/svgs.js';
 
 const Colors = Color()
 function LoginScreen({ navigation }) {
@@ -36,6 +39,8 @@ function LoginScreen({ navigation }) {
 
     async function handleLogin() {
         setloading(!loading)
+        Keyboard.dismiss()
+        console.log("Logged in")
         LoginController({
             setloading,
             Alert,
@@ -81,66 +86,46 @@ function LoginScreen({ navigation }) {
     // return !User ? navigation.replace("Biometrics") : (
     return (
         <SafeAreaView style={styles.container}>
-            <ScrollView>
+            <ScrollView style={{ padding: 20 }} >
                 {/* {console.log(User)} */}
-                <HStack alignItems="flex-start" justifyContent="flex-start" mb={20} >
-                    {/* <TouchableOpacity >
-                    <BackIcon noPop={true} action={() => { navigation.replace("Onboarding") }} />
-                </TouchableOpacity> */}
+                <HStack alignItems="center" justifyContent="flex-start" space={5} >
+                    <TouchableOpacity >
+                        <BackIcon noPop={true} action={() => { navigation.replace("Onboarding") }} />
+                    </TouchableOpacity>
+                    <Text style={styles.welcomeText}>Login</Text>
                 </HStack>
-                <Text style={styles.welcomeText}>Welcome back</Text>
-                <TextInput style={styles.input} placeholder="Enter your email" onChangeText={setEmail} />
-                <TextInput style={styles.input} placeholder="Enter your password" onChangeText={setPassword} secureTextEntry />
+
+                <Center style={{ marginVertical: 70 }} >
+                    <LoginSvgs />
+                </Center>
+
+                <Input
+                    Placeholder="example@email.com"
+                    Label
+                    LabelText="Email"
+                    onChange={setEmail}
+                />
+
+                <Input
+                    LabelMargin={20}
+                    Placeholder="* * * * * * * * *"
+                    Label
+                    LabelText="Password"
+                    onChange={setPassword}
+                    secureTextEntry
+                />
+
+
                 <TouchableOpacity style={styles.forgotPassword} onPress={() => {
-                    // navigation.navigate("Home")
                     navigation.navigate('Request-otp')
                 }
                 } >
-                    <Text>Forgot Password?</Text>
+                    <Text >Forgot Password?</Text>
                 </TouchableOpacity>
 
 
 
-                <ModalPop open={modalData.isTrue}>
-                    <HStack space={3} style={{
-                        borderRadius: 18,
-                        paddingHorizontal: 15,
-                        paddingVertical: 20,
-                        justifyContent: "space-between",
-                        alignItems: "flex-start",
-                        marginTop: 40,
-                    }} >
 
-                        <VStack flex={2} space={3} >
-                            <BoldText2 color={modalData.type == "ERROR" ? Colors.primary : "green"} text={modalData.header} />
-                            <Text>
-                                {modalData.msg}
-                            </Text>
-                            <HStack alignItems="center" mt={5} space={5} >
-                                <Button bg={Colors.white} size="sm" variant="outline" style={{
-                                    width: 120,
-                                    backgroundColor: Colors.lightGray,
-                                    height: 50
-                                }}
-                                    onPress={() => {
-                                        setmodalData({
-                                            ...modalData,
-                                            isTrue: false
-                                        })
-                                        modalData.callBack()
-                                    }}
-                                    colorScheme={Colors.primary} borderRadius="full">
-
-                                    <HStack justifyContent="space-around" alignItems="center" space={3} >
-                                        <Text style={{ color: "green" }} fontSize="xs">{modalData.buttonText}</Text>
-                                    </HStack>
-                                </Button>
-
-                            </HStack>
-                        </VStack>
-                    </HStack>
-
-                </ModalPop>
 
                 {User &&
                     <HStack
@@ -182,17 +167,20 @@ function LoginScreen({ navigation }) {
                 }
 
 
+                <CustomButtons
+                    text="Sign in"
+                    primary
+                    Loading={loading}
+                    LoadingText="Confirming credentials"
+                    callBack={handleLogin}
+                />
+
+                <TouchableOpacity onPress={() => navigation.navigate('Register')}>
+                    <Text style={styles.registerText}>Don’t have an account? Register Now</Text>
+                </TouchableOpacity>
+
             </ScrollView>
 
-            <TouchableOpacity onPress={handleLogin}
-                style={styles.loginButton}>
-                {loading ? <ActivityIndicator color={Colors.white} /> : <Text style={styles.loginButtonText}>Login</Text>}
-
-            </TouchableOpacity>
-
-            <TouchableOpacity onPress={() => navigation.navigate('Register')}>
-                <Text style={styles.registerText}>Don’t have an account? Register Now</Text>
-            </TouchableOpacity>
 
         </SafeAreaView>
     );
@@ -206,13 +194,13 @@ export default LoginScreen;
 
 
 const styles = StyleSheet.create({
-    container: { flex: 1, padding: 20, backgroundColor: '#FFF' },
-    welcomeText: { fontSize: 20, fontWeight: 'bold', marginBottom: 20, },
+    container: { flex: 1, backgroundColor: '#FFF' },
+    welcomeText: { fontSize: 20, fontWeight: 'bold', },
     input: { width: '100%', padding: 15, marginVertical: 10, borderColor: '#ddd', borderWidth: 1, borderRadius: 5 },
     forgotPassword: { alignSelf: 'flex-end', marginVertical: 10 },
     loginButton: { backgroundColor: Colors.dark, paddingVertical: 15, width: '100%', alignItems: 'center', borderRadius: 5, marginVertical: 10 },
     loginButtonText: { color: '#FFF', fontWeight: 'bold' },
     orText: { marginVertical: 20 },
     socialButtons: { flexDirection: 'row', justifyContent: 'space-between', width: '60%' },
-    registerText: { color: Colors.dark, marginTop: 20, textAlign: "center" },
+    registerText: { color: Colors.dark, marginTop: 10, textAlign: "center" },
 });

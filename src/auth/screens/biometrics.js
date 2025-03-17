@@ -16,7 +16,14 @@ import { AppIcon, BiometricIcon, PasswordIcon, SmallAvater, UserIcon } from '../
 import { FetchUserInfoService, LoginService } from '../service/index.js';
 import { Loader } from '../../global-components/loader.js';
 
+
+import Animated, { useSharedValue, useAnimatedProps, withRepeat, withSequence, withTiming } from 'react-native-reanimated';
+import { useEffect } from 'react';
+import { Circle } from 'react-native-svg';
+
+
 const Colors = Color()
+
 
 
 function Biometrics({ navigation }) {
@@ -113,8 +120,8 @@ function Biometrics({ navigation }) {
                     setCurrentIndex(0)
                 } else {
                     setError(false)
-                    FetchUserInfo() 
-                   
+                    FetchUserInfo()
+
                 }
             }
 
@@ -157,7 +164,7 @@ function Biometrics({ navigation }) {
                     marginTop: 50,
                 }} >
 
-                    <AppIcon />
+                    <AppIcon /> 
 
 
                     <View style={{

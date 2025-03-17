@@ -60,3 +60,66 @@ export let Merchant = [
         address: "0x95C2E5B47B799697C05A5D84C70F544D1D2F0B2A"
     }
 ]
+
+export let Country = [
+    { id: 1, name: "Benin", region: "West Africa" },
+    { id: 2, name: "Burkina Faso", region: "West Africa" },
+    { id: 3, name: "Cabo Verde", region: "West Africa" },
+    { id: 4, name: "Gambia", region: "West Africa" },
+    { id: 5, name: "Ghana", region: "West Africa" },
+    { id: 6, name: "Guinea", region: "West Africa" },
+    { id: 7, name: "Guinea-Bissau", region: "West Africa" },
+    { id: 8, name: "Ivory Coast", region: "West Africa" },
+    { id: 9, name: "Liberia", region: "West Africa" },
+    { id: 10, name: "Mali", region: "West Africa" },
+    { id: 11, name: "Mauritania", region: "West Africa" },
+    { id: 12, name: "Niger", region: "West Africa" },
+    {
+        id: 13, name: "Nigeria", region: "West Africa",
+        city: [
+            { id: 1, name: "Abia", cities: ["Aba", "Umuahia", "Ohafia", "Arochukwu", "Bende"] },
+            { id: 2, name: "Adamawa", cities: ["Yola", "Mubi", "Numan", "Jimeta", "Ganye"] },
+            { id: 3, name: "Akwa Ibom", cities: ["Uyo", "Eket", "Ikot Ekpene", "Oron", "Abak"] },
+            { id: 4, name: "Anambra", cities: ["Awka", "Onitsha", "Nnewi", "Ekwulobia", "Obosi"] },
+            { id: 5, name: "Bauchi", cities: ["Bauchi", "Azare", "Misau", "Jama'are", "Darazo"] },
+            { id: 6, name: "Bayelsa", cities: ["Yenagoa", "Brass", "Ogbia", "Sagbama", "Ekeremor"] },
+            { id: 7, name: "Benue", cities: ["Makurdi", "Gboko", "Otukpo", "Katsina-Ala", "Vandeikya"] },
+            { id: 8, name: "Borno", cities: ["Maiduguri", "Biu", "Bama", "Gwoza", "Dikwa"] },
+            { id: 9, name: "Cross River", cities: ["Calabar", "Ikom", "Ogoja", "Ugep", "Obudu"] },
+            { id: 10, name: "Delta", cities: ["Asaba", "Warri", "Sapele", "Ughelli", "Agbor"] },
+            { id: 11, name: "Ebonyi", cities: ["Abakaliki", "Afikpo", "Onueke", "Ezza", "Ikwo"] },
+            { id: 12, name: "Edo", cities: ["Benin City", "Auchi", "Ekpoma", "Uromi", "Irrua"] },
+            { id: 13, name: "Ekiti", cities: ["Ado Ekiti", "Ikere Ekiti", "Ilawe Ekiti", "Oye Ekiti", "Ikole Ekiti"] },
+            { id: 14, name: "Enugu", cities: ["Enugu", "Nsukka", "Awgu", "Oji River", "Udi"] },
+            { id: 15, name: "Gombe", cities: ["Gombe", "Kaltungo", "Dukku", "Billiri", "Bajoga"] },
+            { id: 16, name: "Imo", cities: ["Owerri", "Orlu", "Okigwe", "Mbaise", "Oguta"] },
+            { id: 17, name: "Jigawa", cities: ["Dutse", "Hadejia", "Gumel", "Kazaure", "Birnin Kudu"] },
+            { id: 18, name: "Kaduna", cities: ["Kaduna", "Zaria", "Kafanchan", "Kagoro", "Saminaka"] },
+            { id: 19, name: "Kano", cities: ["Kano", "Wudil", "Gaya", "Rano", "Bichi"] },
+            { id: 20, name: "Katsina", cities: ["Katsina", "Daura", "Funtua", "Malumfashi", "Dutsin-Ma"] },
+            { id: 21, name: "Kebbi", cities: ["Birnin Kebbi", "Argungu", "Yauri", "Zuru", "Jega"] },
+            { id: 22, name: "Kogi", cities: ["Lokoja", "Okene", "Idah", "Kabba", "Ankpa"] },
+            { id: 23, name: "Kwara", cities: ["Ilorin", "Offa", "Omu-Aran", "Jebba", "Lafiagi"] },
+            { id: 24, name: "Lagos", cities: ["Ikeja", "Lagos Island", "Ikorodu", "Epe", "Badagry"] },
+            { id: 25, name: "Nasarawa", cities: ["Lafia", "Keffi", "Akwanga", "Karu", "Nasarawa"] },
+            { id: 26, name: "Niger", cities: ["Minna", "Suleja", "Bida", "Kontagora", "New Bussa"] },
+            { id: 27, name: "Ogun", cities: ["Abeokuta", "Ijebu Ode", "Sagamu", "Ota", "Ilaro"] },
+            { id: 28, name: "Ondo", cities: ["Akure", "Ondo", "Owo", "Ikare", "Okitipupa"] },
+            { id: 29, name: "Osun", cities: ["Osogbo", "Ile-Ife", "Ilesa", "Ede", "Ikirun"] },
+            { id: 30, name: "Oyo", cities: ["Ibadan", "Ogbomosho", "Oyo", "Iseyin", "Saki"] },
+            { id: 31, name: "Plateau", cities: ["Jos", "Bukuru", "Barkin Ladi", "Pankshin", "Shendam"] },
+            { id: 32, name: "Rivers", cities: ["Port Harcourt", "Obio-Akpor", "Bonny", "Eleme", "Omoku"] },
+            { id: 33, name: "Sokoto", cities: ["Sokoto", "Gwadabawa", "Wurno", "Tambuwal", "Goronyo"] },
+            { id: 34, name: "Taraba", cities: ["Jalingo", "Wukari", "Jalingo", "Bali", "Gembu"] },
+            { id: 35, name: "Yobe", cities: ["Damaturu", "Potiskum", "Nguru", "Gashua", "Gujba"] },
+            { id: 36, name: "Zamfara", cities: ["Gusau", "Kaura Namoda", "Talata Mafara", "Gummi", "Bungudu"] },
+            { id: 37, name: "Federal Capital Territory", cities: ["Abuja"] }
+        ]
+    },
+    { id: 14, name: "Senegal", region: "West Africa" },
+    { id: 15, name: "Sierra Leone", region: "West Africa" },
+    { id: 16, name: "Togo", region: "West Africa" }
+];
+
+
+

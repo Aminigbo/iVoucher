@@ -1,8 +1,9 @@
 import { launchCamera, launchImageLibrary } from "react-native-image-picker";
+import ShareLib from 'react-native-share';
 
 export const BaseURL = "http://192.168.1.121:9090/APP/"   //home
 // export const BaseURL = "http://192.168.1.60:9090/APP/"  //office
-// export const BaseURL = "http://192.168.115.218:9090/APP/"   //phone  
+// export const BaseURL = "http://192.168.39.218:9090/APP/"   //phone  
 // export const BaseURL = "http://192.168.104.218:9090/APP/"   //Steawrt 
 
 
@@ -64,6 +65,15 @@ export function generateRandomString() {
 }
 
 
+export const onShareToken = async (token) => {
+  try {
+    await ShareLib.open({
+      message: token,
+    });
+  } catch (error) {
+    console.log("Image deleted from cache");
+  }
+};
 
 // export async function ImagePicker({
 //   setPickedImage, prop

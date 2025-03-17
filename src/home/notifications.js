@@ -63,13 +63,10 @@ function Notification({ navigation }) {
             {/* {console.log(data)} */}
 
 
-            <SafeAreaView style={{ display: "flex", flex: 1 }} >
-
-                <HStack alignItems="center" justifyContent="space-between" >
-                    <HStack space={7} alignItems="center" paddingVertical={18} pt={6} pb={6} p={2}>
-                        <BackIcon />
-                        <Text fontSize="lg" fontWeight="bold"> Transactions </Text>
-                    </HStack>
+            <SafeAreaView style={{ display: "flex", flex: 1, backgroundColor: "#fff" }} >
+                <HStack space={7} alignItems="center" pt={6}  p={2}>
+                    <BackIcon />
+                    <Text fontSize="lg" fontWeight="bold"> Transactions </Text>
                 </HStack>
 
 
@@ -77,16 +74,16 @@ function Notification({ navigation }) {
                     data={[0]}
                     renderItem={() => {
                         return <>
-                            <VStack space={4} p={2}>
+                            <VStack   p={2}>
 
                                 <Stack p={2}>
-                                    {Transactions.length > 0 ?
+                                    {Transactions.filter(item => item.type != "CARD").length > 0 ?
                                         <Stack mt={4} style={{
                                             // backgroundColor:"red", 
                                         }} >
                                             {/* <BoldText1 text="Recent activities" color="#000" /> */}
 
-                                            {Transactions.map((items, index) => {
+                                            {Transactions.filter(item => item.type != "CARD").map((items, index) => {
                                                 return <TouchableOpacity
                                                     onPress={() => {
                                                         navigation.navigate("view-transaction", { data: items })
@@ -98,59 +95,59 @@ function Notification({ navigation }) {
                                                             // borderWidth: 0.4,
                                                             borderRadius: 30,
                                                             backgroundColor: "#FEF4EA",
-                                                            width: 45,
-                                                            height: 45
+                                                            width: 40,
+                                                            height: 40
                                                         }} >
-                                                            <Icon as={<ArrowBigUp size={25} />} color={Colors.primary} />
+                                                            <Icon as={<ArrowBigUp size={20} />} color={Colors.primary} />
                                                         </Center>}
                                                         {items.type == "MERCHANT-TOPUP" && <Center style={{
                                                             // borderWidth: 0.4,
                                                             borderRadius: 30,
                                                             backgroundColor: "#FEEAFD",
-                                                            width: 45,
-                                                            height: 45
+                                                            width: 40,
+                                                            height: 40
                                                         }} >
-                                                            <Icon as={<PlusCircleIcon size={25} />} color={Colors.primary} />
+                                                            <Icon as={<PlusCircleIcon size={20} />} color={Colors.primary} />
                                                         </Center>}
 
                                                         {items.type == "PV-PAYOUT" && <Center style={{
                                                             // borderWidth: 0.4,
                                                             borderRadius: 30,
                                                             backgroundColor: "#EAFBF5",
-                                                            width: 45,
-                                                            height: 45,
+                                                            width: 40,
+                                                            height: 40,
                                                         }} >
-                                                            <Icon as={<ArrowBigUp size={25} />} color={Colors.primary} />
+                                                            <Icon as={<ArrowBigUp size={20} />} color={Colors.primary} />
                                                         </Center>}
 
                                                         {items.message == "Merchant top-up" && <Center style={{
                                                             // borderWidth: 0.4,
                                                             borderRadius: 30,
                                                             backgroundColor: "#EAFBF5",
-                                                            width: 45,
-                                                            height: 45,
+                                                            width: 40,
+                                                            height: 40,
                                                         }} >
-                                                            <Icon as={<PlusSquareIcon size={25} />} color={Colors.primary} />
+                                                            <Icon as={<PlusSquareIcon size={20} />} color={Colors.primary} />
                                                         </Center>}
 
                                                         {items.type == "TOKEN-CREATED" && <Center style={{
                                                             // borderWidth: 0.4,
                                                             borderRadius: 30,
                                                             backgroundColor: "#F2EAFE",
-                                                            width: 45,
-                                                            height: 45,
+                                                            width: 40,
+                                                            height: 40,
                                                         }} >
-                                                            <Icon as={<TicketCheck size={25} />} color={Colors.dark} />
+                                                            <Icon as={<TicketCheck size={20} />} color={Colors.dark} />
                                                         </Center>}
 
                                                         {items.type == "TOKEN-REVERSED" && <Center style={{
                                                             // borderWidth: 0.4,
                                                             borderRadius: 30,
                                                             backgroundColor: "#FEEAEA",
-                                                            width: 45,
-                                                            height: 45,
+                                                            width: 40,
+                                                            height: 40,
                                                         }} >
-                                                            <Icon as={<TicketX size={25} />} color={Colors.primary} />
+                                                            <Icon as={<TicketX size={20} />} color={Colors.primary} />
                                                         </Center>}
 
 
@@ -189,7 +186,6 @@ function Notification({ navigation }) {
                                             }
                                         </>}
                                 </Stack>
-
 
                             </VStack>
                         </>

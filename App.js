@@ -2,20 +2,14 @@ import { DefaultTheme, NavigationContainer } from "@react-navigation/native";
 import { NativeBaseProvider, StatusBar } from "native-base";
 import Home from "./src/home";
 import { createStackNavigator } from "@react-navigation/stack";
-import { Color } from "./src/global-components/colors";
-import Topup from "./src/voucher/topup";
-import Merchants from "./src/voucher/add-merchant";
-import Merchantprofile from "./src/voucher/merchants";
-import CreateToken from "./src/voucher/create-token";
-import ResolveToken from "./src/voucher/resolve-token";
+import { Color } from "./src/global-components/colors"; 
 import Support from "./src/support/contact";
 import Scan from "./src/home/scan";
 import Notification from "./src/home/notifications";
 import { HomeIcon, NotificationIcon, UserIcon, VoucherIcon } from "./src/global-components/icons";
 import { Animated, AppState, Dimensions, PermissionsAndroid, Platform, StyleSheet } from "react-native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import React, { useEffect, useState } from "react";
-import AllMerchants from "./src/voucher/all-merchants";
+import React, { useEffect, useState } from "react"; 
 import Profile from "./src/profile";
 import LoginScreen from "./src/auth/screens/login";
 import RegisterScreen from "./src/auth/screens/signup";
@@ -35,6 +29,10 @@ import TransactionDetails from "./src/home/view-transaction";
 import { HandleFPN } from "./src/utilities/messaging-service";
 import { CreditCard, Ticket, User } from "lucide-react-native";
 import Card from "./src/home/card";
+import Voucher from "./src/voucher/voucher";
+import ResolveToken from "./src/voucher/resolve-token";
+import TransferScreen from "./src/voucher/amount-page";
+import KYCForm from "./src/auth/screens/kyc-form";
 
 const Stack = createStackNavigator()
 const Tab = createBottomTabNavigator();
@@ -51,7 +49,7 @@ const tabs = [
   {
     name: 'Search',
     screen: Home,
-  }, 
+  },
   {
     name: 'Card',
     screen: Card,
@@ -67,7 +65,7 @@ function App() {
 
   useEffect(() => {
     const handleConnectivityChange = isConnectedNow => {
-      console.log("Internet connection ", isConnectedNow.isConnected)
+      // console.log("Internet connection ", isConnectedNow.isConnected)
       setIsConnected(isConnectedNow.isConnected);
       if (isConnectedNow.isConnected == true) {
         // SplashScreen.hide();
@@ -81,7 +79,7 @@ function App() {
     // Check initial network state
     NetInfo.fetch().then(state => {
       setIsConnected(state.isConnected);
-      console.log("Internet connection ", state.isConnected)
+      // console.log("Internet connection ", state.isConnected)
     });
 
     return () => {
@@ -143,13 +141,12 @@ function App() {
   const HomeStacks = () => {
     return (
       <>
-        <Tab.Navigator
-          // tabBar={props => <MyTabBar {...props} />}
+        <Tab.Navigator 
 
           initialRouteName="Dashboard"
           screenOptions={({ route }) => ({
             headerStyle: {
-              backgroundColor: headerColor,
+              backgroundColor: headerColor, 
             },
             tabBarIcon: ({ focused, color, size }) => {
 
@@ -179,17 +176,27 @@ function App() {
             tabBarInactiveTintColor: 'gray',
             headerShown: false,
             tabBarLabelStyle: {
-              fontSize: 13,
+              fontSize: 15,
               fontWeight: 300,
-              marginBottom: Platform.OS == "ios" ? -10 : 10
+              // marginBottom: Platform.OS == "ios" ? -10 : 10
             },
             tabBarStyle: [
               {
-                display: "flex",
-                // backgroundColor:"red",
-                height: Platform.OS == "ios" ? 70 : 70,
-                borderTopColor: "#fff",
-                elevation: 0
+                // elevation: 2,
+                // shadowColor: '#000',
+                // shadowOffset: {
+                //   width: 0,
+                //   height: 4,
+                // },
+                // shadowOpacity: 0.25,
+                // shadowRadius: 2,
+                // backgroundColor: Colors.accent,
+                height: Platform.OS === "ios" ? 75 : 65, 
+                // width: '85%',
+                // alignSelf: 'center',
+                // marginBottom: 30,
+                // borderRadius: 20,
+                paddingTop: Platform.OS === "ios" ? 5 : 0, 
               },
               null
             ]
@@ -208,17 +215,7 @@ function App() {
               },
             }}
           />
-          {/* <Tab.Screen
-            listeners={{
-              focus: () => {
-                Animated.spring(offsetAnimation, {
-                  toValue: 1 * (width / tabs.length),
-                  useNativeDriver: true,
-                }).start();
-              },
-            }} name="Vouchers" component={AllMerchants} options={{ header: () => null, tabBarLabel: "Vouchers" }} /> */}
-
-          <Tab.Screen
+           <Tab.Screen
             listeners={{
               focus: () => {
                 Animated.spring(offsetAnimation, {
@@ -240,7 +237,7 @@ function App() {
 
 
         </Tab.Navigator>
-        <Animated.View
+        {/* <Animated.View
           style={[
             styles.indicator,
             {
@@ -252,7 +249,7 @@ function App() {
 
             },
           ]}
-        />
+        /> */}
       </>
     )
   }
@@ -274,6 +271,7 @@ function App() {
 
           initialRouteName="Onboarding"
           screenOptions={({ route }) => ({
+            animation:"fade_from_right",
             header: () => null,
             headerStyle: {
               backgroundColor: "red",
@@ -281,15 +279,17 @@ function App() {
 
           })}
         >
-          <Stack.Screen name="Home" component={HomeStacks} options={{ header: () => null }} />
-          <Stack.Screen name="Topup" component={Topup} options={{ header: () => null }} />
+          <Stack.Screen name="Home" component={HomeStacks} options={{ header: () => null }}
+          screenOptions={{
+            height
+          }}
+            />
+          <Stack.Screen name="Voucher" component={Voucher} options={{ header: () => null }} />
+          <Stack.Screen name="Resolve-token" component={ResolveToken} options={{ header: () => null }} />
           <Stack.Screen name="Send-to-bank" component={BankTransfer} options={{ header: () => null }} />
           <Stack.Screen name="Send-to-pv" component={PocketVoucherTransfer} options={{ header: () => null }} />
+          <Stack.Screen name="Amount-page" component={TransferScreen} options={{ header: () => null }} />
           <Stack.Screen name="Search-banks" component={SearchBanks} options={{ header: () => null }} />
-          <Stack.Screen name="Merchants" component={Merchants} options={{ header: () => null }} />
-          <Stack.Screen name="Merchant-profile" component={Merchantprofile} options={{ header: () => null }} />
-          <Stack.Screen name="create-token" component={CreateToken} options={{ header: () => null }} />
-          <Stack.Screen name="resolve-token" component={ResolveToken} options={{ header: () => null }} />
           <Stack.Screen name="Support" component={Support} options={{ header: () => null }} />
           <Stack.Screen name="Scan" component={Scan} options={{ header: () => null }} />
           <Stack.Screen name="Notifications" component={Notification} options={{ header: () => null }} />
@@ -298,6 +298,7 @@ function App() {
           <Stack.Screen name="Biometrics" component={Biometrics} options={{ header: () => null }} />
           <Stack.Screen name="Login" component={LoginScreen} options={{ header: () => null }} />
           <Stack.Screen name="kyc-onboarding" component={KycOnboarding} options={{ header: () => null }} />
+          <Stack.Screen name="kyc-form" component={KYCForm} options={{ header: () => null }} />
           <Stack.Screen name="Register" component={RegisterScreen} options={{ header: () => null }} />
           <Stack.Screen name="Enter-otp" component={VerifyOtpScreen} options={{ header: () => null }} />
           <Stack.Screen name="Request-otp" component={RequestOTP} options={{ header: () => null }} />

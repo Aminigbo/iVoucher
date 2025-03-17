@@ -1,5 +1,6 @@
 {
   "buildFiles": [
+    "/Users/aminigbo/Documents/apps/iVoucher/node_modules/@react-native-async-storage/async-storage/android/build/generated/source/codegen/jni/CMakeLists.txt",
     "/Users/aminigbo/Documents/apps/iVoucher/node_modules/@react-native-community/datetimepicker/android/build/generated/source/codegen/jni/CMakeLists.txt",
     "/Users/aminigbo/Documents/apps/iVoucher/node_modules/react-native-gesture-handler/android/build/generated/source/codegen/jni/CMakeLists.txt",
     "/Users/aminigbo/Documents/apps/iVoucher/node_modules/react-native-image-picker/android/build/generated/source/codegen/jni/CMakeLists.txt",
@@ -94,6 +95,11 @@
         "/Users/aminigbo/.gradle/caches/8.10.2/transforms/a2b145ac5a1f7c4e12d8e666c2e5a853/transformed/jetified-react-android-0.76.1-release/prefab/modules/jsi/libs/android.arm64-v8a/libjsi.so",
         "/Users/aminigbo/.gradle/caches/8.10.2/transforms/7fa963dacf0b8de93bbf2ba1099122a8/transformed/jetified-fbjni-0.6.0/prefab/modules/fbjni/libs/android.arm64-v8a/libfbjni.so"
       ]
+    },
+    "react_codegen_rnasyncstorage::@1596841e19ec5b9eeffe": {
+      "artifactName": "react_codegen_rnasyncstorage",
+      "abi": "arm64-v8a",
+      "runtimeFiles": []
     },
     "core::@1b9a7d546b295b7d0867": {
       "artifactName": "core",

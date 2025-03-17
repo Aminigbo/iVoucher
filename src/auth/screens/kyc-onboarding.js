@@ -9,7 +9,7 @@ import { connect } from 'react-redux';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { appState } from "../../state/index.js"
 import messaging from '@react-native-firebase/messaging';
-import { Camera, BadgeCheck, ArrowBigRight, IdCard, MapPinHouse, CircleCheck } from 'lucide-react-native';
+import { Camera, BadgeCheck, ArrowBigRight, IdCard, MapPinHouse, CircleCheck, VenusAndMars, Lock } from 'lucide-react-native';
 import { KYCICon } from '../../global-components/icons.js';
 import { BoldText, BoldText1 } from '../../global-components/texts.js';
 import { Loader } from '../../global-components/loader.js';
@@ -50,25 +50,27 @@ function KycOnboarding({ navigation }) {
                         Verifying your identity
                     </Text>
                     <Text style={{ fontSize: 15, textAlign: 'center', color: '#6B7280', marginBottom: 20 }}>
-                        We We need this information to complete your KYC process
+                        Fill in this information to complete your KYC
                     </Text>
 
                     {/* ID Card Section */}
-                    <Box bg="gray.100" p={4} rounded="xl" mb={4} w="100%" mt={4}>
+                    <Box bg="gray.100" p={4} rounded="xl" mb={4} w="100%" mt={2}>
                         <HStack space={3} alignItems="flex-start">
                             <Icon as={<IdCard />} size={6} color={Colors.primary} />
                             <VStack paddingRight={5}>
                                 <Text style={{ fontSize: 16, fontWeight: '600' }}>Bank verification number</Text>
-                                <Text style={{ fontSize: 14, color: '#6B7280' }}>Your bank identification number (BVN) is required for only verification purpose</Text>
+                                <Text style={{ fontSize: 14, color: '#6B7280' }}>
+                                    Your BVN is required for only verification purpose
+                                </Text>
                             </VStack>
                         </HStack>
                     </Box>
 
 
                     {/* Selfie Section */}
-                    <Box bg="gray.100" p={4} rounded="xl" mb={6} w="100%" mt={4}>
+                    <Box bg="gray.100" p={4} rounded="xl" mb={4} w="100%" mt={2}>
                         <HStack space={3} alignItems="flex-start">
-                            <Icon as={<MapPinHouse />} size={6} color={Colors.primary} />
+                            <Icon as={<VenusAndMars />} size={6} color={Colors.primary} />
                             <VStack paddingRight={5}>
                                 <Text style={{ fontSize: 16, fontWeight: '600' }}>Gender verification</Text>
                                 <Text style={{ fontSize: 14, color: '#6B7280' }}>Only Male and Female available</Text>
@@ -78,27 +80,33 @@ function KycOnboarding({ navigation }) {
 
 
                     {/* Selfie Section */}
-                    <Box bg="gray.100" p={4} rounded="xl" mb={6} w="100%" mt={4}>
+                    <Box bg="gray.100" p={4} rounded="xl" mb={4} w="100%" mt={2}>
                         <HStack space={3} alignItems="flex-start">
                             <Icon as={<MapPinHouse />} size={6} color={Colors.primary} />
                             <VStack paddingRight={5}>
                                 <Text style={{ fontSize: 16, fontWeight: '600' }}>Residential address</Text>
-                                <Text style={{ fontSize: 14, color: '#6B7280' }}>We need to verify your address,city,state,country and zip_code.</Text>
+                                <Text style={{ fontSize: 14, color: '#6B7280' }}>
+                                    We need to verify your address, city, state, country and Zip-code
+                                </Text>
                             </VStack>
                         </HStack>
                     </Box>
 
                     {/* Security Notice */}
-                    <Text style={{ fontSize: 10, color: '#9CA3AF', marginBottom: 12 }}>
-                        🔒 Your information is for verification purpose and will be encrypted in transit.
-                    </Text>
+                    <HStack justifyContent={"center"} alignItems={"center"} mt={5} space={5} width={"96%"} >
+                        <Lock size={16} color={Colors.primary} />
+                        <Text style={{ fontSize: 13, color: '#9CA3AF', }}>
+                            Your information is for verification purpose and will be encrypted in transit.
+                        </Text>
+                    </HStack>
 
                 </VStack>
                 {/* Get Started Button */}
                 <Button
                     onPress={() => {
                         // navigation.navigate("kyc")
-                        setproceed(!proceed)
+                        // setproceed(!proceed)
+                        navigation.navigate("kyc-form")
                     }}
                     style={{ backgroundColor: Colors.dark }} rounded="2xl" py={4} _text={{ fontSize: 16, fontWeight: 'bold' }}>
                     Proceed
@@ -114,21 +122,32 @@ function KycOnboarding({ navigation }) {
                         Complete verification
                     </Text>
                     <View style={{ padding: 15, width: "100%" }}>
-                        <BoldText text="Enter your BVN" color="#000" />
-                        <TextInput style={styles.input} placeholder="1234567890" onChangeText={setBvn} keyboardType='numeric' />
-                        <BoldText text="Enter your address" color="#000" style={{ marginTop: 15 }} />
+                        <BoldText text="BVN" color="#000" />
+                        <TextInput style={styles.input} placeholder="0000 0000 0000 00" onChangeText={setBvn} keyboardType='numeric' />
+
+                        <BoldText text="Address" color="#000" style={{ marginTop: 15 }} />
+                        <TextInput style={[styles.input]} placeholder="No. 14 wesham, woji, Rivers State." onChangeText={setaddress} />
+
+                        <BoldText text="Postal code" color="#000" style={{ marginTop: 15 }} />
+                        <TextInput style={[styles.input, {}]} placeholder="12345" onChangeText={setzipCode} />
+
                         <HStack space={4} >
-                            <TextInput style={[styles.input, { flex: 2 }]} placeholder="21 express avenu" onChangeText={setaddress} />
-                            <TextInput style={[styles.input, {}]} placeholder="zip_code" onChangeText={setzipCode} />
-                        </HStack>
-                        <HStack space={4} >
-                            <TextInput style={[styles.input, { flex: 1 }]} placeholder="Country" onChangeText={setcountry} />
-                            <TextInput style={[styles.input, { flex: 1 }]} placeholder="State" onChangeText={setstate} />
-                            <TextInput style={[styles.input, { flex: 1 }]} placeholder="City" onChangeText={setcity} />
+                            <VStack style={{ flex: 1 }} >
+                                <BoldText text="Country" color="#000" style={{ marginTop: 15 }} />
+                                <TextInput style={[styles.input, {}]} placeholder="Country" onChangeText={setcountry} />
+                            </VStack>
+                            <VStack style={{ flex: 1 }} >
+                                <BoldText text="State" color="#000" style={{ marginTop: 15 }} />
+                                <TextInput style={[styles.input]} placeholder="State" onChangeText={setstate} />
+                            </VStack>
+                            <VStack style={{ flex: 1 }} >
+                                <BoldText text="City" color="#000" style={{ marginTop: 15 }} />
+                                <TextInput style={[styles.input, {}]} placeholder="City" onChangeText={setcity} />
+                            </VStack>
                         </HStack>
 
 
-                        <BoldText text="Select your gender" color="#000" style={{ marginTop: 30, marginBottom: 10 }} />
+                        <BoldText text="Gender" color="#000" style={{ marginTop: 30, marginBottom: 10 }} />
                         <HStack space={10} style={{
                             justifyContent: "space-between",
                         }} >
@@ -138,7 +157,7 @@ function KycOnboarding({ navigation }) {
                                 }}
                                 style={[styles.selectBtn, {
                                     backgroundColor: gender == "MALE" ? "grey" : "#fff",
-                                    borderWidth: gender == "MALE" ? 0 : 1,
+                                    borderWidth: gender == "MALE" ? 0 : 0.4,
                                 }]}>
                                 <BoldText text="Male" color={gender != "MALE" ? "grey" : "#fff"} />
                             </TouchableOpacity>
@@ -148,7 +167,7 @@ function KycOnboarding({ navigation }) {
                                 }}
                                 style={[styles.selectBtn, {
                                     backgroundColor: gender == "FEMALE" ? "gray" : "#fff",
-                                    borderWidth: gender == "FEMALE" ? 0 : 1,
+                                    borderWidth: gender == "FEMALE" ? 0 : 0.4,
                                 }]}>
                                 <BoldText text="Female" color={gender != "FEMALE" ? "gray" : "#fff"} />
                             </TouchableOpacity>

@@ -1,12 +1,12 @@
 import { Button } from "native-base";
-import { TouchableOpacity } from "react-native-gesture-handler"; 
-import { Pressable } from "react-native";
+import { ActivityIndicator, Keyboard, Pressable, TouchableOpacity } from "react-native";
 import { Color } from "./colors";
 import { BoldText, BoldText1 } from "./texts";
 let Colors = Color()
 export function CustomButtons({
     width,
     primary,
+    opacity,
     text,
     height,
     callBack,
@@ -15,24 +15,27 @@ export function CustomButtons({
     Style
 }) {
     return <>
-
-        <Button
+        <TouchableOpacity
             onPress={() => {
+                Keyboard.dismiss()
                 callBack()
             }}
-            isLoading={Loading} isLoadingText={LoadingText}
             style={[Style, {
                 backgroundColor: primary ? Colors.dark : "lightgrey",
-                padding: 10,
-                width: width,
-                borderRadius: 9,
+                padding: 17,
+                borderRadius: 10,
                 alignItems: "center",
-                justifyContent: "center",
-                height: height
+                width: width ? width : "100%",
+                marginVertical: 40,
+                alignSelf: "center",
+                opacity: opacity,
+
             }]}>
-            <BoldText1
-                color={primary ? "white" : "grey"} text={text} />
-        </Button>
+            {Loading ? <ActivityIndicator color={Colors.white} /> : <BoldText text={text} color={primary ? "white" : "grey"} />}
+            {/* <BoldText text={text} color={primary ? "white" : "grey"} /> */}
+        </TouchableOpacity>
+
+
     </>
 }
 

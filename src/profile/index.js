@@ -1,7 +1,7 @@
 import React from "react";
 import { Box, VStack, HStack, Text, Button, Icon, Pressable, Avatar, Divider, Badge, ArrowForwardIcon, QuestionIcon, Stack, Switch, Actionsheet, Center } from "native-base";
 import { ActivityIndicator, ScrollView, TouchableOpacity } from "react-native";
-import { History, CircleGauge, CreditCard, Wallet, ShieldCheck, Store, PartyPopper, Phone, Settings, Star, ChevronRight, Bolt, UserCheck, Landmark } from "lucide-react-native";
+import { History, CircleGauge, CreditCard, Wallet, ShieldCheck, Store, PartyPopper, Phone, Settings, Star, ChevronRight, Bolt, UserCheck, Landmark, User2 } from "lucide-react-native";
 import { Color } from "../global-components/colors";
 
 import { AcceptanceIcon, ArrowForward, Avater, BiometricIcon, CloseIcon, DeleteIcon, FastIcon, HeartIcon, LogoutIcon, MiniShareIcon, QRcodeIcon, SecureIcon, SmallAvater, SmallBiometricIcon } from '../global-components/icons';
@@ -66,22 +66,20 @@ const Profile = ({ navigation }) => {
                 setbottomSheetType("SEND-MONEY")
             }
         },
-        // { title: "Account Limits", icon: CircleGauge, callBack: () => { console.log("12") } },
         {
             title: "Transactions", icon: Wallet, callBack: () => {
-                // GetAllVirtualAccountTransactions(User.bankInfo.account_number)
                 navigation.navigate("Notifications")
             }
         },
-        { title: "Virtual Card", icon: CreditCard, callBack: () => { console.log("122") } },
+        { title: "Virtual Card", icon: CreditCard, callBack: () => { navigation.navigate("Cards") } },
         {
             title: "Security Center", icon: ShieldCheck, callBack: () => {
                 navigation.navigate('service-reset-pwd')
             }
         },
         {
-            title: "Merchants", icon: Store, callBack: () => {
-                navigation.navigate('Vouchers')
+            title: "Voucher", icon: Store, callBack: () => {
+                navigation.navigate('Voucher')
             }
         },
     ];
@@ -89,29 +87,29 @@ const Profile = ({ navigation }) => {
 
     // return (
     return !User ? navigation.replace("Login") : (
-        <SafeAreaView style={{ flex: 1, backgroundColor: "#FAF7F7" }}>
+        <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
             <ScrollView>
                 {/* Header Section */}
-                <TouchableOpacity style={{ display: "flex", flexDirection: "row", justifyContent: "flex-end", marginRight: 20, marginTop: 10 }} >
-                    {/* <Icon as={Bolt} size={5} style={{ color: Colors.dark }} /> */}
-                </TouchableOpacity>
+                {/* <TouchableOpacity style={{ display: "flex", flexDirection: "row", justifyContent: "flex-end", marginRight: 20, marginTop: 10 }} >
+                    <Icon as={Bolt} size={5} style={{ color: Colors.dark }} />
+                </TouchableOpacity> */}
 
                 {/* Balance Section */}
-                <Box py={3} alignItems="center">
-                    <Text fontSize="xs" color="gray.500">Total Balance</Text>
-                    <Box flexDirection="row" alignItems="center" mt={1}>
-                        <Text fontSize="4xl" bold ml={2}>₦{NumberWithCommas(User.wallet)}</Text>
+                <Box py={3} alignItems="center" mt={4}>
+                    {/* <Text fontSize="xs" color="gray.500">Total Balance</Text> */}
+                    <Avatar   size="xl" />
+                    <Box flexDirection="row" alignItems="center" mt={3}>
+                        <Text fontSize="xl" medium ml={2}>{NumberWithCommas(User.firstName)} {NumberWithCommas(User.lastName)}</Text>
                     </Box>
                     <Text fontSize="xs" color="gray.500" mt={1}>  {User.bankInfo.account_number} - {User.bankInfo.bank_name}</Text>
                 </Box>
 
                 {/* Menu Options */}
-                <VStack mt={12} p={4} space={3} bg="white" borderRadius={10} mx={4}>
+                <VStack mt={12} p={4} space={3} bg={Colors.accent} borderRadius={10} mx={4}>
                     {menuItems.map((item) => (
                         <TouchableOpacity
                             onPressIn={() => { item.callBack() }}
                             style={{
-                                // backgroundColor:"red",
                                 marginBottom: 18
                             }} key={item.title} >
                             <HStack justifyContent="space-between" alignItems="center">
@@ -120,16 +118,14 @@ const Profile = ({ navigation }) => {
                                     <Text fontSize="sm" light>
                                         {item.title}
                                     </Text>
-                                    {item.title == "Virtual Card" && <Text fontSize="xs" color="orange.500" light ml={2}>coming soon</Text>}
                                 </HStack>
-                                {/* <Icon as={<ChevronRight />} size={5} style={{ color: Colors.dark }} /> */}
                                 <ArrowForward />
                             </HStack>
                         </TouchableOpacity >
                     ))}
                 </VStack>
 
-                <Stack mt={9} p={15} style={{ marginBottom: 20 }} bg="white" borderRadius={10} mx={4} >
+                <Stack mt={9} p={15} style={{ marginBottom: 20 }} bg={Colors.accent} borderRadius={10} mx={4} >
                     <TouchableOpacity onPress={() => {
                         handleBiometricAuth({
                             setbiometricLoader,
@@ -162,6 +158,18 @@ const Profile = ({ navigation }) => {
                             }
 
 
+                        </HStack>
+                    </TouchableOpacity>
+
+                    <Divider marginVertical={16} bgColor="gray.200" style={{ height: 0.4 }} />
+
+                    <TouchableOpacity   >
+                        <HStack alignItems="center" justifyContent="space-between" >
+                            <HStack space={4}>
+                                <User2 style={{ color: Colors.primary }} />
+                                <BoldText text="Personal Information" color={Colors.dark} />
+                            </HStack>
+                            <ArrowForward />
                         </HStack>
                     </TouchableOpacity>
 
