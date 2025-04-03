@@ -1,20 +1,21 @@
 import React, { useState } from "react";
 import { Box, Text, VStack, HStack, Button, Icon, Divider, Pressable, FlatList } from "native-base";
-import { ArrowLeft, User, CheckCircle, Repeat, Clock, AlertCircle, Share2, Repeat2 } from "lucide-react-native";
+import { ArrowLeft, CheckCircle, Repeat, Clock, AlertCircle, Share2, Repeat2 } from "lucide-react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { BackIcon } from "../global-components/icons";
+import { AppLogo2, BackIcon } from "../global-components/icons";
 import { Color } from "../global-components/colors";
 import { FetchTransactionHistoryController } from "../helpers/transactions";
 import { Loader } from "../global-components/loader";
 import { formatDate, NumberWithCommas } from "../utilities";
 import { RefreshControl } from "react-native";
+import { appState } from "../state";
 
 const Colors = Color()
 
 const TransactionDetails = ({ navigation, route }) => {
     const [data, setData] = useState(route.params.data)
     const [loading, setLoading] = useState(true)
-
+    let { User } = appState()
 
     React.useEffect(() => {
         const unsubscribe = navigation.addListener('focus', async () => {
@@ -26,9 +27,9 @@ const TransactionDetails = ({ navigation, route }) => {
 
     return (
         <>
-            {/* {console.log(data)} */}
+            {/* {console.log(data.data)} */}
             <SafeAreaView flex={1} style={{
-                 backgroundColor:Colors.white
+                backgroundColor: "#fff"
             }}>
                 <Box p={4}>
                     <HStack space={7} bg="#fff" alignItems="center" paddingVertical={18} pt={6} pb={6} p={2}>
@@ -44,16 +45,26 @@ const TransactionDetails = ({ navigation, route }) => {
                         return <>
                             <Box p={4}>
 
+
+
                                 {loading == false && data && <>
-                                    {/* Transaction Status */}
+                                    {/* Transaction Status */} 
                                     <Box bg="gray.100" p={4} borderRadius="lg" alignItems="center">
 
-                                        <Text mt={2} fontSize="lg" fontWeight="bold">{data.message}</Text>
-                                        <Text fontSize="2xl" fontWeight="bold" color="black">₦{NumberWithCommas(data.amount)}</Text>
+
+                                        <Text mt={2} fontSize="lg" fontWeight="medium">
+                                            Transfer {data.user == User.id ? "to " : "from "}
+                                            {data.user == User.id ? data.data.receiver.accountName : data.data.sender.senderFullname}
+                                        </Text>
+                                        <Text 
+                                        style={{
+                                            marginTop: 10
+                                        }}
+                                        fontSize="3xl" fontWeight="bold" color="black">₦{NumberWithCommas(data.amount)}</Text>
 
                                         {data.status == "success" && <HStack space={3}>
-                                            <Text color="green.500">{data.status}</Text>
-                                            <Icon as={<CheckCircle size="20" color="green" />} />
+                                            <Text color={Colors.primary}>{data.status}</Text>
+                                            <Icon as={<CheckCircle size="20" color={Colors.primary} />} />
                                         </HStack>}
                                         {data.status == "processing" &&
                                             <HStack space={3}>
@@ -74,7 +85,7 @@ const TransactionDetails = ({ navigation, route }) => {
                                             {data.data.receiverName &&
                                                 <HStack justifyContent="space-between">
                                                     <Text color="gray.500">Recipient Details</Text>
-                                                    <Text fontWeight="medium" color="black">{data.data.receiverName}</Text>
+                                                    <Text fontWeight="medium" color="black">{data.data.receiver.accountName}</Text>
                                                 </HStack>
                                             }
                                             <HStack justifyContent="space-between">
@@ -106,26 +117,16 @@ const TransactionDetails = ({ navigation, route }) => {
                                             </HStack>
                                         </Pressable>
                                         <Divider my={2} />
-                                        {/* <HStack justifyContent="space-between">
-                                            <Button
-                                                variant="ghost"
-                                                // color={Colors.dark}
-                                                leftIcon={<Icon as={Repeat2} size="5" color={Colors.dark} />}
-                                                flex={1}
-                                                borderRadius="xl"
+                                        {data.data.sender &&
+                                            <HStack justifyContent="space-between" my={1} >
+                                                <Text color="gray.500">Sender Details</Text>
+                                                <VStack alignItems="flex-end">
+                                                    <Text>{data.data.sender.senderFullname}</Text>
+                                                    <Text>{data.data.sender.senderBankName.length > 10 ? data.data.sender.senderBankName.slice(0, 10) + "..." : data.data.sender.senderBankName} | {data.data.sender.senderAccountNumber}</Text>
+                                                </VStack>
+                                            </HStack>
+                                        }
 
-                                            >
-                                                <Text color={Colors.dark}> Transfer Again</Text>
-                                            </Button>
-                                            <Button
-                                                variant="ghost"
-                                                leftIcon={<Icon as={Clock} size="5" color={Colors.dark} />}
-                                                flex={1}
-                                                borderRadius="xl"
-                                            >
-                                                <Text color={Colors.dark}> View Records</Text>
-                                            </Button>
-                                        </HStack> */}
                                     </Box>
 
                                     {/* Bottom Buttons */}
@@ -140,29 +141,29 @@ const TransactionDetails = ({ navigation, route }) => {
                     }
                 />
 
-                {/* {loading == false && <>
+                {loading == false && data.data.sender && <>
                     <Box position="absolute" bottom={4} left={4} right={4}>
                         <HStack justifyContent="space-between" space={10} m={5} >
+
                             <Button
                                 variant="outline"
-                                colorScheme="red" 
-                                flex={1}
-                                mr={2}
-                                borderRadius={20}
-                                p={3}
-                            >
-                                Report an issue
-                            </Button>
-                            <Button
-                                colorScheme={Colors.dark} 
+                                onPress={() => {
+                                    navigation.navigate("Transaction-receipt", {
+                                        data: data
+                                    })
+                                }}
+                                colorScheme={Colors.dark}
                                 flex={1}
                                 borderRadius={20}
+                                style={{
+                                    height: 55
+                                }}
                             >
-                                Share Receipt
+                                See Receipt
                             </Button>
                         </HStack>
                     </Box>
-                </>} */}
+                </>}
 
             </SafeAreaView>
             <Loader loading={loading} />

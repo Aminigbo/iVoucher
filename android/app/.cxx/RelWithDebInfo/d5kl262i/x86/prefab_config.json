@@ -4,6 +4,7 @@
   "packages": [
     "/Users/aminigbo/Documents/apps/iVoucher/node_modules/react-native-vision-camera/android/build/intermediates/prefab_package/release/prefab",
     "/Users/aminigbo/.gradle/caches/8.10.2/transforms/a2b145ac5a1f7c4e12d8e666c2e5a853/transformed/jetified-react-android-0.76.1-release/prefab",
+    "/Users/aminigbo/Documents/apps/iVoucher/node_modules/react-native-reanimated/android/build/intermediates/prefab_package/release/prefab",
     "/Users/aminigbo/.gradle/caches/8.10.2/transforms/b5c27c9c304c80f67adad6c9c6ebe68c/transformed/jetified-hermes-android-0.76.1-release/prefab",
     "/Users/aminigbo/.gradle/caches/8.10.2/transforms/7fa963dacf0b8de93bbf2ba1099122a8/transformed/jetified-fbjni-0.6.0/prefab"
   ]

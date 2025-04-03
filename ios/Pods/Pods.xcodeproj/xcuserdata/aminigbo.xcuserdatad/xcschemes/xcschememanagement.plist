@@ -109,12 +109,12 @@
 			<key>isShown</key>
 			<false/>
 		</dict>
-		<key>Pods-iVoucher-iVoucherTests.xcscheme</key>
+		<key>Pods-PocketVoucher-PocketVoucherTests.xcscheme</key>
 		<dict>
 			<key>isShown</key>
 			<false/>
 		</dict>
-		<key>Pods-iVoucher.xcscheme</key>
+		<key>Pods-PocketVoucher.xcscheme</key>
 		<dict>
 			<key>isShown</key>
 			<false/>
@@ -570,6 +570,11 @@
 			<false/>
 		</dict>
 		<key>react-native-image-picker.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
+		<key>react-native-image-resizer.xcscheme</key>
 		<dict>
 			<key>isShown</key>
 			<false/>

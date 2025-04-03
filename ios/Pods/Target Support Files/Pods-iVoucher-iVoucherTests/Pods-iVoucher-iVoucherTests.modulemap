@@ -1,6 +1,0 @@
-module Pods_iVoucher_iVoucherTests {
-  umbrella header "Pods-iVoucher-iVoucherTests-umbrella.h"
-
-  export *
-  module * { export * }
-}

@@ -398,7 +398,7 @@ export async function InitiatePayout({ payoutType, amount, naration, bankCode, a
         "naration": naration,
 
         "bank": bankCode,
-        "account": "1110029569",  // account,
+        "account": account,
         "name": name,
 
         "email": email,
@@ -406,7 +406,8 @@ export async function InitiatePayout({ payoutType, amount, naration, bankCode, a
         "id": id,
         "receiver": receiver,
         "bank_name": bank_name,
-        "bankLogo": bankLogo
+        "bankLogo": bankLogo,
+        "accountName": accountName
     });
 
     var requestOptions = {
@@ -451,7 +452,7 @@ export async function FetchTransactionHistoryModel(type, ref) {
 }
 
 // get conversion rate
-export async function ConversionRateService(amount,type) {
+export async function ConversionRateService(amount, type) {
     var myHeaders = new Headers();
     myHeaders.append("Content-Type", "application/json");
 
@@ -528,7 +529,7 @@ export async function GetCardDetailsHistoryModel(reference) {
 }
 
 // fund card
-export async function FundCardService(amount, chargeAmount, card_ref, user) {
+export async function FundCardService(amount, chargeAmount, card_ref, user, fundingSource) {
     var myHeaders = new Headers();
     myHeaders.append("Content-Type", "application/json");
 
@@ -536,7 +537,8 @@ export async function FundCardService(amount, chargeAmount, card_ref, user) {
         "card_ref": card_ref,
         "user": user,
         "amount": amount,
-        "chargeAmount": chargeAmount
+        "chargeAmount": chargeAmount,
+        "fundingSource": fundingSource
     });
     var requestOptions = {
         method: 'POST',
@@ -557,13 +559,13 @@ export async function FundCardService(amount, chargeAmount, card_ref, user) {
 }
 
 // withdraw from card
-export async function CardWithdrawalService(amount,user,card_ref) {
+export async function CardWithdrawalService(amount, user, card_ref) {
     var myHeaders = new Headers();
     myHeaders.append("Content-Type", "application/json");
 
-    const raw = JSON.stringify({ 
+    const raw = JSON.stringify({
         "user": user,
-        "amount": amount, 
+        "amount": amount,
         "card_ref": card_ref
     });
     var requestOptions = {

@@ -1386,6 +1386,8 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
+  - react-native-image-resizer (1.4.5):
+    - React-Core
   - react-native-mmkv (3.1.0):
     - DoubleConversion
     - glog
@@ -1477,7 +1479,7 @@ PODS:
     - Yoga
   - react-native-splash-screen (3.3.0):
     - React-Core
-  - react-native-view-shot (4.0.2):
+  - react-native-view-shot (4.0.3):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -2185,6 +2187,7 @@ DEPENDENCIES:
   - React-microtasksnativemodule (from `../node_modules/react-native/ReactCommon/react/nativemodule/microtasks`)
   - react-native-biometrics (from `../node_modules/react-native-biometrics`)
   - react-native-image-picker (from `../node_modules/react-native-image-picker`)
+  - react-native-image-resizer (from `../node_modules/react-native-image-resizer`)
   - react-native-mmkv (from `../node_modules/react-native-mmkv`)
   - "react-native-netinfo (from `../node_modules/@react-native-community/netinfo`)"
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
@@ -2328,6 +2331,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-biometrics"
   react-native-image-picker:
     :path: "../node_modules/react-native-image-picker"
+  react-native-image-resizer:
+    :path: "../node_modules/react-native-image-resizer"
   react-native-mmkv:
     :path: "../node_modules/react-native-mmkv"
   react-native-netinfo:
@@ -2476,11 +2481,12 @@ SPEC CHECKSUMS:
   React-microtasksnativemodule: 02d218c79c72d373a92a8552183f4ead0d1c6e05
   react-native-biometrics: 352e5a794bfffc46a0c86725ea7dc62deb085bdc
   react-native-image-picker: 1cd296bc9cc1875732651a729be6bbc3f65d32fb
+  react-native-image-resizer: d9fb629a867335bdc13230ac2a58702bb8c8828f
   react-native-mmkv: bb0824bed68c01f7cc681eefa58059097bdaa796
   react-native-netinfo: f0a9899081c185db1de5bb2fdc1c88c202a059ac
   react-native-safe-area-context: 2500e4fe998caad50ad3bc51ec23ef951308569e
   react-native-splash-screen: 4312f786b13a81b5169ef346d76d33bc0c6dc457
-  react-native-view-shot: f0b94997decfc338383ba9dc0748985b02934b8c
+  react-native-view-shot: a643bf261ce8907df3eddf7b66e408bee8ed46f6
   react-native-webview: 0bd56be54d01756f20eb942dad37a2cd22a6def2
   React-nativeconfig: 93fe8c85a8c40820c57814e30f3e44b94c995a7b
   React-NativeModulesApple: b3e076fd0d7b73417fe1e8c8b26e3c57ae9b74aa
@@ -2526,6 +2532,6 @@ SPEC CHECKSUMS:
   VisionCamera: 598ab83c6bf4d65f5c32ec54361eed866505d388
   Yoga: db69236006b8b1c6d55ab453390c882306cbf219
 
-PODFILE CHECKSUM: aa4c61df976e3b3ea5beb89c2a9b1ffef34ab16a
+PODFILE CHECKSUM: 3bd9f59a03a1746d43dbbfd7a844692e84b951e3
 
 COCOAPODS: 1.15.2

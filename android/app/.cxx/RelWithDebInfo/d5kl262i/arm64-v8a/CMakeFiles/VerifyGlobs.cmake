@@ -162,6 +162,31 @@ if(NOT "${NEW_GLOB}" STREQUAL "${OLD_GLOB}")
   file(TOUCH_NOCREATE "/Users/aminigbo/Documents/apps/iVoucher/android/app/.cxx/RelWithDebInfo/d5kl262i/arm64-v8a/CMakeFiles/cmake.verify_globs")
 endif()
 
+# react_codegen_SRCS at /Users/aminigbo/Documents/apps/iVoucher/node_modules/react-native-reanimated/android/build/generated/source/codegen/jni/CMakeLists.txt:9 (file)
+file(GLOB NEW_GLOB LIST_DIRECTORIES true "/Users/aminigbo/Documents/apps/iVoucher/node_modules/react-native-reanimated/android/build/generated/source/codegen/jni/*.cpp")
+set(OLD_GLOB
+  "/Users/aminigbo/Documents/apps/iVoucher/node_modules/react-native-reanimated/android/build/generated/source/codegen/jni/rnreanimated-generated.cpp"
+  )
+if(NOT "${NEW_GLOB}" STREQUAL "${OLD_GLOB}")
+  message("-- GLOB mismatch!")
+  file(TOUCH_NOCREATE "/Users/aminigbo/Documents/apps/iVoucher/android/app/.cxx/RelWithDebInfo/d5kl262i/arm64-v8a/CMakeFiles/cmake.verify_globs")
+endif()
+
+# react_codegen_SRCS at /Users/aminigbo/Documents/apps/iVoucher/node_modules/react-native-reanimated/android/build/generated/source/codegen/jni/CMakeLists.txt:9 (file)
+file(GLOB NEW_GLOB LIST_DIRECTORIES true "/Users/aminigbo/Documents/apps/iVoucher/node_modules/react-native-reanimated/android/build/generated/source/codegen/jni/react/renderer/components/rnreanimated/*.cpp")
+set(OLD_GLOB
+  "/Users/aminigbo/Documents/apps/iVoucher/node_modules/react-native-reanimated/android/build/generated/source/codegen/jni/react/renderer/components/rnreanimated/ComponentDescriptors.cpp"
+  "/Users/aminigbo/Documents/apps/iVoucher/node_modules/react-native-reanimated/android/build/generated/source/codegen/jni/react/renderer/components/rnreanimated/EventEmitters.cpp"
+  "/Users/aminigbo/Documents/apps/iVoucher/node_modules/react-native-reanimated/android/build/generated/source/codegen/jni/react/renderer/components/rnreanimated/Props.cpp"
+  "/Users/aminigbo/Documents/apps/iVoucher/node_modules/react-native-reanimated/android/build/generated/source/codegen/jni/react/renderer/components/rnreanimated/ShadowNodes.cpp"
+  "/Users/aminigbo/Documents/apps/iVoucher/node_modules/react-native-reanimated/android/build/generated/source/codegen/jni/react/renderer/components/rnreanimated/States.cpp"
+  "/Users/aminigbo/Documents/apps/iVoucher/node_modules/react-native-reanimated/android/build/generated/source/codegen/jni/react/renderer/components/rnreanimated/rnreanimatedJSI-generated.cpp"
+  )
+if(NOT "${NEW_GLOB}" STREQUAL "${OLD_GLOB}")
+  message("-- GLOB mismatch!")
+  file(TOUCH_NOCREATE "/Users/aminigbo/Documents/apps/iVoucher/android/app/.cxx/RelWithDebInfo/d5kl262i/arm64-v8a/CMakeFiles/cmake.verify_globs")
+endif()
+
 # LIB_CUSTOM_SRCS at /Users/aminigbo/Documents/apps/iVoucher/node_modules/react-native-safe-area-context/android/src/main/jni/CMakeLists.txt:21 (file)
 file(GLOB NEW_GLOB LIST_DIRECTORIES true "/Users/aminigbo/Documents/apps/iVoucher/node_modules/react-native-safe-area-context/android/src/main/jni/*.cpp")
 set(OLD_GLOB

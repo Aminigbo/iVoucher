@@ -1,6 +1,6 @@
 // screens/LoginScreen.js
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator, Alert, Platform, Modal } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator, Alert, Platform, Modal, ScrollView } from 'react-native';
 
 import { Actionsheet, Box, Button, Center, HStack, Icon, Stack, VStack } from 'native-base';
 import { Color } from '../../global-components/colors';
@@ -13,6 +13,7 @@ import { Camera, BadgeCheck, ArrowBigRight, IdCard, MapPinHouse, CircleCheck, Ve
 import { KYCICon } from '../../global-components/icons.js';
 import { BoldText, BoldText1 } from '../../global-components/texts.js';
 import { Loader } from '../../global-components/loader.js';
+import { CustomButtons } from '../../global-components/buttons.js';
 
 const Colors = Color()
 function KycOnboarding({ navigation }) {
@@ -40,11 +41,19 @@ function KycOnboarding({ navigation }) {
             {/* {console.log(User.kyc)} */}
             <SafeAreaView style={styles.container}>
 
-                <Center marginTop={19} >
-                    <KYCICon />
-                </Center>
+                <ScrollView
+                    showsVerticalScrollIndicator={false}
+                    style={{
+                        flex: 1,
+                        backgroundColor: "white",
+                        width: "100%",
+                        height: "100%",
+                    }}
+                >
+                    <Center marginTop={19} >
+                        <KYCICon />
+                    </Center>
 
-                <VStack flex={1} bg="white" py={8} alignItems="center">
                     {/* Title and Description */}
                     <Text style={{ fontSize: 24, fontWeight: 'bold', textAlign: 'center', marginBottom: 8 }}>
                         Verifying your identity
@@ -98,19 +107,17 @@ function KycOnboarding({ navigation }) {
                         <Text style={{ fontSize: 13, color: '#9CA3AF', }}>
                             Your information is for verification purpose and will be encrypted in transit.
                         </Text>
-                    </HStack>
+                    </HStack> 
 
-                </VStack>
-                {/* Get Started Button */}
-                <Button
-                    onPress={() => {
-                        // navigation.navigate("kyc")
-                        // setproceed(!proceed)
-                        navigation.navigate("kyc-form")
-                    }}
-                    style={{ backgroundColor: Colors.dark }} rounded="2xl" py={4} _text={{ fontSize: 16, fontWeight: 'bold' }}>
-                    Proceed
-                </Button>
+                    <CustomButtons
+                        primary={true}
+                        style={{ marginTop: 20, width: "100%", borderRadius: 10, paddingVertical: 17 }}
+                        text={"Proceed to KYC"}
+                        callBack={() => {
+                            navigation.navigate("kyc-form")
+                        }}
+                    />
+                </ScrollView>
 
             </SafeAreaView>
 

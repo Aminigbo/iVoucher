@@ -23,24 +23,24 @@
 			containerPortal = 83CBB9F71A601CBA00E9B192 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = 13B07F861A680F5B00A75B9A;
-			remoteInfo = "PocketVoucher";
+			remoteInfo = PocketVoucher;
 		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		00E356EE1AD99517003FC87E /* PocketVoucherTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "PocketVoucherTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		00E356EE1AD99517003FC87E /* PocketVoucherTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PocketVoucherTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		00E356F11AD99517003FC87E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		00E356F21AD99517003FC87E /* PocketVoucherTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "PocketVoucherTests.m"; sourceTree = "<group>"; };
+		00E356F21AD99517003FC87E /* PocketVoucherTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PocketVoucherTests.m; sourceTree = "<group>"; };
 		0F77CAF99C8D8430BDA814F6 /* Pods-PocketVoucher.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PocketVoucher.debug.xcconfig"; path = "Target Support Files/Pods-PocketVoucher/Pods-PocketVoucher.debug.xcconfig"; sourceTree = "<group>"; };
-		13B07F961A680F5B00A75B9A /* PocketVoucher.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "PocketVoucher.app"; sourceTree = BUILT_PRODUCTS_DIR; };
-		13B07FAF1A68108700A75B9A /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = "PocketVoucher/AppDelegate.h"; sourceTree = "<group>"; };
-		13B07FB01A68108700A75B9A /* AppDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = AppDelegate.mm; path = "PocketVoucher/AppDelegate.mm"; sourceTree = "<group>"; };
-		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = "PocketVoucher/Images.xcassets"; sourceTree = "<group>"; };
-		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = "PocketVoucher/Info.plist"; sourceTree = "<group>"; };
-		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = "PocketVoucher/main.m"; sourceTree = "<group>"; };
+		13B07F961A680F5B00A75B9A /* PocketVoucher.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PocketVoucher.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		13B07FAF1A68108700A75B9A /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = PocketVoucher/AppDelegate.h; sourceTree = "<group>"; };
+		13B07FB01A68108700A75B9A /* AppDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = AppDelegate.mm; path = PocketVoucher/AppDelegate.mm; sourceTree = "<group>"; };
+		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = PocketVoucher/Images.xcassets; sourceTree = "<group>"; };
+		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = PocketVoucher/Info.plist; sourceTree = "<group>"; };
+		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = PocketVoucher/main.m; sourceTree = "<group>"; };
 		13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = PrivacyInfo.xcprivacy; path = PocketVoucher/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		2FC204819EF79DD567E47BBA /* libPods-PocketVoucher-PocketVoucherTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-PocketVoucher-PocketVoucherTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = "PocketVoucher/LaunchScreen.storyboard"; sourceTree = "<group>"; };
+		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = PocketVoucher/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		89D6627119C1E669B64FBCC6 /* libPods-PocketVoucher.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-PocketVoucher.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		96FECC9974A45C9C55758AB4 /* Pods-PocketVoucher-PocketVoucherTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PocketVoucher-PocketVoucherTests.debug.xcconfig"; path = "Target Support Files/Pods-PocketVoucher-PocketVoucherTests/Pods-PocketVoucher-PocketVoucherTests.debug.xcconfig"; sourceTree = "<group>"; };
 		A0C71FFD1119B38078C546B3 /* Pods-PocketVoucher.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PocketVoucher.release.xcconfig"; path = "Target Support Files/Pods-PocketVoucher/Pods-PocketVoucher.release.xcconfig"; sourceTree = "<group>"; };
@@ -74,7 +74,7 @@
 				00E356F21AD99517003FC87E /* PocketVoucherTests.m */,
 				00E356F01AD99517003FC87E /* Supporting Files */,
 			);
-			path = "PocketVoucherTests";
+			path = PocketVoucherTests;
 			sourceTree = "<group>";
 		};
 		00E356F01AD99517003FC87E /* Supporting Files */ = {
@@ -96,7 +96,7 @@
 				13B07FB71A68108700A75B9A /* main.m */,
 				13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */,
 			);
-			name = "PocketVoucher";
+			name = PocketVoucher;
 			sourceTree = "<group>";
 		};
 		2D16E6871FA4F8E400B85C8A /* Frameworks */ = {
@@ -192,8 +192,8 @@
 			);
 			dependencies = (
 			);
-			name = "PocketVoucher";
-			productName = "PocketVoucher";
+			name = PocketVoucher;
+			productName = PocketVoucher;
 			productReference = 13B07F961A680F5B00A75B9A /* PocketVoucher.app */;
 			productType = "com.apple.product-type.application";
 		};
@@ -435,7 +435,7 @@
 					"DEBUG=1",
 					"$(inherited)",
 				);
-				INFOPLIST_FILE = "PocketVoucherTests/Info.plist";
+				INFOPLIST_FILE = PocketVoucherTests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -459,7 +459,7 @@
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				COPY_PHASE_STRIP = NO;
-				INFOPLIST_FILE = "PocketVoucherTests/Info.plist";
+				INFOPLIST_FILE = PocketVoucherTests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -486,8 +486,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 696ZM2FV6K;
 				ENABLE_BITCODE = NO;
-				INFOPLIST_FILE = "PocketVoucher/Info.plist";
-             INFOPLIST_KEY_CFBundleDisplayName = "Pocket Voucher";
+				INFOPLIST_FILE = PocketVoucher/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = PocketVoucher;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.finance";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
@@ -502,7 +501,7 @@
 					"-lc++",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.bwh.ivoucher;
-				PRODUCT_NAME = "PocketVoucher";
+				PRODUCT_NAME = PocketVoucher;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
@@ -517,8 +516,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 696ZM2FV6K;
-				INFOPLIST_FILE = "PocketVoucher/Info.plist";
-             INFOPLIST_KEY_CFBundleDisplayName = "Pocket Voucher";
+				INFOPLIST_FILE = PocketVoucher/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = PocketVoucher;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.finance";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
@@ -533,7 +531,7 @@
 					"-lc++",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.bwh.ivoucher;
-				PRODUCT_NAME = "PocketVoucher";
+				PRODUCT_NAME = PocketVoucher;
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
 			};

@@ -108,12 +108,12 @@ export default function RegisterScreen({ navigation }) {
     return (
         <SafeAreaView style={styles.container}>
             <ScrollView p={15} >
-                <HStack alignItems="center" justifyContent="flex-start" space={5} >
+                {/* <HStack alignItems="center" justifyContent="flex-start" space={5} >
                     <TouchableOpacity onPress={() => navigation.replace("Onboarding")}>
                         <BackIcon />
                     </TouchableOpacity>
                     <Text style={styles.headerText}>Sign up</Text>
-                </HStack>
+                </HStack> */}
 
                 <Center style={{ marginVertical: 40 }} >
                     <SignupSvgs />

@@ -53,6 +53,7 @@ const TransferScreen = ({ navigation, route }) => {
 
     return (
         <>
+            {console.log(Data)}
             <SafeAreaView bg="white" safeArea p={4} style={{
                 display: "flex",
                 flex: 1,
@@ -72,18 +73,20 @@ const TransferScreen = ({ navigation, route }) => {
 
                     <Box bg={Colors.dark} p={4} borderRadius={10} mt={4}>
                         <HStack alignItems="center" space={3}>
-                            <Image
-                                source={{ uri: Data.logo }}
-                                alt="User"
-                                size="sm"
-                                borderRadius={100}
-                                style={{
-                                    backgroundColor: "#fff",
-                                    padding: 10,
-                                    width: 50,
-                                    height: 50
-                                }}
-                            />
+                            {Data.logo &&
+                                <Image
+                                    source={{ uri: Data.logo }}
+                                    alt="User"
+                                    size="sm"
+                                    borderRadius={100}
+                                    style={{
+                                        backgroundColor: "#fff",
+                                        padding: 10,
+                                        width: 50,
+                                        height: 50
+                                    }}
+                                />
+                            }
                             <VStack flex={1}>
                                 <Text color="white" fontSize="md" bold>
                                     {Data.account_name}
@@ -205,7 +208,10 @@ const TransferScreen = ({ navigation, route }) => {
                                 <TextInput style={[{ fontSize: 15, fontWeight: 300, color: "#000", marginTop: 25 }]}
                                     placeholder="What's the payment for?(optional)"
                                     placeholderTextColor="grey"
-                                    onChangeText={setRemark} value={Remark} />
+                                    onChangeText={setRemark}
+                                    multiline={true}
+                                // value={Remark}   
+                                />
                             </View>
 
                             {/* </>} */}
@@ -223,7 +229,7 @@ const TransferScreen = ({ navigation, route }) => {
                                     InitiatePayout({
                                         payoutType: "bank_account",
                                         amount: amount,
-                                        naration: "Remark",
+                                        naration: Remark,
                                         bankCode: Data.bank_code,
                                         account: Data.account_number,
                                         accountName: Data.account_name,

@@ -1,6 +1,0 @@
-module Pods_iVoucher {
-  umbrella header "Pods-iVoucher-umbrella.h"
-
-  export *
-  module * { export * }
-}

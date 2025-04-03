@@ -3,6 +3,7 @@ import { MMKV } from 'react-native-mmkv';
 import { ConversionRateController, CreateCardController, FetcAllBanksController, FetchAllTransactions, FetchTransactionHistorycController, FundCardController, GetCardDetailsController, InitiatePayoutController, ResolveBankController, UpdateKycController, UpdateNINController, WithdrawCardController } from '../auth/controllers';
 import { FetcAllhUsers } from '../helpers/user';
 import { createVoucherController, deleteVoucherController, fetchVoucherController, resolveVoucherController } from '../services/voucher/voucher-controllers';
+import { UpdateProfilePhoto } from '../services/user/controllers';
 
 // Initialize MMKV instance
 const storage = new MMKV(); // alt async storage
@@ -100,10 +101,10 @@ export const AppProvider = ({ children }) => {
     }
 
     // Verify NIN
-    const VerifyNIN = (data, setclaimCard) => {
+    const VerifyNIN = (data, setclaimCard, navigation) => {
         setLoading(!Loading)
         let name = User.firstName + " " + User.lastName
-        UpdateNINController(setLoading, login, User.id, data, User.email, name, User.phone, User, setclaimCard)
+        UpdateNINController(setLoading, login, User.id, data, User.email, name, User.phone, User, setclaimCard, navigation)
     }
 
     // fetch transactions
@@ -132,9 +133,9 @@ export const AppProvider = ({ children }) => {
         InitiatePayoutController({ setLoading, payoutType, amount, naration, bankCode, account, name, email: User.email, id: User.id, accountName, receiver, bank_name, navigation, GetAllTransactions, bankLogo })
     }
     // create card
-    const CreateCard = (amount) => {
+    const CreateCard = (amount, navigation) => {
         setLoading(!Loading)
-        CreateCardController(setLoading, User.id, User.accountHolderReference, login, User, amount)
+        CreateCardController(setLoading, User.id, User.accountHolderReference, login, User, amount, navigation)
     }
 
 
@@ -151,15 +152,15 @@ export const AppProvider = ({ children }) => {
     }
 
     // fun card
-    const FundCard = (amount, chargeAmount, setCardInfo) => {
+    const FundCard = (amount, chargeAmount, setCardInfo, fundingSource) => {
         setLoading(!Loading)
-        FundCardController(setLoading, amount, chargeAmount, User.card.reference, setloadingText, User.id, setCardInfo, GetCardDetails, login, User, GetAllTransactions)
+        FundCardController(setLoading, amount, chargeAmount, User.card.reference, setloadingText, User.id, setCardInfo, GetCardDetails, login, User, GetAllTransactions, fundingSource)
     }
 
     // withdraw from card
-    const CardWithdrawal = (amount, card_ref, setCardInfo) => {
+    const CardWithdrawal = (amount, card_ref, setCardInfo, setclaimCard, setbottomSheetType) => {
         setLoading(!Loading)
-        WithdrawCardController(setLoading, setloadingText, login, User, amount, card_ref, GetCardDetails, setCardInfo, GetAllTransactions)
+        WithdrawCardController(setLoading, setloadingText, login, User, amount, card_ref, GetCardDetails, setCardInfo, GetAllTransactions, setclaimCard, setbottomSheetType)
     }
 
     // get users
@@ -249,6 +250,9 @@ export const AppProvider = ({ children }) => {
     return (
         <AppContext.Provider value={{
             User,
+            updateProfilePhoto: (data, setPickedImage, toast, navigation) => {
+                UpdateProfilePhoto(data, User, setLoading, login, setPickedImage)
+            },
             login,
             logout,
             Initialize,

@@ -11,6 +11,7 @@ import { Loader } from "../global-components/loader";
 import { formatDate, NumberWithCommas, onShareToken, timeAgo } from "../utilities";
 import { CustomButtons } from "../global-components/buttons";
 import { Input } from "../global-components/input";
+import QRCode from "react-native-qrcode-svg";
 
 const Colors = Color()
 
@@ -46,7 +47,7 @@ const Voucher = ({ navigation }) => {
                     style={{ width: "100%", justifyContent: "space-between", paddingHorizontal: 10, paddingVertical: 19 }} >
                     <HStack space={7} alignItems="center">
                         <BackIcon />
-                        <Text fontSize="lg"  >Create Voucher</Text>
+                        <Text fontSize="lg"  >Pocket Voucher</Text>
                     </HStack>
                     <TouchableOpacity
                         style={{}}
@@ -71,6 +72,7 @@ const Voucher = ({ navigation }) => {
                                     // marginTop: 40
                                 }]}>
 
+                                {/* <BoldText text="Create Pocket Voucher" color="#000" style={{ marginTop: 15 }} /> */}
 
                                 <View style={[{ padding: 15, width: "100%" }, styles.shadowBox]}>
                                     <BoldText text={`Amount`} color="#000" />
@@ -163,61 +165,67 @@ const Voucher = ({ navigation }) => {
                                 }
 
 
-                                <Stack style={{ marginTop: 30, marginBottom: 90 }} >
-                                    <HStack style={{
-                                        justifyContent: "space-between",
-                                        alignItems: "center",
-                                        marginBottom: 10
-                                    }} >
+                                {Vouchers && Vouchers.length > 0 &&
+                                    <Stack
+                                        style={[{ marginTop: 30, padding: 15, width: "100%" }, styles.shadowBox]}
+                                    //  style={{ marginTop: 30, marginBottom: 90, backgroundColor: "#fff" }}
+                                    >
+                                        <HStack style={{
+                                            justifyContent: "space-between",
+                                            alignItems: "center",
+                                            marginBottom: 10
+                                        }} >
 
-                                        {Vouchers && Vouchers.length > 0 && <BoldText text="Active Vouchers" color="#000" />}
+                                            {Vouchers && Vouchers.length > 0 && <BoldText text="Active Vouchers" color="#000" />}
 
-                                        {Vouchers && Vouchers.length > 4 &&
-                                            <TouchableOpacity onPress={() => {
-                                                navigation.navigate("Notifications")
-                                            }} >
-                                                <HStack justifyContent="flex-end" alignItems="center" space={4} >
-                                                    <Text fontWeight={500} color={Colors.primary} >See All</Text>
-                                                    <ArrowForward color={Colors.primary} />
-                                                </HStack>
-                                            </TouchableOpacity>
-                                        }
-                                    </HStack>
-
-
-                                    {Vouchers.slice(0, 4).map(items => {
-                                        // console.log(items)
-                                        return <HStack style={{
-                                            marginVertical: 10
-                                        }} alignItems="center" space={3} justifyContent="space-between" >
-                                            <TouchableOpacity onPress={() => {
-                                                setconfirmCreation(true);
-                                                setbottomSheetAction("REVERSE TOKEN")
-                                                setSingleToken(items)
-                                            }}  >
-                                                <HStack space={3} >
-                                                    <TicketCheckIcon color={items.resolved == false ? "mediumseagreen" : "crimson"} />
-                                                    <VStack >
-                                                        <HStack>
-                                                            <Text fontWeight="medium" color={Colors.primary} >{items.token} </Text>
-                                                        </HStack>
-                                                        <Text fontWeight="light" >₦{NumberWithCommas(items.amount)} {items.remark && items.remark.slice(0, 15)}{items.remark.length > 15 && "..."}</Text>
-                                                        <Text fontWeight="light" >{timeAgo(items.created_at)}</Text>
-                                                    </VStack>
-                                                </HStack>
-                                            </TouchableOpacity>
-
-                                            <HStack >
-                                                <TouchableOpacity style={{ padding: 15 }} onPress={() => {
-                                                    onShareToken(items.token)
+                                            {Vouchers && Vouchers.length > 4 &&
+                                                <TouchableOpacity onPress={() => {
+                                                    navigation.navigate("Notifications")
                                                 }} >
-                                                    <ShareIcon />
+                                                    <HStack justifyContent="flex-end" alignItems="center" space={4} >
+                                                        <Text fontWeight={500} color={Colors.primary} >See All</Text>
+                                                        <ArrowForward color={Colors.primary} />
+                                                    </HStack>
                                                 </TouchableOpacity>
-                                            </HStack>
-
+                                            }
                                         </HStack>
-                                    })}
-                                </Stack>
+
+
+                                        {Vouchers.slice(0, 4).map(items => {
+                                            // console.log(items)
+                                            return <HStack style={{
+                                                marginVertical: 10
+                                            }} alignItems="center" space={3} justifyContent="space-between" >
+                                                <TouchableOpacity onPress={() => {
+                                                    setconfirmCreation(true);
+                                                    setbottomSheetAction("REVERSE TOKEN")
+                                                    setSingleToken(items)
+                                                }}  >
+                                                    <HStack space={3} >
+                                                        <TicketCheckIcon color={items.resolved == false ? "mediumseagreen" : "crimson"} />
+                                                        <VStack >
+                                                            <HStack>
+                                                                <Text fontWeight="medium" color={Colors.primary} >{items.token} </Text>
+                                                            </HStack>
+                                                            <Text fontWeight="light" >₦{NumberWithCommas(items.amount)} {items.remark && items.remark.slice(0, 15)}{items.remark.length > 15 && "..."}</Text>
+                                                            <Text fontWeight="light" >{timeAgo(items.created_at)}</Text>
+                                                        </VStack>
+                                                    </HStack>
+                                                </TouchableOpacity>
+
+                                                <HStack >
+                                                    <TouchableOpacity style={{ padding: 15 }} onPress={() => {
+                                                        onShareToken(items.token)
+                                                    }} >
+                                                        <ShareIcon />
+                                                    </TouchableOpacity>
+                                                </HStack>
+
+                                            </HStack>
+                                        })}
+                                    </Stack>
+
+                                }
 
                             </VStack>
                         </>
@@ -243,12 +251,22 @@ const Voucher = ({ navigation }) => {
 
                     {bottomSheetAction == "REVERSE TOKEN" && <>
                         {/* {console.log(SingleToken)} */}
-                        <BoldText text={SingleToken && SingleToken.token} color="lightgrey" style={{ marginTop: 10 }} />
 
                         <Stack mt={5} mb={10} style={{
                             width: "100%",
                             padding: 15
                         }} >
+
+                            {/* <Center mb={10} >
+                                <QRCode
+                                    value={SingleToken.token}
+                                    logo={{ uri: base64Logo }}
+                                    logoSize={30}
+                                    logoBackgroundColor='transparent'
+                                    size={200}
+                                />
+                            </Center> */}
+
 
                             <TouchableOpacity onPress={() => {
                                 // Clipboard.setString(SingleToken.token) 

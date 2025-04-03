@@ -21,7 +21,7 @@ export function CustomButtons({
                 callBack()
             }}
             style={[Style, {
-                backgroundColor: primary ? Colors.dark : "lightgrey",
+                backgroundColor: primary ? Colors.dark : null,
                 padding: 17,
                 borderRadius: 10,
                 alignItems: "center",

@@ -1,13 +1,22 @@
+import { Alert } from "react-native";
 import { launchCamera, launchImageLibrary } from "react-native-image-picker";
+import ImageResizer from "react-native-image-resizer";
+import { captureRef } from 'react-native-view-shot';
 import ShareLib from 'react-native-share';
+import RNFS from 'react-native-fs';
 
-export const BaseURL = "http://192.168.1.121:9090/APP/"   //home
+
+
+// export const BaseURL = "http://192.168.1.121:9090/APP/"   //home
 // export const BaseURL = "http://192.168.1.60:9090/APP/"  //office
-// export const BaseURL = "http://192.168.39.218:9090/APP/"   //phone  
-// export const BaseURL = "http://192.168.104.218:9090/APP/"   //Steawrt 
+// export const BaseURL = "http://192.168.216.218:9090/APP/"   //phone  
+// export const BaseURL = "http://192.168.144.218:9090/APP/"   //Steawrt 
 
 
-// export const BaseURL = "https://i-voucher-server.vercel.app//APP/" 
+export const BaseURL = "https://i-voucher-server.vercel.app//APP/" 
+
+
+export const DpUrl = "https://awkkradstjkklsyqbkhl.supabase.co/storage/v1/object/public/dp/"   //DP
 
 
 export const formatDate = (inputDate) => {
@@ -75,55 +84,54 @@ export const onShareToken = async (token) => {
   }
 };
 
-// export async function ImagePicker({
-//   setPickedImage, prop
-// }) { 
 
+
+// export async function ImagePicker({ setPickedImage, prop }) {
 //   const options = {
 //     storageOptions: {
 //       path: "images",
-//       mediaType: "photo"
+//       mediaType: "photo",
 //     },
-//     includeBase64: true,
-//     quality: 0.7
-//   }
-//   launchImageLibrary(options, response => { 
+//     includeBase64: true, // Ensures base64 data is included
+//     quality: 0.7,
+//   };
 
+//   launchImageLibrary(options, (response) => {
 //     if (response.didCancel) {
-//       console.log("Here")
+//       console.log("User cancelled image picker");
 //     } else if (response.error) {
-//       console.log("Here")
+//       console.log("ImagePicker Error: ", response.error);
 //     } else if (response.customButton) {
-//       console.log(response.customButton)
+//       console.log("User tapped custom button: ", response.customButton);
 //     } else {
-//       const source = {
-//         uri: response.assets[0].uri
-//       }
+//       const asset = response.assets[0];
 
+//       if (!asset) return;
 
-//       const fileExt = response.assets[0].uri.substring(response.assets[0].uri.lastIndexOf(".") + 1);
+//       const { uri, base64, height, width } = asset;
+//       const fileExt = uri.substring(uri.lastIndexOf(".") + 1);
 //       const fileName = `${Math.random()}.${fileExt}`;
+//       const base64Image = `data:image/${fileExt};base64,${base64}`;
+
 //       var formData = new FormData();
 //       formData.append("files", {
-//         uri: response.assets[0].uri,
+//         uri,
 //         name: fileName,
-//         type: `image/${fileExt}`
-//       })
+//         type: `image/${fileExt}`,
+//       });
 
-//       // console.log(formData)
 //       setPickedImage({
-//         source,
+//         source: { uri },
 //         fileName,
 //         formData,
-//         height: response.assets[0].height,
-//         width: response.assets[0].width,
+//         base64: base64Image, // This is the Base64 string you need
+//         height,
+//         width,
 //         status: true,
-//         type: prop
-//       })
-
+//         type: prop,
+//       });
 //     }
-//   })
-
+//   });
 // }
 
 export async function ImagePicker({ setPickedImage, prop }) {
@@ -136,22 +144,39 @@ export async function ImagePicker({ setPickedImage, prop }) {
     quality: 0.7,
   };
 
-  launchImageLibrary(options, (response) => {
+  launchImageLibrary(options, async (response) => {
     if (response.didCancel) {
       console.log("User cancelled image picker");
     } else if (response.error) {
       console.log("ImagePicker Error: ", response.error);
-    } else if (response.customButton) {
-      console.log("User tapped custom button: ", response.customButton);
     } else {
-      const asset = response.assets[0];
-
+      let asset = response.assets?.[0];
       if (!asset) return;
 
-      const { uri, base64, height, width } = asset;
-      const fileExt = uri.substring(uri.lastIndexOf(".") + 1);
-      const fileName = `${Math.random()}.${fileExt}`;
-      const base64Image = `data:image/${fileExt};base64,${base64}`;
+      let { uri, base64, height, width } = asset;
+      let fileExt = uri.substring(uri.lastIndexOf(".") + 1);
+      let fileName = `${Math.random()}.${fileExt}`;
+      let base64Image = `data:image/${fileExt};base64,${base64}`;
+
+      // Calculate file size in bytes
+      let fileSizeInBytes = (base64.length * 3) / 4 - (base64.endsWith("==") ? 2 : base64.endsWith("=") ? 1 : 0);
+      const maxSize = 1048576; // 1MB
+
+      // If file is too large, compress it
+      if (fileSizeInBytes >= maxSize) {
+        console.log("File too large, compressing...");
+        try {
+          let compressQuality = 30; // Start with 80% quality
+          let compressedImage = await ImageResizer.createResizedImage(uri, width * 0.3, height * 0.3, "PNG", compressQuality);
+          uri = compressedImage.uri;
+
+          console.log(compressedImage.size)
+
+        } catch (error) {
+          console.log("Image compression failed:", error);
+          return;
+        }
+      }
 
       var formData = new FormData();
       formData.append("files", {
@@ -164,7 +189,7 @@ export async function ImagePicker({ setPickedImage, prop }) {
         source: { uri },
         fileName,
         formData,
-        base64: base64Image, // This is the Base64 string you need
+        base64: base64Image,
         height,
         width,
         status: true,
@@ -173,6 +198,8 @@ export async function ImagePicker({ setPickedImage, prop }) {
     }
   });
 }
+
+
 
 
 export const nigerianBanks = [
@@ -350,3 +377,33 @@ export function timeAgo(dateString) {
     return `${diffInYears}yr ago`;
   }
 }
+
+
+export const onShare = async ({
+  qrCodeRef,
+}) => {
+  console.log("Clicked on share");
+  try {
+    // Capture the QR code view
+    const uri = await captureRef(qrCodeRef, {
+      format: 'png',
+      quality: 1,
+    });
+    console.log("onShare", uri)
+
+    // Share the captured image
+    await ShareLib.open({
+      url: uri,
+      message: "Enjoy seamless transactions with Pocket Voucher.",
+    });
+    // Delete the image from cache after sharing
+    await RNFS.unlink(uri);
+    console.log("Image deleted from cache");
+
+  } catch (error) {
+    // Delete the image from cache after sharing
+    await RNFS.unlink(uri);
+    console.log("Image deleted from cache");
+    Alert.alert("Error", error.message);
+  }
+};

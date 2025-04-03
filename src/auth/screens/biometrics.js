@@ -41,16 +41,17 @@ function Biometrics({ navigation }) {
                 if (response.success == false) {
                     setloading(false)
                     Alert.alert("Error", response.message)
+                } else if (response.success == true) {
+                    login({
+                        ...User,
+                        ...response.data
+                    })
+                    navigation.navigate("Home")
                 } else {
-                    if (response.success == true) {
-                        login({
-                            ...User,
-                            ...response.data
-                        })
-                        navigation.navigate("Home")
-                    } else {
-                        setloading(false)
-                    }
+                    setloading(false)
+                    Alert.alert("Error", "A network error occured")
+                    setInputs(['', '', '', '']);
+                    setCurrentIndex(0)
                 }
 
             })
@@ -59,7 +60,6 @@ function Biometrics({ navigation }) {
                 console.log(error)
             })
     }
-
 
 
 
@@ -146,8 +146,10 @@ function Biometrics({ navigation }) {
                 if (response.data.kyc == false) {
                     navigation.replace("kyc-onboarding")
                 } else {
-                    navigation.replace("Home")
+                    navigation.replace("Create-pin")
+                    // console.log("User.pin", User.pin)
                 }
+                // setloading(false)
 
                 // navigation.replace("Home")
 
@@ -155,218 +157,219 @@ function Biometrics({ navigation }) {
     }
 
 
-    return !User ? navigation.replace("Login") : (
-        // return (
+    // return !User ? navigation.replace("Login") : (
+    return (
         <>
-            {/* {console.log(User.token)} */}
-            <SafeAreaView style={styles.container}>
-                <Center mt={30} style={{
-                    marginTop: 50,
-                }} >
+            {User &&
+                <>
+                    <SafeAreaView style={styles.container}>
+                        <Center mt={30} style={{
+                            marginTop: 50,
+                        }} >
 
-                    <AppIcon /> 
+                            <AppIcon />
 
+                            <View style={{
+                                marginTop: 40
+                            }}>
+                                {useBiomAuth ?
+                                    <TouchableOpacity
+                                        style={{
+                                            marginTop: 110
+                                        }}
+                                        onPress={handleBiometricAuth}
 
-                    <View style={{
-                        marginTop: 40
-                    }}>
-                        {useBiomAuth ?
-                            <TouchableOpacity
-                                style={{
-                                    marginTop: 110
-                                }}
-                                onPress={handleBiometricAuth}
-
-                            >
-                                <VStack style={{
-                                    justifyContent: "center",
-                                    alignItems: "center"
-                                }}>
-                                    {/* <SmallAvater /> */}
-                                    <BiometricIcon color={Colors.dark} />
-                                    <BoldText1
-                                        style={{ color: Colors.primary, marginTop: 20 }}
-                                        text="Login with Fingerprint"
-                                    />
-
-                                    <Text style={[styles.registerText, { marginTop: 10, marginBottom: 50 }]}>
-                                        {User.firstname}
-                                        <BoldText1 color="#000" text={`(${User.email.slice(0, 2)}***${User.email.slice(-6)})`} />
-                                    </Text>
-
-                                </VStack>
-                            </TouchableOpacity> : <>
-
-
-                                {User.pin ? <>
-
-                                    <Text style={[styles.registerText, { marginTop: 10, }]}>
-                                        {User.firstname}
-                                        <BoldText1 color="#000" text={`(${User.email.slice(0, 2)}***${User.email.slice(-6)})`} />
-                                    </Text>
-
-                                    {/* Input Boxes */}
-                                    <View style={styles.inputContainer}>
-                                        {inputs.map((input, index) => (
-                                            <View
-                                                key={index}
-                                                style={[
-                                                    styles.inputBox,
-                                                    currentIndex === index && styles.activeInputBox,
-                                                    {
-                                                        borderColor: error ? Colors.primary : null,
-                                                        backgroundColor: input ? '#000' : '#fff'
-                                                    }
-                                                ]}
+                                    >
+                                        <VStack style={{
+                                            justifyContent: "center",
+                                            alignItems: "center"
+                                        }}>
+                                            {/* <SmallAvater /> */}
+                                            <BiometricIcon color={Colors.dark} />
+                                            <BoldText1
+                                                style={{ color: Colors.primary, marginTop: 20 }}
+                                                text="Login with Fingerprint"
                                             />
-                                        ))}
-                                    </View>
-                                    <Text style={[styles.registerText, { marginTop: 20, color: "crimson" }]}>
-                                        {error && " Wrong PIN"}
-                                    </Text>
 
-                                    {/* Custom Keyboard */}
-                                    <View style={styles.keysContainer}>
-                                        {[1, 2, 3, 4, 5, 6, 7, 8, 9, 'BIOMETRICS', 0, 'Del'].map((key, index) => (
-                                            <TouchableOpacity
-                                                key={index}
-                                                style={[
-                                                    styles.keyButton,
-                                                    key === 'Del' && styles.deleteKey,
-                                                ]}
-                                                onPress={() => handleKeyPress(key)}
-                                            >
-                                                <Text style={styles.keyText}>
-                                                    {key === 'Del' ? '⌫' : key === 'BIOMETRICS' ?
-                                                        <BiometricIcon color={isBiometric ? Colors.primary : "lightgrey"} />
-                                                        : key}
-                                                </Text>
-                                            </TouchableOpacity>
-                                        ))}
-                                    </View>
-                                </>
-                                    : <>
-                                        <TouchableOpacity onPress={() => {
-                                            setstartReauth(true)
-                                        }} >
-                                            <VStack style={{
-                                                justifyContent: "center",
-                                                alignItems: "center",
-                                                marginTop: 40
-                                            }}>
-                                                <BoldText1
-                                                    style={{ color: Colors.primary, marginTop: 20 }}
-                                                    text="Enter your password to login"
-                                                />
+                                            <Text style={[styles.registerText, { marginTop: 10, marginBottom: 50 }]}>
+                                                {User && User.firstname}
+                                                <BoldText1 color="#000" text={`(${User.email.slice(0, 2)}***${User.email.slice(-6)})`} />
+                                            </Text>
 
-                                                <Text style={[styles.registerText, { marginTop: 10, marginBottom: 30 }]}>
-                                                    {User.firstname}
-                                                    <BoldText1 color="#000" text={`(${User.email.slice(0, 2)}***${User.email.slice(-6)})`} />
-                                                </Text>
+                                        </VStack>
+                                    </TouchableOpacity> : <>
 
-                                                <PasswordIcon color={Colors.dark} />
 
-                                            </VStack>
-                                        </TouchableOpacity>
+                                        {User && User.pin ? <>
+
+                                            <Text style={[styles.registerText, { marginTop: 10, }]}>
+                                                {User.firstname}
+                                                <BoldText1 color="#000" text={`(${User.email.slice(0, 2)}***${User.email.slice(-6)})`} />
+                                            </Text>
+
+                                            {/* Input Boxes */}
+                                            <View style={styles.inputContainer}>
+                                                {inputs.map((input, index) => (
+                                                    <View
+                                                        key={index}
+                                                        style={[
+                                                            styles.inputBox,
+                                                            currentIndex === index && styles.activeInputBox,
+                                                            {
+                                                                borderColor: error ? Colors.danger : null,
+                                                                backgroundColor: input ? Colors.dark : '#fff'
+                                                            }
+                                                        ]}
+                                                    />
+                                                ))}
+                                            </View>
+                                            <Text style={[styles.registerText, { marginTop: 20, color: "crimson" }]}>
+                                                {error && " Wrong PIN"}
+                                            </Text>
+
+                                            {/* Custom Keyboard */}
+                                            <View style={styles.keysContainer}>
+                                                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 'BIOMETRICS', 0, 'Del'].map((key, index) => (
+                                                    <TouchableOpacity
+                                                        key={index}
+                                                        style={[
+                                                            styles.keyButton,
+                                                            key === 'Del' && styles.deleteKey,
+                                                        ]}
+                                                        onPress={() => handleKeyPress(key)}
+                                                    >
+                                                        <Text style={styles.keyText}>
+                                                            {key === 'Del' ? '⌫' : key === 'BIOMETRICS' ?
+                                                                <BiometricIcon color={isBiometric ? Colors.primary : "lightgrey"} />
+                                                                : key}
+                                                        </Text>
+                                                    </TouchableOpacity>
+                                                ))}
+                                            </View>
+                                        </>
+                                            : <>
+                                                <TouchableOpacity onPress={() => {
+                                                    setstartReauth(true)
+                                                }} >
+                                                    <VStack style={{
+                                                        justifyContent: "center",
+                                                        alignItems: "center",
+                                                        marginTop: 40
+                                                    }}>
+                                                        <BoldText1
+                                                            style={{ color: Colors.primary, marginTop: 20 }}
+                                                            text="Enter your password to login"
+                                                        />
+
+                                                        <Text style={[styles.registerText, { marginTop: 10, marginBottom: 30 }]}>
+                                                            {User && User.firstname}
+                                                            <BoldText1 color="#000" text={`(${User.email.slice(0, 2)}***${User.email.slice(-6)})`} />
+                                                        </Text>
+
+                                                        <PasswordIcon color={Colors.dark} />
+
+                                                    </VStack>
+                                                </TouchableOpacity>
+                                            </>
+
+                                        }
+
+
+
                                     </>
-
                                 }
+                            </View>
 
+                        </Center>
 
+                    </SafeAreaView>
 
-                            </>
-                        }
-                    </View>
+                    <Loader loading={loading} />
 
-                </Center>
+                    <HStack
+                        space={16}
+                        style={{
+                            // position: "absolute",
+                            paddingBottom: 20,
+                            backgroundColor: "#fff",
+                            justifyContent: "center",
+                            alignItems: "center",
+                        }} >
 
-            </SafeAreaView>
-
-            <Loader loading={loading} />
-
-            <HStack
-                space={16}
-                style={{
-                    // position: "absolute",
-                    paddingBottom: 20,
-                    backgroundColor: "#fff",
-                    justifyContent: "center",
-                    alignItems: "center",
-                }} >
-
-                <TouchableOpacity
-                    onPress={() => {
-                        login(null)
-                        navigation.replace('Login')
-                    }}
-                >
-                    <BoldText
-                        size={13}
-                        text="Login with Password"
-                    // style={styles.registerText}
-                    />
-                </TouchableOpacity>
-
-
-                {useBiomAuth ?
-                    <TouchableOpacity
-                        onPress={() => {
-                            isBiometric ? setuseBiomAuth(!useBiomAuth) : setuseBiomAuth(false)
-                        }}
-                    >
-                        <BoldText
-                            size={13}
-                            text="Login with Pin"
-                        />
-                    </TouchableOpacity>
-                    : isBiometric ?
                         <TouchableOpacity
                             onPress={() => {
-                                navigation.replace('Register')
                                 login(null)
+                                navigation.replace('Login')
                             }}
                         >
                             <BoldText
                                 size={13}
-                                text="Create New Account"
+                                text="Login with Password"
+                            // style={styles.registerText}
                             />
                         </TouchableOpacity>
-                        :
-
-                        <BoldText
-                            color="lightgrey"
-                            size={13}
-                            text="Login with Biometrics"
-                        />
-                }
 
 
-            </HStack>
+                        {useBiomAuth ?
+                            <TouchableOpacity
+                                onPress={() => {
+                                    isBiometric ? setuseBiomAuth(!useBiomAuth) : setuseBiomAuth(false)
+                                }}
+                            >
+                                <BoldText
+                                    size={13}
+                                    text="Login with Pin"
+                                />
+                            </TouchableOpacity>
+                            : isBiometric ?
+                                <TouchableOpacity
+                                    onPress={() => {
+                                        navigation.replace('Register')
+                                        login(null)
+                                    }}
+                                >
+                                    <BoldText
+                                        size={13}
+                                        text="Create New Account"
+                                    />
+                                </TouchableOpacity>
+                                :
+
+                                <BoldText
+                                    color="lightgrey"
+                                    size={13}
+                                    text="Login with Biometrics"
+                                />
+                        }
 
 
-            <ModalPop open={startReauth}>
-                <Stack style={{
-                    padding: 10
-                }} >
+                    </HStack>
 
-                    <Text style={[styles.registerText, { marginTop: 10, marginBottom: 30 }]}>
-                        {User.firstname}
-                        <BoldText1 color="#000" text={`(${User.email.slice(0, 2)}***${User.email.slice(-6)})`} />
-                    </Text>
+                    <ModalPop open={startReauth}>
+                        <Stack style={{
+                            padding: 10
+                        }} >
 
-                    <TextInput style={styles.input}
-                        placeholder="Enter your password"
-                        onChangeText={setPassword}
-                        secureTextEntry
-                    />
+                            <Text style={[styles.registerText, { marginTop: 10, marginBottom: 30 }]}>
+                                {User.firstname}
+                                <BoldText1 color="#000" text={`(${User.email.slice(0, 2)}***${User.email.slice(-6)})`} />
+                            </Text>
 
-                    <TouchableOpacity
-                        onPress={handleReAuth}
-                        style={styles.loginButton}>
-                        {loading ? <ActivityIndicator color={Colors.white} /> : <Text style={styles.loginButtonText}>Continue</Text>}
-                    </TouchableOpacity>
-                </Stack>
-            </ModalPop>
+                            <TextInput style={styles.input}
+                                placeholder="Enter your password"
+                                onChangeText={setPassword}
+                                secureTextEntry
+                            />
+
+                            <TouchableOpacity
+                                onPress={handleReAuth}
+                                style={styles.loginButton}>
+                                {loading ? <ActivityIndicator color={Colors.white} /> : <Text style={styles.loginButtonText}>Continue</Text>}
+                            </TouchableOpacity>
+                        </Stack>
+                    </ModalPop>
+                </>
+            }
         </>
     );
 }
@@ -413,15 +416,16 @@ const styles = StyleSheet.create({
         marginTop: 50
     },
     inputBox: {
-        width: 15,
-        height: 15,
-        marginHorizontal: 30,
+        width: 30,
+        height: 30,
+        marginHorizontal: 20,
         borderRadius: 8,
         borderWidth: 1,
         borderColor: '#ddd',
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: '#f5f5f5',
+        // backgroundColor: '#f5f5f5',
+        backgroundColor: 'red',
     },
     activeInputBox: {
         borderColor: 'red',

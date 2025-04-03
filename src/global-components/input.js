@@ -5,13 +5,14 @@ export const Input = ({
     Style, value, onChange,
     Placeholder, LabelText, Label,
     secureTextEntry, LabelMargin,
-    type
+    type, maxLength
 }) => {
     return (
         <>
             {Label && <BoldText text={LabelText} color="#000" style={{ marginTop: LabelMargin }} />}
 
             <TextInput
+                maxLength={maxLength}
                 style={[styles.input, Style]}
                 placeholder={Placeholder}
                 placeholderTextColor="grey"

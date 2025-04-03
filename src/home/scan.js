@@ -1,7 +1,7 @@
 import React from 'react';
 import { Text, Box, IconButton, VStack, HStack, Icon, Button, ScrollView, Stack, Divider, AddIcon, Input, Actionsheet, ShareIcon, ArrowForwardIcon, Center, Image, CheckCircleIcon } from 'native-base';
 import { Alert, Keyboard, PermissionsAndroid, Platform, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
-import { BoldText, BoldText1 } from '../global-components/texts';
+import { BoldText, BoldText1, BoldText2 } from '../global-components/texts';
 import { AcceptanceIcon, ArrowForward, BackIcon, DeleteIcon, Eye, FastIcon, HelpCenterIcon, InIcon, MerchantIcon, NotificationIcon, OutIcon, ScanIcon, SecureIcon, SendVoucherIcon, ShopIcon, VoucherIcon } from '../global-components/icons';
 import { Color } from '../global-components/colors';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -10,9 +10,10 @@ import { Loader } from '../global-components/loader';
 import QRCode from 'react-native-qrcode-svg';
 import { GetScannedDataService, ScanToPayService } from '../voucher/services';
 import { CustomButtons } from '../global-components/buttons';
+import { formatDate, NumberWithCommas } from '../utilities';
 
 const Colors = Color()
-export default function Scan({ navigation,route }) {
+export default function Scan({ navigation, route }) {
     const [User, setUser] = React.useState(route.params.user)
     const [merchant, setmerchant] = React.useState(null)
     const [hasCameraPermission, setHasCameraPermission] = React.useState(false);
@@ -22,14 +23,14 @@ export default function Scan({ navigation,route }) {
     const [loading, setLoader] = React.useState(false)
     const [Amount, setAmount] = React.useState("")
 
-   
+
 
     const device = useCameraDevice('back')
 
     const [hasPermission, setHasPermission] = React.useState(false);
 
     // Request permission
-    React.useEffect(() => { 
+    React.useEffect(() => {
         // (async () => {
         //     const status = await Camera.requestCameraPermission();
         //     setHasPermission(status === 'authorized');
@@ -38,33 +39,38 @@ export default function Scan({ navigation,route }) {
 
 
     function handleGetScannedData(scannedToken) {
-        GetScannedDataService(scannedToken)
-            .then(response => {
-                setLoader(false)
-                if (response.success == false) {
-                    Alert.alert("Error", response.message, [
-                        {
-                            onPress: () => {
-                                navigation.pop()
-                            },
-                            text: "Exit"
-                        }
-                    ])
-                } else {
-                    setmerchant(response.data[0])
-                    setbottomSheet(true)
+
+        let split = scannedToken.split(".-.")
+
+        if (split.length > 1) {
+            let merchantData = JSON.parse(split[0])
+
+            const Payload = {
+                bank_name: merchantData.bank_name,
+                bank_code: merchantData.bank_code,
+                account_number: merchantData.account_number,
+                account_name: merchantData.account_name,
+            }
+            setLoader(false)
+            navigation.replace("Amount-page", { data: Payload })
+        } else {
+            Alert.alert("Error", "Invalid Merchant code", [
+                {
+                    onPress: () => {
+                        setLoader(false)
+                        navigation.pop()
+                    },
+                    text: "Exit"
                 }
-            })
-            .catch(error => {
-                setLoader(false)
-                console.log(error)
-            })
+            ])
+        }
+
     }
 
     function handleScanToPay() {
         if (Amount < 100) {
 
-        } else { 
+        } else {
             Keyboard.dismiss()
             setLoader(true)
             ScanToPayService({ payer: User, receiver: merchant.user, amount: Amount, merchant: merchant.merchant.id })
@@ -129,26 +135,29 @@ export default function Scan({ navigation,route }) {
             </Center>
         }
         else {
-            return <Stack style={{
-                height: 500,
+            return <Center style={{
+                height: 400,
             }} >
 
                 <Camera
                     isActive={isCameraActive}     // Control camera activity
                     codeScanner={codeScanner}
                     device={device}
-                    style={{ width: 500, height: "100%" }}
+                    style={{ width: 300, height: 300 }}
 
                 />
                 <Loader loading={loading} />
-            </Stack>
+            </Center>
         }
     }
 
 
     return (
         <>
-            <SafeAreaView>
+            <SafeAreaView style={{
+                flex: 1,
+                backgroundColor: "#fff"
+            }} >
                 <TouchableOpacity onPress={() => {
                     setDetectedCode(null); setIsCameraActive(true)
                 }} >
@@ -158,10 +167,23 @@ export default function Scan({ navigation,route }) {
                     </HStack>
                 </TouchableOpacity>
 
+                {renderCamera()}
+
+                <Stack space={5} p={4} style={{
+                    backgroundColor: "#fff",
+                    borderTopWidth: 1,
+                    borderTopColor: "#ddd"
+                }} >
+                    <BoldText text="Tips" color="lightgrey" style={{}} />
+
+                    <Text fontSize="sm">⚠️ Never share passwords, OTPs, or account details.</Text>
+                    <Text fontSize="sm">✅ Double-check recipient info before confirming transfers.</Text>
+                    <Text fontSize="sm">📶 Avoid public Wi-Fi for financial transactions.</Text>
+                    <Text fontSize="sm">🔒 Add an extra layer of security for logins and transactions.</Text>
 
 
+                </Stack>
             </SafeAreaView>
-            {renderCamera()}
 
 
             <Actionsheet isOpen={bottomSheet} onClose={() => { navigation.pop(); setbottomSheet(!bottomSheet) }}>
@@ -169,86 +191,26 @@ export default function Scan({ navigation,route }) {
                     backgroundColor: "#fff",
                 }} >
 
-                    {detectedCode && <>
-
-                        <BoldText text="Fund merchant" color="lightgrey" style={{}} />
-                        <Stack mb={10} style={{
-                            width: "100%",
-                            padding: 15
-                        }} >
+                    {detectedCode && merchant && <>
 
 
-                            {merchant &&
-                                <TouchableOpacity
-                                    style={{
-                                        marginBottom: 4,
-                                        paddingVertical: 10,
-                                        paddingRight: 10,
-                                        paddingLeft: 20,
-                                        width: "100%",
-                                        borderRadius: 5,
-                                        flexDirection: "row",
-                                        justifyContent: "space-between",
-                                        alignItems: "center"
-                                    }} >
-                                    <HStack alignItems="center" >
-                                        {/* {console.log(merchant)} */}
-                                        <Image
-                                            style={{
-                                                height: 35, width: 35, borderRadius: 40, zIndex: 1000, marginRight: 10
-                                            }}
-                                            source={{
-                                                uri: merchant.merchant.img
-                                            }} alt={"Image"} size="xl" />
+                        <BoldText text={merchant.token} color="lightgrey" style={{}} />
 
-                                        <VStack style={{
-                                            width: "80%",
-                                            justifyContent: "center"
-                                        }} >
-                                            <BoldText1 text={merchant.merchant.name} color={Colors.dark} />
-                                            <BoldText text={`Amount will be added to the user's ${merchant.merchant.name} voucher balance`}
-                                                color="lightgrey" />
-                                        </VStack>
-                                    </HStack>
-                                    <CheckCircleIcon color={Colors.primary} />
-                                </TouchableOpacity>
-                            }
+                        <Text fontSize="5xl" color="#000" fontWeight="medium">₦{NumberWithCommas(merchant.amount)}</Text>
 
-                            <TextInput
-                                style={[styles.input, { marginTop: 40 }]}
-                                placeholder="Enter amount"
-                                keyboardType='numeric'
-                                onChangeText={setAmount} />
+                        <BoldText text="Created" color="lightgrey" style={{ marginVertical: 15 }} />
 
+                        <Text fontSize="sm" color="#000" >{formatDate(merchant.created_at)}</Text>
 
-                            {/* <TouchableOpacity onPress={() => {
-                                onShare()
-                                setbottomSheet(!bottomSheet)
-                            }} style={{ marginTop: 120 }}  >
-                                <HStack alignItems="center" justifyContent="space-between" >
-                                    <HStack space={4} alignItems="center"  >
-                                        <ShareIcon style={{ color: Colors.primary }} />
-                                        <VStack>
-                                            <BoldText1 text="Share merchant address" color={Colors.dark} />
-                                            <BoldText text="Your friends can fun this merchant for you" color="grey" />
-                                        </VStack>
-                                    </HStack>
-                                    <ArrowForwardIcon />
-                                </HStack>
-                            </TouchableOpacity> */}
+                        <CustomButtons callBack={handleScanToPay}
+                            primary={Amount < 100 ? true : true} Loading={loading}
+                            LoadingText="Processing..."
+                            width="100%" height={58} text="Resolve"
+                            Style={{
+                                marginTop: 50
+                            }}
+                        />
 
-
-                            <CustomButtons callBack={handleScanToPay}
-                                primary={Amount < 100 ? false : true} Loading={loading}
-                                LoadingText="Processing..."
-                                width="100%" height={58} text="Continue"
-                                Style={{
-                                    marginTop: 50
-                                }}
-                            />
-
-
-                        </Stack>
 
                     </>}
 

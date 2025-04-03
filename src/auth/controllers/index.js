@@ -10,6 +10,7 @@ export function LoginController({ setloading, Alert, navigation, email, password
         .then(response => {
             if (response.success == false) {
                 setloading(false)
+                console.log(response)
                 return Alert.alert("Error", response.message,)
             }
             if (response.action == "ENTER OTP") {
@@ -51,7 +52,7 @@ export function LoginController({ setloading, Alert, navigation, email, password
         })
         .catch(error => {
             setloading(false)
-            // console.log(error)
+            console.log(error)
             return Alert.alert("Error", "An error occured",)
         })
 }
@@ -165,7 +166,7 @@ export function UpdateKycController(setLoading, login, user, data, email, name, 
 
 
 // verify NIN
-export function UpdateNINController(setLoading, login, user, data, email, name, phone, User, setclaimCard,) {
+export function UpdateNINController(setLoading, login, user, data, email, name, phone, User, setclaimCard, navigation) {
 
     let { nin, yy, mm, dd, PickedImage } = data;
     supabase.storage
@@ -188,10 +189,11 @@ export function UpdateNINController(setLoading, login, user, data, email, name, 
                     })
                     console.log(response.data)
                     setLoading(false)
+                    navigation.replace("Claim-card")
                 })
                 .catch(error => {
                     setLoading(false)
-                    // console.log(error)
+                    console.log(error)
                     return Alert.alert("Error", "An error occured",)
                 })
 
@@ -311,16 +313,19 @@ export function ConversionRateController(setLoading, amount, setResponse, setloa
     setloadingText("Getting the best exchange rate for you.")
     ConversionRateService(amount, type)
         .then(response => {
+            console.log(response)
             if (response.success == false) {
                 setLoading(false)
                 setloadingText("")
                 return Alert.alert("Error", response.message,)
             }
+
+            setclaimCard && setclaimCard(true)
+            setbottomSheetType && setbottomSheetType(type)
+
             setLoading(false)
             setResponse(response.data)
             setloadingText("")
-            setclaimCard(true)
-            setbottomSheetType && setbottomSheetType("Rate")
         })
         .catch(error => {
             console.log(error)
@@ -331,11 +336,12 @@ export function ConversionRateController(setLoading, amount, setResponse, setloa
 }
 
 // create card
-export function CreateCardController(setLoading, id, card_holder_reference, login, User, amount) {
+export function CreateCardController(setLoading, id, card_holder_reference, login, User, amount, navigation) {
     CreateCardService(card_holder_reference, id, amount)
         .then(response => {
             if (response.success == false) {
                 setLoading(false)
+                console.log(response)
                 return Alert.alert("Error", response.message,)
             }
             login({
@@ -343,8 +349,13 @@ export function CreateCardController(setLoading, id, card_holder_reference, logi
                 ...response.data,
             })
             setLoading(false)
+            navigation.replace("Home", {
+                screen: "Cards"
+            })
+            // navigation.pop()
         })
         .catch(error => {
+            console.log(error)
             setLoading(false)
             return Alert.alert("Error", "An error occured",)
         })
@@ -352,6 +363,7 @@ export function CreateCardController(setLoading, id, card_holder_reference, logi
 
 // get card details
 export function GetCardDetailsController(setLoading, reference, setCardInfo, setclaimCard, setbottomSheetType) {
+    setLoading(true)
     GetCardDetailsHistoryModel(reference)
         .then(response => {
             if (response.success == false) {
@@ -370,9 +382,9 @@ export function GetCardDetailsController(setLoading, reference, setCardInfo, set
 }
 
 // fund card controller
-export function FundCardController(setLoading, amount, chargeAmount, card_ref, setloadingText, user, setCardInfo, GetCardDetails, login, User, GetAllTransactions) {
+export function FundCardController(setLoading, setloadingText, amount, chargeAmount, card_ref, GetCardDetailsHandler, user, fundingSource) {
     setloadingText("Funding your card")
-    FundCardService(amount, chargeAmount, card_ref, user)
+    FundCardService(amount, chargeAmount, card_ref, user, fundingSource)
         .then(response => {
             if (response.success == false) {
                 setLoading(false)
@@ -381,12 +393,12 @@ export function FundCardController(setLoading, amount, chargeAmount, card_ref, s
             }
             setLoading(false)
             setloadingText("")
-            GetCardDetails(setCardInfo)
-            login({
-                ...User,
-                ...response.data
-            })
-            GetAllTransactions()
+            GetCardDetailsHandler()
+            // login({
+            //     ...User,
+            //     ...response.data
+            // })
+            // GetAllTransactions()
         })
         .catch(error => {
             setLoading(false)
@@ -396,7 +408,7 @@ export function FundCardController(setLoading, amount, chargeAmount, card_ref, s
 }
 
 // withdraw card controller
-export function WithdrawCardController(setLoading, setloadingText, login, User, amount, card_ref, GetCardDetails, setCardInfo, GetAllTransactions) {
+export function WithdrawCardController(setLoading, setloadingText, User, amount, card_ref, GetCardDetailsHandler, login) {
     setloadingText("Withdrawing from card")
     CardWithdrawalService(amount, User.id, card_ref)
         .then(response => {
@@ -407,12 +419,12 @@ export function WithdrawCardController(setLoading, setloadingText, login, User, 
             }
             setLoading(false)
             setloadingText("")
-            GetCardDetails(setCardInfo)
-            login({
-                ...User,
-                ...response.data
-            })
-            GetAllTransactions()
+            // login({
+            //     ...User,
+            //     // ...response.data
+            // })
+            GetCardDetailsHandler()
+            console.log(response.data)
         })
         .catch(error => {
             console.log(error)

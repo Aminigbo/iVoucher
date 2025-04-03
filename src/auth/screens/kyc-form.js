@@ -14,6 +14,7 @@ import { BackIcon, KYCICon } from '../../global-components/icons.js';
 import { BoldText, BoldText1 } from '../../global-components/texts.js';
 import { Loader } from '../../global-components/loader.js';
 import { Country } from '../../utilities/data.js';
+import { Input } from '../../global-components/input.js';
 
 const Colors = Color()
 function KYCForm({ navigation }) {
@@ -57,14 +58,44 @@ function KYCForm({ navigation }) {
                 </Text> */}
 
                 <View style={{}}>
-                    <BoldText text="BVN" color="#000" />
-                    <TextInput style={styles.input} placeholder="0000 0000 0000 00" onChangeText={setBvn} keyboardType='numeric' />
+                    {/* <BoldText text="BVN" color="#000" /> */}
+                    {/* <TextInput style={styles.input} placeholder="0000 0000 0000 00" onChangeText={setBvn} keyboardType='numeric' /> */}
+                    <Input
+                        maxLength={11}
+                        Placeholder="0000 0000 0000 00"
+                        LabelText="BVN"
+                        LabelMargin={15}
+                        onChange={setBvn}
+                        type="numeric"
+                        secureTextEntry={false}
+                        Style={{ marginTop: 15, paddingVertical: 15 }}
+                        Label={true}
+                    />
 
-                    <BoldText text="Address" color="#000" style={{ marginTop: 15 }} />
-                    <TextInput style={[styles.input]} placeholder="No. 14 wesham, woji, Rivers State." onChangeText={setaddress} />
+                    {/* <BoldText text="Address" color="#000" style={{ marginTop: 15 }} />
+                    <TextInput style={[styles.input]} placeholder="No. 14 wesham, woji, Rivers State." onChangeText={setaddress} /> */}
+                    <Input
+                        Placeholder="No. 14 wesham, woji, Rivers State."
+                        LabelText="Address"
+                        LabelMargin={15}
+                        onChange={setaddress}
+                        secureTextEntry={false}
+                        Style={{ marginTop: 15, paddingVertical: 15 }}
+                        Label={true}
+                    />
 
-                    <BoldText text="Postal code" color="#000" style={{ marginTop: 15 }} />
-                    <TextInput style={[styles.input, {}]} placeholder="12345" onChangeText={setzipCode} />
+
+                    {/* <BoldText text="Postal code" color="#000" style={{ marginTop: 15 }} />
+                    <TextInput style={[styles.input, {}]} placeholder="12345" onChangeText={setzipCode} /> */}
+                    <Input
+                        Placeholder="5000052"
+                        LabelText="Postal code"
+                        LabelMargin={15}
+                        onChange={setzipCode}
+                        secureTextEntry={false}
+                        Style={{ marginTop: 15, paddingVertical: 15 }}
+                        Label={true}
+                    />
 
 
                     <BoldText text="Gender" color="#000" style={{ marginTop: 15 }} />
@@ -127,7 +158,7 @@ function KYCForm({ navigation }) {
                             // setproceed(!proceed) 
                             let data = {
                                 address, bvn, gender,
-                                state, city, country, zipCode
+                                state: state.name, city, country: country.name, zipCode
                             }
                             VerifyKYC(data, setModalVisible)
                         }}
@@ -278,7 +309,10 @@ export default KYCForm;
 
 const styles = StyleSheet.create({
     container: { flex: 1, padding: 20, backgroundColor: '#FFF', display: "flex" },
-    input: { padding: 15, marginVertical: 10, borderColor: '#ddd', borderWidth: 1, borderRadius: 5 },
+    input: {
+        padding: 15, marginVertical: 10, borderColor: '#ddd',
+        borderWidth: 1, borderRadius: 5,
+    },
     selectBtn: {
         borderRadius: 10,
         paddingVertical: 10,
@@ -336,7 +370,7 @@ const styles = StyleSheet.create({
         marginBottom: 15,
         textAlign: 'center',
     },
-    registerButton: { backgroundColor:Colors.dark, paddingVertical: 15, width: '90%', alignItems: 'center', borderRadius: 5, marginVertical: 10, marginTop: 50, height: 55, alignSelf: "center" },
+    registerButton: { backgroundColor: Colors.dark, paddingVertical: 15, width: '90%', alignItems: 'center', borderRadius: 5, marginVertical: 10, marginTop: 50, height: 55, alignSelf: "center" },
     registerButtonText: { color: '#FFF', fontWeight: 'bold' },
 
 });

@@ -1,6 +1,6 @@
 {
   "name": "react-native-view-shot",
-  "version": "4.0.2",
+  "version": "4.0.3",
   "summary": "Capture a React Native view to an image",
   "license": "MIT",
   "authors": "Gaëtan Renaudeau <renaudeau.gaetan@gmail.com>",
@@ -10,7 +10,7 @@
   },
   "source": {
     "git": "https://github.com/gre/react-native-view-shot.git",
-    "tag": "v4.0.2"
+    "tag": "v4.0.3"
   },
   "source_files": "ios/**/*.{h,m,mm}",
   "compiler_flags": "-DRCT_NEW_ARCH_ENABLED=1 -DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -DFOLLY_CFG_NO_COROUTINES=1 -DFOLLY_HAVE_CLOCK_GETTIME=1 -Wno-comma -Wno-shorten-64-to-32",

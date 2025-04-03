@@ -83,17 +83,17 @@ function LoginScreen({ navigation }) {
         GetFcmToke()
     }, [])
 
-    // return !User ? navigation.replace("Biometrics") : (
+    // return User ? navigation.replace("Biometrics") : (
     return (
         <SafeAreaView style={styles.container}>
             <ScrollView style={{ padding: 20 }} >
-                {/* {console.log(User)} */}
-                <HStack alignItems="center" justifyContent="flex-start" space={5} >
+                {console.log(User)}
+                {/* <HStack alignItems="center" justifyContent="flex-start" space={5} >
                     <TouchableOpacity >
                         <BackIcon noPop={true} action={() => { navigation.replace("Onboarding") }} />
                     </TouchableOpacity>
                     <Text style={styles.welcomeText}>Login</Text>
-                </HStack>
+                </HStack> */}
 
                 <Center style={{ marginVertical: 70 }} >
                     <LoginSvgs />
@@ -131,7 +131,7 @@ function LoginScreen({ navigation }) {
                     <HStack
                         space={16}
                         style={{
-                            marginTop: 100,
+                            marginTop: 20,
                             justifyContent: "center",
                             alignItems: "center",
                         }} >

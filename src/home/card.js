@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Text, Box, VStack, HStack, Icon, Stack, Divider, AddIcon, Image, Center, FlatList, Overlay, Actionsheet, CheckCircleIcon, Alert, SmallCloseIcon } from 'native-base';
+import { Text, Box, VStack, HStack, Icon, Stack, Divider, AddIcon, Image, Center, FlatList, Overlay, Actionsheet, CheckCircleIcon, Alert, SmallCloseIcon, Select, CheckIcon } from 'native-base';
 import { Modal, PermissionsAndroid, Platform, RefreshControl, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
 import { BoldText, } from '../global-components/texts';
 import { ArrowForward } from '../global-components/icons';
@@ -11,20 +11,20 @@ import { appState } from '../state';
 import { Loader } from '../global-components/loader';
 import { CustomButtons, LinkButtons } from '../global-components/buttons';
 import { Activity, ArrowBigDown, ArrowBigUp, ArrowDownUp, BadgePlus, ChartPie, CheckCheck, CheckCircle, Copy, CreditCard, Delete, DollarSign, Download, Ellipsis, EyeIcon, Globe, IdCard, Landmark, Menu, Minus, Plus, PlusCircleIcon, Send, Share, Share2Icon, ShieldEllipsis, Snowflake, UploadCloud, UserCheck } from 'lucide-react-native';
+import { Input } from '../global-components/input';
+import { ConversionRateController, FundCardController, GetCardDetailsController, WithdrawCardController } from '../auth/controllers';
+import { useAppActions } from '../state/state2';
 
 const Colors = Color()
 
 function Card({ navigation, disp_transactions, }) {
-    const [loadAll, setloadAll] = React.useState(false)
+    const [loadingText, setloadingText] = React.useState("")
     const [bottomSheet, setbottomSheet] = React.useState(false)
     const [bottomSheetType, setbottomSheetType] = React.useState("")
     const [Overlay, setOverlay] = React.useState(false)
     const [topupAmount, settopupAmount] = React.useState("")
     const [modalVisible, setModalVisible] = useState(false);
-    const [loading, setLoading] = React.useState({
-        transactions: false,
-        pin: false
-    })
+    const [loading, setLoading] = React.useState(false)
 
     const [PickedImage, setPickedImage] = React.useState({ status: false })
     const [claimCard, setclaimCard] = useState(false)
@@ -36,9 +36,11 @@ function Card({ navigation, disp_transactions, }) {
     const [mm, setMM] = React.useState("")
     const [yy, setYY] = React.useState("")
     const [nin, setNIN] = React.useState("")
+    const [fundingSource, setFundingSource] = React.useState()
 
-    let { User, Loading, Transactions, CardWithdrawal, SaveTrxn, VerifyNIN, CreateCard, ConversionRate, loadingText, GetCardDetails, FundCard, GetAllTransactions } = appState()
-
+    let { User, Loading, Transactions, CardWithdrawal, SaveTrxn, VerifyNIN, CreateCard, ConversionRate, GetCardDetails, FundCard, GetAllTransactions } = appState()
+    // const { User, Loading } = useAppState();
+    const { login, logout } = useAppActions();
 
     const requestNotificationPermission = async () => {
         if (Platform.OS == "android") {
@@ -69,11 +71,37 @@ function Card({ navigation, disp_transactions, }) {
     };
 
 
-    React.useEffect(() => {
+    function GetCardDetailsHandler() {
+        User.card && GetCardDetailsController(setLoading, User.card.reference, setCardInfo);
+    }
 
+    function getConversionRateHandler(type) {
+        let newUser = {
+            ...User,
+            jk: 990
+        }
+        login(newUser)
+        console.log(User)
+        // setLoading(true)
+        // ConversionRateController(setLoading, 2, setconversionRate, setloadingText, setclaimCard, setbottomSheetType, type)
+    }
+
+    function WithdrawCardHandler() {
+        setLoading(true)
+        // topupAmount, CardInfo.reference,
+        WithdrawCardController(setLoading, setloadingText, User, topupAmount, CardInfo.reference, GetCardDetailsHandler, login)
+    }
+
+    function FundCardHandler() {
+        setLoading(true)
+        // topupAmount, topupAmount * conversionRate.rate, setCardInfo, fundingSource
+        FundCardController(setLoading, setloadingText, topupAmount, topupAmount * conversionRate.rate, CardInfo.reference, GetCardDetailsHandler, User.id, fundingSource)
+    }
+
+    React.useEffect(() => {
         const unsubscribe = navigation.addListener('focus', async () => {
-            User.card && GetCardDetails(setCardInfo);
-            GetAllTransactions()
+            User.card && GetCardDetailsHandler();
+            // GetAllTransactions()
         });
 
         return unsubscribe;
@@ -85,7 +113,7 @@ function Card({ navigation, disp_transactions, }) {
     return !User ? navigation.replace("Login") : (
         // return (
         <>
-            {/* {console.log(User.UsdBal)} */}
+            {console.log(User.jk)}
 
             <SafeAreaView style={{
                 backgroundColor: "#fff", display: "flex", flex: 1,
@@ -137,9 +165,11 @@ function Card({ navigation, disp_transactions, }) {
                                                     opacity: CardInfo ? 1 : 0.2
                                                 }}>
                                                 <TouchableOpacity onPress={() => {
-                                                    setclaimCard(true)
-                                                    setbottomSheetType("CARD-TOPUP")
-                                                    ConversionRate(2, setconversionRate, setclaimCard, null, "TOP-UP")
+                                                    // setclaimCard(true)
+                                                    // setbottomSheetType("CARD-TOPUP")
+                                                    // ConversionRate(2, setconversionRate, setclaimCard, setbottomSheetType, "CARD-TOPUP")
+
+                                                    getConversionRateHandler("CARD-TOPUP")
                                                 }} >
                                                     <VStack alignItems="center" space={2}>
                                                         <Center style={{
@@ -158,7 +188,6 @@ function Card({ navigation, disp_transactions, }) {
                                                 <TouchableOpacity onPress={() => {
                                                     setclaimCard(true)
                                                     setbottomSheetType("CARD-WITHDRAWAL")
-                                                    ConversionRate(2, setconversionRate, setclaimCard, null, "WITHDRAWAL")
                                                 }} >
                                                     <VStack alignItems="center" space={2}>
                                                         <Center style={{
@@ -255,7 +284,8 @@ function Card({ navigation, disp_transactions, }) {
                                                         </Center>
                                                         <HStack style={{ justifyContent: "space-between", flex: 1 }} >
                                                             <VStack  >
-                                                                <Text>{items.message}</Text>
+                                                                {/* {console.log(items)} */}
+                                                                <Text>{items.data.description}</Text>
                                                                 <Text fontWeight="light" fontSize="xs" >{formatDate(items.created_at)}</Text>
                                                             </VStack>
 
@@ -358,14 +388,17 @@ function Card({ navigation, disp_transactions, }) {
                                             <Stack mt={4} >
 
                                                 <LinkButtons text="Terms and Conditions"
-                                                    callBack={() => { }}
+                                                    callBack={() => {
+                                                        navigation.navigate("terms")
+                                                    }}
                                                     Style={{
                                                         textAlign: "center",
                                                         marginVertical: 10,
                                                     }} />
                                                 <CustomButtons callBack={() => {
-                                                    setbottomSheetType("Claim")
-                                                    setclaimCard(true)
+                                                    // setbottomSheetType("Claim")
+                                                    // setclaimCard(true)
+                                                    navigation.navigate("Complete-verification")
                                                 }}
                                                     primary
                                                     Loading={false}
@@ -382,9 +415,10 @@ function Card({ navigation, disp_transactions, }) {
                     }}
 
                     refreshControl={
-                        <RefreshControl refreshing={loadAll} onRefresh={() => {
-                            User.card && GetCardDetails(setCardInfo)
-                            GetAllTransactions()
+                        <RefreshControl refreshing={loading} onRefresh={() => {
+                            // User.card && GetCardDetails(setCardInfo)
+                            GetCardDetailsHandler()
+                            // GetAllTransactions()
                         }} />
                     }
                 />
@@ -394,29 +428,30 @@ function Card({ navigation, disp_transactions, }) {
 
                     {!User.card &&
                         <Center>
-                            <Alert maxW="400" status="info" colorScheme="info" mb={4} style={{
-                                backgroundColor: "#FAF7F7",
+                            {/* <Alert maxW="400" status="info" colorScheme="info" mb={4} style={{ 
+                                backgroundColor: Colors.accent,
                                 width: "90%"
                             }}>
                                 <VStack space={2} flexShrink={1} w="100%">
                                     <HStack flexShrink={1} space={2} alignItems="center" justifyContent="space-between">
                                         <HStack flexShrink={1} space={2} alignItems="center">
-                                            <CheckCircle />
-                                            <Text fontSize="md" fontWeight="medium" color="coolGray.800">
+                                            <CheckCircle color={Colors.primary} />
+                                            <Text fontSize="md" fontWeight="medium" color={Colors.dark}>
                                                 You're all set to claim your card
                                             </Text>
                                         </HStack>
                                     </HStack>
                                     <Box pl="6" _text={{
-                                        color: "coolGray.600"
+                                        color: Colors.dark
                                     }}>
                                         There is a $2 fee to create a virtual USD card and a minimum of $3 is required to fund your card.
                                     </Box>
                                 </VStack>
-                            </Alert>
+                            </Alert> */}
                             <TouchableOpacity
                                 onPress={() => {
-                                    ConversionRate(5, setconversionRate, setclaimCard, setbottomSheetType)
+                                    navigation.navigate("Claim-card")
+                                    // ConversionRate(5, setconversionRate, setclaimCard, setbottomSheetType, 'Rate')
                                 }}
                                 style={[{
                                     width: "90%",
@@ -434,9 +469,6 @@ function Card({ navigation, disp_transactions, }) {
                 </>
 
                 }
-
-
-
 
             </SafeAreaView>
 
@@ -503,7 +535,7 @@ function Card({ navigation, disp_transactions, }) {
                             onPress={() => {
                                 setclaimCard(false)
                                 setbottomSheetType("")
-                                CreateCard(conversionRate.rate * 5)
+                                CreateCard(conversionRate.rate * 5, setCardInfo, GetCardDetails)
                             }}
                             style={[{
                                 width: "95%",
@@ -514,7 +546,7 @@ function Card({ navigation, disp_transactions, }) {
                                 backgroundColor: Colors.dark,
                                 marginVertical: 20
                             }]}>
-                            <BoldText text="Activate card" color="#fff" />
+                            <BoldText text="Proceed" color="#fff" />
                         </TouchableOpacity>
                     </>}
 
@@ -523,14 +555,20 @@ function Card({ navigation, disp_transactions, }) {
                             Complete your identity verification
                         </Text>
                         <View style={{ padding: 15, width: "100%" }}>
+
                             <BoldText text="Enter your NIN" color="#000" />
-                            <TextInput style={styles.input} placeholder="0 0 0   0 0 0 0   0 0 0 0" onChangeText={setNIN} keyboardType='numeric' />
+                            <TextInput
+                                maxLength={11}
+                                style={styles.input}
+                                placeholderTextColor="grey"
+                                placeholder="0 0 0   0 0 0 0   0 0 0 0" onChangeText={setNIN} keyboardType='numeric' />
+
                             <BoldText text="Your date of birth" color="#000" style={{ marginTop: 15 }} />
 
                             <HStack space={4} justifyContent="space-between" >
-                                <TextInput style={[styles.input, { flex: 1 }]} placeholder="YYYY" keyboardType='numeric' onChangeText={setYY} />
-                                <TextInput style={[styles.input, { flex: 1 }]} placeholder="MM" keyboardType='numeric' onChangeText={setMM} />
-                                <TextInput style={[styles.input, { flex: 1 }]} placeholder="DD" keyboardType='numeric' onChangeText={setDD} />
+                                <TextInput placeholderTextColor="grey" maxLength={4} style={[styles.input, { flex: 1 }]} placeholder="YYYY" keyboardType='numeric' onChangeText={setYY} />
+                                <TextInput placeholderTextColor="grey" maxLength={2} style={[styles.input, { flex: 1 }]} placeholder="MM" keyboardType='numeric' onChangeText={setMM} />
+                                <TextInput placeholderTextColor="grey" maxLength={2} style={[styles.input, { flex: 1 }]} placeholder="DD" keyboardType='numeric' onChangeText={setDD} />
                             </HStack>
 
 
@@ -591,22 +629,31 @@ function Card({ navigation, disp_transactions, }) {
                         <View style={[{ padding: 15, width: "100%", }, styles.shadowBox]}>
 
                             <BoldText text={`Funding source`} color="#000" style={{}} />
-                            <TextInput style={[styles.input, { fontSize: 17, fontWeight: 500, color: "#000" }]}
-                                placeholder={`NGN Balance - NGN ${NumberWithCommas(User.wallet)}`}
-                                editable={false}
-                                placeholderTextColor='#000'
-                            />
-                            <Divider />
+                            <Select
+                                style={[styles.input, { fontSize: 17, fontWeight: 500, color: "#000", borderWidth: 0 }]}
+                                selectedValue={fundingSource}
+                                minWidth="200" accessibilityLabel="Choose Service"
+                                placeholder="Select funding source" _selectedItem={{
+                                    bg: "teal.600",
+                                    endIcon: <CheckIcon size="5" />
+                                }} mt={1} onValueChange={itemValue => {
+                                    setFundingSource(itemValue)
+                                }} borderWidth={0}>
+                                <Select.Item label={`NGN Balance - NGN ${NumberWithCommas(User.wallet)}`} value="NGN" />
+                                <Select.Item label={`USD Balance - USD ${NumberWithCommas(User.UsdBal ? User.UsdBal : 0)}`} value="USD" />
+                            </Select>
+
+                            {/* <Divider /> */}
 
                             <BoldText text={`Amount`} color="#000" style={{ marginTop: 35, }} />
                             <HStack space={3} style={{
                                 alignItems: "center",
                             }} >
                                 <Text fontSize={17} fontWeight="normal" color={Colors.dark} >  USD </Text>
-                                <TextInput style={[styles.input, { fontSize: 20, fontWeight: 300, color: "#000", width: "85%", padding: 10 }]}
+                                <TextInput style={[styles.input, { fontSize: 20, fontWeight: 300, color: "#000", width: "85%", padding: 10, borderBottomWidth: 0 }]}
                                     placeholder="0.00"
                                     onChangeText={settopupAmount}
-                                    value={topupAmount}
+                                    // value={topupAmount}
 
                                     keyboardType='numeric'
                                 />
@@ -615,14 +662,14 @@ function Card({ navigation, disp_transactions, }) {
                             <HStack justifyContent="space-between" style={{
                                 marginBottom: 30,
                             }} >
-                                <Text fontSize={15} fontWeight="thin" color={Colors.dark} style={{ marginTop: 20 }} >
+                                {/* <Text fontSize={15} fontWeight="thin" color={Colors.dark} style={{ marginTop: 20 }} >
                                     NGN  <Text fontSize={15} fontWeight="bold" color={Colors.dark} style={{ marginTop: 20 }} >
                                         {conversionRate && NumberWithCommas(Math.round(topupAmount * conversionRate.rate * 100) / 100)}
                                     </Text>
-                                </Text>
+                                </Text> */}
 
                                 <Text fontSize={15} fontWeight="thin" color={Colors.dark} style={{ marginTop: 20 }} >
-                                    || Rate  <Text fontSize={15} fontWeight="medium" color={Colors.dark} style={{ marginTop: 20 }} >
+                                    <Text fontSize={15} fontWeight="medium" color={Colors.dark} style={{ marginTop: 20 }} >
                                         $1.00 = ₦
                                         {conversionRate && NumberWithCommas(conversionRate.rate)}
                                     </Text>
@@ -631,7 +678,8 @@ function Card({ navigation, disp_transactions, }) {
 
                             <CustomButtons
                                 callBack={() => {
-                                    FundCard(topupAmount, topupAmount * conversionRate.rate, setCardInfo)
+                                    FundCardHandler()
+                                    // FundCard(topupAmount, topupAmount * conversionRate.rate, setCardInfo, fundingSource)
                                     setclaimCard(false)
                                     settopupAmount("")
                                 }}
@@ -642,7 +690,6 @@ function Card({ navigation, disp_transactions, }) {
                         </View>
 
                     </>}
-
 
 
                     {bottomSheetType == "CARD-WITHDRAWAL" && <>
@@ -663,10 +710,11 @@ function Card({ navigation, disp_transactions, }) {
                                 alignItems: "center",
                             }} >
                                 <Text fontSize={17} fontWeight="normal" color={Colors.dark} >  USD </Text>
-                                <TextInput style={[styles.input, { fontSize: 20, fontWeight: 300, color: "#000", width: "80%" }]}
+                                <TextInput style={[styles.input, { fontSize: 20, fontWeight: 300, color: "#000", width: "80%", borderBottomWidth: 0 }]}
                                     placeholder="0.00"
+                                    placeholderTextColor="grey"
                                     onChangeText={settopupAmount}
-                                    value={topupAmount}
+                                    // value={topupAmount}
 
                                     keyboardType='numeric'
                                 />
@@ -682,7 +730,8 @@ function Card({ navigation, disp_transactions, }) {
 
                             <CustomButtons
                                 callBack={() => {
-                                    CardWithdrawal(topupAmount, CardInfo.reference, setCardInfo)
+                                    // CardWithdrawal(topupAmount, CardInfo.reference, setCardInfo)
+                                    WithdrawCardHandler()
                                     setclaimCard(false)
                                     settopupAmount("")
                                 }}
@@ -955,7 +1004,9 @@ function Card({ navigation, disp_transactions, }) {
                 </View>
             </Modal>
 
-            <Loader loading={Loading} text={loadingText} />
+            <Loader loading={loading}
+            // text={loadingText} 
+            />
 
         </>
     );
@@ -969,7 +1020,12 @@ export default Card;
 
 const styles = StyleSheet.create({
 
-    input: { padding: 15, marginVertical: 10, borderColor: '#ddd', borderBottomWidth: 1, borderRadius: 5, width: "100%" },
+    input: {
+        padding: 15,
+        marginVertical: 10,
+        borderColor: '#ddd', borderBottomWidth: 1, borderRadius: 5, width: "100%",
+        color: "#000"
+    },
 
 
     registerButton: { backgroundColor: Colors.dark, paddingVertical: 15, width: '90%', alignItems: 'center', borderRadius: 5, marginVertical: 10, marginTop: 50, height: 55, alignSelf: "center" },

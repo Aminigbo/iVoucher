@@ -64,7 +64,7 @@ function Notification({ navigation }) {
 
 
             <SafeAreaView style={{ display: "flex", flex: 1, backgroundColor: "#fff" }} >
-                <HStack space={7} alignItems="center" pt={6}  p={2}>
+                <HStack space={7} alignItems="center" pt={6} p={2}>
                     <BackIcon />
                     <Text fontSize="lg" fontWeight="bold"> Transactions </Text>
                 </HStack>
@@ -74,7 +74,7 @@ function Notification({ navigation }) {
                     data={[0]}
                     renderItem={() => {
                         return <>
-                            <VStack   p={2}>
+                            <VStack p={2}>
 
                                 <Stack p={2}>
                                     {Transactions.filter(item => item.type != "CARD").length > 0 ?
@@ -86,7 +86,7 @@ function Notification({ navigation }) {
                                             {Transactions.filter(item => item.type != "CARD").map((items, index) => {
                                                 return <TouchableOpacity
                                                     onPress={() => {
-                                                        navigation.navigate("view-transaction", { data: items })
+                                                        // navigation.navigate("view-transaction", { data: items })
                                                     }}
                                                 >
                                                     <HStack key={index} mt={7} alignItems="center" space={3} >
@@ -98,7 +98,7 @@ function Notification({ navigation }) {
                                                             width: 40,
                                                             height: 40
                                                         }} >
-                                                            <Icon as={<ArrowBigUp size={20} />} color={Colors.primary} />
+                                                            <Icon as={items.user != User.id ? <ArrowBigDown size={19} color={Colors.primary} /> : <ArrowBigUp size={19} color={Colors.danger} />} />
                                                         </Center>}
                                                         {items.type == "MERCHANT-TOPUP" && <Center style={{
                                                             // borderWidth: 0.4,
@@ -117,7 +117,7 @@ function Notification({ navigation }) {
                                                             width: 40,
                                                             height: 40,
                                                         }} >
-                                                            <Icon as={<ArrowBigUp size={20} />} color={Colors.primary} />
+                                                            <Icon as={items.user != User.id ? <ArrowBigDown size={19} color={Colors.primary} /> : <ArrowBigUp size={19} color={Colors.danger} />} />
                                                         </Center>}
 
                                                         {items.message == "Merchant top-up" && <Center style={{
@@ -155,7 +155,23 @@ function Notification({ navigation }) {
 
                                                         <HStack style={{ justifyContent: "space-between", flex: 1 }} >
                                                             <VStack  >
-                                                                <Text>{items.message}</Text>
+                                                                {items.data.receiver ?
+
+                                                                    <Text>
+                                                                        {/* {items.message} */}
+                                                                        Transfer {items.user == User.id ? "to " : "from "}
+                                                                        {items.user == User.id ?
+                                                                            items.data.receiver.accountName.length > 17 ? items.data.receiver.accountName.slice(0, 17) + "..." : items.data.receiver.accountName
+                                                                            :
+                                                                            items.data.sender.senderFullname.length > 17 ? items.data.sender.senderFullname.slice(0, 17) + "..." : items.data.sender.senderFullname
+                                                                        }
+                                                                    </Text>
+                                                                    :
+                                                                    <Text>
+                                                                        {items.data.method} 
+                                                                    </Text>
+                                                                }
+
                                                                 <Text fontWeight="light" fontSize="xs" >{formatDate(items.created_at)}</Text>
                                                             </VStack>
 

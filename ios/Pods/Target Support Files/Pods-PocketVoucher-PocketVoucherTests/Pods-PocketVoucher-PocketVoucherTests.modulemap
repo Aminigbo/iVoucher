@@ -1,0 +1,6 @@
+module Pods_PocketVoucher_PocketVoucherTests {
+  umbrella header "Pods-PocketVoucher-PocketVoucherTests-umbrella.h"
+
+  export *
+  module * { export * }
+}

@@ -1,7 +1,7 @@
 import React from "react";
 import { Box, VStack, HStack, Text, Button, Icon, Pressable, Avatar, Divider, Badge, ArrowForwardIcon, QuestionIcon, Stack, Switch, Actionsheet, Center } from "native-base";
 import { ActivityIndicator, ScrollView, TouchableOpacity } from "react-native";
-import { History, CircleGauge, CreditCard, Wallet, ShieldCheck, Store, PartyPopper, Phone, Settings, Star, ChevronRight, Bolt, UserCheck, Landmark, User2 } from "lucide-react-native";
+import { History, CircleGauge, CreditCard, Wallet, ShieldCheck, Store, PartyPopper, Phone, Settings, Star, ChevronRight, Bolt, UserCheck, Landmark, User2, MessageCircleQuestion } from "lucide-react-native";
 import { Color } from "../global-components/colors";
 
 import { AcceptanceIcon, ArrowForward, Avater, BiometricIcon, CloseIcon, DeleteIcon, FastIcon, HeartIcon, LogoutIcon, MiniShareIcon, QRcodeIcon, SecureIcon, SmallAvater, SmallBiometricIcon } from '../global-components/icons';
@@ -14,7 +14,7 @@ import { ConfigBiometricController } from './service';
 import ModalPop from '../global-components/modal';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { handleBiometricAuth } from '../helpers/biometrics';
-import { NumberWithCommas } from "../utilities";
+import { DpUrl, NumberWithCommas } from "../utilities";
 
 
 
@@ -61,6 +61,11 @@ const Profile = ({ navigation }) => {
 
     const menuItems = [
         {
+            title: "Personal Information", icon: User2, callBack: () => {
+                navigation.navigate('Persona')
+            }
+        },
+        {
             title: "Send money", icon: History, callBack: () => {
                 setbottomSheet(!bottomSheet)
                 setbottomSheetType("SEND-MONEY")
@@ -73,11 +78,6 @@ const Profile = ({ navigation }) => {
         },
         { title: "Virtual Card", icon: CreditCard, callBack: () => { navigation.navigate("Cards") } },
         {
-            title: "Security Center", icon: ShieldCheck, callBack: () => {
-                navigation.navigate('service-reset-pwd')
-            }
-        },
-        {
             title: "Voucher", icon: Store, callBack: () => {
                 navigation.navigate('Voucher')
             }
@@ -88,7 +88,7 @@ const Profile = ({ navigation }) => {
     // return (
     return !User ? navigation.replace("Login") : (
         <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
-            <ScrollView>
+            <ScrollView style={{}} >
                 {/* Header Section */}
                 {/* <TouchableOpacity style={{ display: "flex", flexDirection: "row", justifyContent: "flex-end", marginRight: 20, marginTop: 10 }} >
                     <Icon as={Bolt} size={5} style={{ color: Colors.dark }} />
@@ -97,11 +97,13 @@ const Profile = ({ navigation }) => {
                 {/* Balance Section */}
                 <Box py={3} alignItems="center" mt={4}>
                     {/* <Text fontSize="xs" color="gray.500">Total Balance</Text> */}
-                    <Avatar   size="xl" />
+                    <Avatar size="xl" source={{ uri: User.dp ? `${DpUrl}${User.dp}` : null }} />
                     <Box flexDirection="row" alignItems="center" mt={3}>
                         <Text fontSize="xl" medium ml={2}>{NumberWithCommas(User.firstName)} {NumberWithCommas(User.lastName)}</Text>
                     </Box>
-                    <Text fontSize="xs" color="gray.500" mt={1}>  {User.bankInfo.account_number} - {User.bankInfo.bank_name}</Text>
+                    {User.bankInfo &&
+                        <Text fontSize="xs" color="gray.500" mt={1}>  {User.bankInfo.account_number} - {User.bankInfo.bank_name}</Text>
+                    }
                 </Box>
 
                 {/* Menu Options */}
@@ -125,7 +127,7 @@ const Profile = ({ navigation }) => {
                     ))}
                 </VStack>
 
-                <Stack mt={9} p={15} style={{ marginBottom: 20 }} bg={Colors.accent} borderRadius={10} mx={4} >
+                <Stack mt={9} p={15} style={{}} bg={Colors.accent} borderRadius={10} mx={4} mb={10} >
                     <TouchableOpacity onPress={() => {
                         handleBiometricAuth({
                             setbiometricLoader,
@@ -147,12 +149,7 @@ const Profile = ({ navigation }) => {
                                 <Switch
                                     isDisabled={true}
                                     size="sm"
-                                    // value={false}
                                     isChecked={isBiometric}
-                                    // offTrackColor="red"
-                                    // onTrackColor="grey"
-                                    // onThumbColor="green.900"
-                                    // offThumbColor="grey"
                                     colorScheme="primary"
                                 />
                             }
@@ -163,42 +160,13 @@ const Profile = ({ navigation }) => {
 
                     <Divider marginVertical={16} bgColor="gray.200" style={{ height: 0.4 }} />
 
-                    <TouchableOpacity   >
-                        <HStack alignItems="center" justifyContent="space-between" >
-                            <HStack space={4}>
-                                <User2 style={{ color: Colors.primary }} />
-                                <BoldText text="Personal Information" color={Colors.dark} />
-                            </HStack>
-                            <ArrowForward />
-                        </HStack>
-                    </TouchableOpacity>
-
-                    <Divider marginVertical={16} bgColor="gray.200" style={{ height: 0.4 }} />
-
-                    <TouchableOpacity   >
-                        <HStack alignItems="center" justifyContent="space-between" >
-                            <HStack space={4}>
-                                <QuestionIcon style={{ color: Colors.primary }} />
-                                <BoldText text="FAQ" color={Colors.dark} />
-                            </HStack>
-                            <ArrowForward />
-                        </HStack>
-                    </TouchableOpacity>
-
-                    <Divider marginVertical={16} bgColor="gray.200" style={{ height: 0.4 }} />
-
                     <TouchableOpacity onPress={() => {
-                        navigation.replace('Biometrics')
-                        // if (isBiometric == true) {
-                        //     navigation.replace('Biometrics')
-                        // } else {
-                        //     login(null)
-                        // }
+                        navigation.navigate("service-reset-pwd")
                     }}  >
                         <HStack alignItems="center" justifyContent="space-between" >
                             <HStack space={4}>
-                                <LogoutIcon />
-                                <BoldText text="Logout" color={Colors.dark} />
+                                <ShieldCheck style={{ color: Colors.primary }} />
+                                <BoldText text="Security Center" color={Colors.dark} />
                             </HStack>
                             <ArrowForward />
                         </HStack>
@@ -207,6 +175,34 @@ const Profile = ({ navigation }) => {
                     <Divider marginVertical={16} bgColor="gray.200" style={{ height: 0.4 }} />
 
                     <TouchableOpacity onPress={() => {
+                        navigation.navigate("Support", { user: User.id })
+                    }}  >
+                        <HStack alignItems="center" justifyContent="space-between" >
+                            <HStack space={4}>
+                                <MessageCircleQuestion style={{ color: Colors.primary }} />
+                                <BoldText text="Help Center" color={Colors.dark} />
+                            </HStack>
+                            <ArrowForward />
+                        </HStack>
+                    </TouchableOpacity>
+
+                    <Divider marginVertical={16} bgColor="gray.200" style={{ height: 0.4 }} />
+
+                    <TouchableOpacity onPress={() => {
+                        // navigation.navigate("Support", { user: User.id })
+                    }}  >
+                        <HStack alignItems="center" justifyContent="space-between" >
+                            <HStack space={4}>
+                                <Star size={20} color={Colors.primary} />
+                                <BoldText text="Rate Us" color={Colors.dark} />
+                            </HStack>
+                            <ArrowForward />
+                        </HStack>
+                    </TouchableOpacity>
+
+                    {/* <Divider marginVertical={16} bgColor="gray.200" style={{ height: 0.4 }} /> */}
+
+                    {/* <TouchableOpacity onPress={() => {
                         setbottomSheet(!bottomSheet)
                         setbottomSheetType("DEL-ACCOUNT")
                     }}  >
@@ -217,7 +213,7 @@ const Profile = ({ navigation }) => {
                             </HStack>
                             <ArrowForward />
                         </HStack>
-                    </TouchableOpacity>
+                    </TouchableOpacity> */}
 
                 </Stack>
 
@@ -247,7 +243,7 @@ const Profile = ({ navigation }) => {
                                 marginBottom: 70
                             }} >
                             <VStack alignItems="flex-start" space={3} style={{
-                                backgroundColor: "#E9DFDE",
+                                backgroundColor: Colors.accent,
                                 borderRadius: 10,
                                 height: 160,
                                 padding: 20,
@@ -261,21 +257,21 @@ const Profile = ({ navigation }) => {
                                     <HStack alignItems="center" space={1} mb={5}>
                                         <Center style={{
                                             borderRadius: 50,
-                                            backgroundColor: Colors.primary,
+                                            backgroundColor: Colors.dark,
                                             width: 25,
                                             height: 25
                                         }} >
                                             <Icon as={<UserCheck size={15} />} color={Colors.background} />
                                         </Center>
-                                        <BoldText1 text="Pocket Voucher" size={11} color={Colors.primary} />
+                                        <BoldText1 text="Pocket Voucher" size={11} color={Colors.dark} />
                                     </HStack>
-                                    <Text style={{ fontWeight: 200 }} >Transfer to Pocket Voucher account</Text>
+                                    <Text style={{ fontWeight: 200, color: Colors.dark }} >Transfer to Pocket Voucher account</Text>
 
                                 </TouchableOpacity>
                             </VStack>
 
                             <VStack alignItems="flex-start" space={3} style={{
-                                backgroundColor: "#E9DFDE",
+                                backgroundColor: Colors.accent,
                                 borderRadius: 10,
                                 height: 160,
                                 padding: 20,
@@ -288,15 +284,15 @@ const Profile = ({ navigation }) => {
                                     <HStack alignItems="center" space={3} mb={5}>
                                         <Center style={{
                                             borderRadius: 50,
-                                            backgroundColor: Colors.primary,
+                                            backgroundColor: Colors.dark,
                                             width: 25,
                                             height: 25
                                         }} >
                                             <Icon as={<Landmark size={15} />} color={Colors.background} />
                                         </Center>
-                                        <BoldText1 text="To Bank" size={11} color={Colors.primary} />
+                                        <BoldText1 text="To Bank" size={11} color={Colors.dark} />
                                     </HStack>
-                                    <Text style={{ fontWeight: 200 }} >Transfer to a bank account</Text>
+                                    <Text style={{ fontWeight: 200, color: Colors.dark }} >Transfer to a bank account</Text>
 
                                 </TouchableOpacity>
                             </VStack>
@@ -350,8 +346,6 @@ const Profile = ({ navigation }) => {
                         </Stack>
 
                     </>}
-
-
 
                 </Actionsheet.Content>
             </Actionsheet>

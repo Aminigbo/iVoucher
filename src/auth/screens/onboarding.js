@@ -1,18 +1,36 @@
-// screens/HomeScreen.js
-import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, PermissionsAndroid } from 'react-native';
-import { Color } from '../../global-components/colors';
-import { Center, StatusBar } from 'native-base';
-import { connect } from 'react-redux';
-import { initAuth } from '../../redux';
-import { check, request, PERMISSIONS, RESULTS } from 'react-native-permissions';
-import { appState } from '../../state';
-import { OnboardingIcon } from '../../global-components/icons';
-import { BoldText, BoldText1, BoldText2 } from '../../global-components/texts';
-const Colors = Color()
+import React, { useRef, useState } from "react";
+import { StatusBar, View, Dimensions, TouchableOpacity, Platform, PermissionsAndroid } from "react-native";
+import Onboarding from "react-native-onboarding-swiper";
+import { Text } from "native-base";
+import { Onboarding1, Onboarding2, Onboarding3 } from "../../assets/svgs";
+import { CustomButtons } from "../../global-components/buttons";
+import { appState } from "../../state";
 
-function Onboarding({ navigation }) {
+const { width } = Dimensions.get("window");
+
+// Custom Dot Component for Indicators
+const CustomDot = ({ selected }) => {
+    return (
+        <View
+            style={{
+                width: selected ? 16 : 8,
+                height: 8,
+                borderRadius: 4,
+                marginHorizontal: 4,
+                backgroundColor: selected ? "blue" : "#D0D0D0",
+            }}
+        />
+    );
+};
+
+
+
+
+const OnboardingScreen = ({ navigation }) => {
+    const onboardingRef = useRef(null);
+    const [currentPage, setCurrentPage] = useState(0);
     const { User, Initialized } = appState()
+
 
     const requestNotificationPermission = async (to) => {
         if (Platform.OS == "android") {
@@ -57,66 +75,88 @@ function Onboarding({ navigation }) {
     };
 
 
-
-    return Initialized ? navigation.replace("Biometrics") : (
-        // return (
+    // return (
+    return Initialized != null ? navigation.replace("Biometrics") : (
         <>
-            <StatusBar
-                animated={true}
-                backgroundColor="#F9EFE5"
-                barStyle="dark-content"
-            // showHideTransition={statusBarTransition}
-            // hidden={hidden}
-            />
+            <StatusBar barStyle="dark-content" />
+            <View style={{ flex: 1, backgroundColor: "#fff" }}>
+                {/* Skip Button at Top Right */}
+                <TouchableOpacity
+                    onPress={() => navigation.replace("Login")}
+                    style={{
+                        position: "absolute",
+                        top: 50,
+                        right: 20,
+                        zIndex: 10,
+                    }}
+                >
+                    <Text fontSize="md" color="blue.600">Skip</Text>
+                </TouchableOpacity>
 
-            <View style={styles.container}>
-                <OnboardingIcon />
-                {/* <Text style={styles.guestText}>Continue as a guest</Text> */}
+                <Onboarding
+                    ref={onboardingRef}
+                    onSkip={() => navigation.replace("Login")}
+                    onDone={() => navigation.replace("Login")}
+                    bottomBarHighlight={false}
+                    showNext={false}
+                    showSkip={false}
+                    showDone={false}
+                    pageIndexCallback={page => {
+                        // console.log(page)
+                        setCurrentPage(page)
+                    }}
+                    subTitleStyles={{
+                        fontSize: 16,
+                        fontWeight: "small",
+                        color: "#000",
+                        textAlign: "center",
+                        marginBottom: 20,
+                        paddingHorizontal: 20,
+                    }}
+
+                    DotComponent={CustomDot} // Use Custom Dot
+                    pages={[
+                        {
+                            backgroundColor: "#fff",
+                            image: <Onboarding1 />,
+                            title: "Welcome to Pocket Voucher!",
+                            subtitle: "Seamlessly generate vouchers, send money, and manage your funds—all in one place.",
+                        },
+                        {
+                            backgroundColor: "#fff",
+                            image: <Onboarding2 />,
+                            title: "Send & Receive Money",
+                            subtitle: "Instantly transfer funds with ease and security.",
+                        },
+                        {
+                            backgroundColor: "#fff",
+                            image: <Onboarding3 />,
+                            title: "Create & Manage Vouchers",
+                            subtitle: "Generate vouchers and keep track of your transactions effortlessly.",
+                        },
+                    ]}
+                />
+
+                {/* Custom buttons below the indicators */}
+                <View style={{ width: width - 40, alignSelf: "center" }}>
+                    <CustomButtons
+                        primary
+                        text={currentPage === 2 ? "Get Started" : "Next"}
+                        width="100%"
+                        style={{ marginTop: 50 }}
+                        bgColor={currentPage === 2 ? "red.600" : "blue.700"}
+                        callBack={() => {
+                            if (currentPage === 2) {
+                                navigation.replace("Login");
+                            } else if (onboardingRef.current) {
+                                onboardingRef.current.goNext();
+                            }
+                        }}
+                    />
+                </View>
             </View>
-
-
-            <Center style={styles.buttonContainer}>
-                <Center style={{
-                    padding: 10,
-                    // marginTop: 10,
-                }} >
-                    <BoldText2 size={22} text="Easy Voucher Payment" color={Colors.dark} />
-                    <BoldText style={{
-                        marginVertical: 15
-                    }} text="Make your payment experience with multiple merchants more better today. No transaction fee" color={Colors.dark} />
-                </Center>
-
-                {/* ?================= */}
-
-                <TouchableOpacity style={styles.loginButton} onPress={() => {
-                    // set_initAuth(true)
-                    requestNotificationPermission("Login")
-                    // navigation.replace('Login')
-                }}>
-                    <Text style={[styles.buttonText, { color: Colors.white }]}>Login</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.registerButton} onPress={() => {
-                    // navigation.replace('Register')
-                    requestNotificationPermission("Register")
-                }}>
-                    <Text style={styles.buttonText}>Register</Text>
-                </TouchableOpacity>
-            </Center>
         </>
     );
-}
+};
 
-
-
-
-export default Onboarding;
-
-
-const styles = StyleSheet.create({
-    container: { flex: 1, justifyContent: 'flex-start', alignItems: 'center', backgroundColor: "#F9EFE5", paddingTop: 70 },
-    buttonContainer: { width: '100%', alignItems: 'center', justifyContent: "center", backgroundColor: Colors.white, paddingHorizontal: 20, paddingVertical: 30 },
-    loginButton: { backgroundColor: '#000', paddingVertical: 15, width: '100%', alignItems: 'center', marginVertical: 20, borderRadius: 5 },
-    registerButton: { backgroundColor: '#fff', borderColor: '#000', borderWidth: 1, paddingVertical: 15, width: '100%', alignItems: 'center', borderRadius: 5 },
-    buttonText: { color: '#000', fontWeight: 'bold' },
-    guestText: { color: '#00B2E3', marginTop: 20, textDecorationLine: 'underline' },
-});
+export default OnboardingScreen;

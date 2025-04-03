@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Box, VStack, Text, Button, HStack, Image, Pressable, ScrollView, Divider, Select, CheckIcon, Center, Icon, Actionsheet, Stack, AddIcon, Checkbox, ShareIcon, ArrowForwardIcon } from "native-base";
-import { FlatList, Keyboard, StyleSheet, TextInput, TouchableOpacity, View } from "react-native";
-import { ArrowLeft, CheckSquare, CircleCheck, CopyCheck, Download, Hexagon, Landmark, Tags, TicketCheckIcon, Wifi } from "lucide-react-native";
+import { FlatList, Keyboard, PermissionsAndroid, Platform, StyleSheet, TextInput, TouchableOpacity, View } from "react-native";
+import { ArrowLeft, CheckSquare, CircleCheck, CopyCheck, Download, Hexagon, Landmark, Scan, Tags, TicketCheckIcon, Wifi } from "lucide-react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ArrowForward, BackIcon, CloseIcon, DeleteIcon, InIcon, OutIcon } from "../global-components/icons";
 import { Color } from "../global-components/colors";
@@ -37,19 +37,26 @@ const ResolveToken = ({ navigation }) => {
 
     }, [navigation]);
 
+  
+
+
     return (
         <>
             {/* {console.log(Vouchers.length)} */}
 
-            <SafeAreaView style={{ display: "flex", flex: 1, backgroundColor: Colors.white }} >
+            <SafeAreaView style={{ display: "flex", flex: 1, backgroundColor: Colors.accent }} >
 
-                <HStack space={7} bg="#fff" alignItems="center"
-                    style={{ width: "100%", justifyContent: "space-between", paddingHorizontal: 10, paddingVertical: 19 }}>
+                <HStack space={7}   alignItems="center"
+                    style={{
+                        width: "100%", justifyContent: "space-between",
+                        paddingHorizontal: 10, paddingVertical: 19, paddingRight: 16
+                    }}>
                     <HStack space={7} alignItems="center">
                         <BackIcon />
                         <Text fontSize="lg" fontWeight="bold">Resolve Voucher</Text>
                     </HStack>
 
+                    
                 </HStack>
 
                 <ScrollView>
@@ -71,7 +78,7 @@ const ResolveToken = ({ navigation }) => {
                                 alignItems: "center",
                             }} >
                                 <Tags color="#000" />
-                                 <TextInput style={[styles.input, {
+                                <TextInput style={[styles.input, {
                                     fontSize: 15,
                                     color: "#000",
                                     width: "95%",
@@ -79,12 +86,12 @@ const ResolveToken = ({ navigation }) => {
                                 }]}
                                     placeholder="Enter voucher token"
                                     placeholderTextColor="grey"
-                                    onChangeText={(text) => settoken(text.toUpperCase())} value={token} />  
+                                    onChangeText={(text) => settoken(text.toUpperCase())} value={token} />
 
                             </HStack>
                             <Divider />
 
-                            <Text fontSize="sm" fontWeight="thin" style={{ marginVertical: 20, color:"grey" }} >
+                            <Text fontSize="sm" fontWeight="thin" style={{ marginVertical: 20, color: "grey" }} >
                                 The amount would be resolved to your account.
                             </Text>
 
@@ -125,7 +132,7 @@ export default ResolveToken;
 const styles = StyleSheet.create({
 
     shadowBox: {
-        backgroundColor: '#fff',
+        backgroundColor: Colors.white,
 
         // Shadow for iOS
         shadowColor: '#000',

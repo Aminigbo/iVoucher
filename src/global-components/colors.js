@@ -10,7 +10,9 @@ export function Color() {
         white:"#FAF7F7",
         // dark:"#241E20",
         dark:"#19355D",
-        accent:"#F2F2F2"
+        accent:"#F2F2F2",
+        danger:"#FF0000",
+        success:"#00FF00"
  
     }
 }
