@@ -5,6 +5,7 @@ import { Text } from "native-base";
 import { Onboarding1, Onboarding2, Onboarding3 } from "../../assets/svgs";
 import { CustomButtons } from "../../global-components/buttons";
 import { appState } from "../../state";
+import { useAppState } from "../../state/state2";
 
 const { width } = Dimensions.get("window");
 
@@ -29,7 +30,7 @@ const CustomDot = ({ selected }) => {
 const OnboardingScreen = ({ navigation }) => {
     const onboardingRef = useRef(null);
     const [currentPage, setCurrentPage] = useState(0);
-    const { User, Initialized } = appState()
+    const { User, Initialized } = useAppState()
 
 
     const requestNotificationPermission = async (to) => {

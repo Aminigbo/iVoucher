@@ -313,7 +313,6 @@ export function ConversionRateController(setLoading, amount, setResponse, setloa
     setloadingText("Getting the best exchange rate for you.")
     ConversionRateService(amount, type)
         .then(response => {
-            console.log(response)
             if (response.success == false) {
                 setLoading(false)
                 setloadingText("")
@@ -394,11 +393,6 @@ export function FundCardController(setLoading, setloadingText, amount, chargeAmo
             setLoading(false)
             setloadingText("")
             GetCardDetailsHandler()
-            // login({
-            //     ...User,
-            //     ...response.data
-            // })
-            // GetAllTransactions()
         })
         .catch(error => {
             setLoading(false)
@@ -418,13 +412,8 @@ export function WithdrawCardController(setLoading, setloadingText, User, amount,
                 return Alert.alert("Error", response.message,)
             }
             setLoading(false)
-            setloadingText("")
-            // login({
-            //     ...User,
-            //     // ...response.data
-            // })
-            GetCardDetailsHandler()
-            console.log(response.data)
+            setloadingText("") 
+            GetCardDetailsHandler() 
         })
         .catch(error => {
             console.log(error)

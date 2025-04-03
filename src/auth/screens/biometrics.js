@@ -20,6 +20,7 @@ import { Loader } from '../../global-components/loader.js';
 import Animated, { useSharedValue, useAnimatedProps, withRepeat, withSequence, withTiming } from 'react-native-reanimated';
 import { useEffect } from 'react';
 import { Circle } from 'react-native-svg';
+import { useAppActions, useAppState } from '../../state/state2.js';
 
 
 const Colors = Color()
@@ -27,7 +28,10 @@ const Colors = Color()
 
 
 function Biometrics({ navigation }) {
-    let { User, login, isBiometric, BiometricAuth } = appState()
+    let { login } = useAppActions()
+    let { User, isBiometric, BiometricAuth } = useAppState()
+
+
     const [password, setPassword] = React.useState("")
     const [loading, setloading] = React.useState(false)
     const [startReauth, setstartReauth] = React.useState(false)

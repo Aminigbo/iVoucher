@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Text, Box, VStack, HStack, Icon, Stack, Divider, AddIcon, Image, Center, FlatList, Overlay, Actionsheet, CheckCircleIcon, Alert, SmallCloseIcon, Select, CheckIcon } from 'native-base';
 import { Modal, PermissionsAndroid, Platform, RefreshControl, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
 import { BoldText, } from '../global-components/texts';
@@ -13,7 +13,8 @@ import { CustomButtons, LinkButtons } from '../global-components/buttons';
 import { Activity, ArrowBigDown, ArrowBigUp, ArrowDownUp, BadgePlus, ChartPie, CheckCheck, CheckCircle, Copy, CreditCard, Delete, DollarSign, Download, Ellipsis, EyeIcon, Globe, IdCard, Landmark, Menu, Minus, Plus, PlusCircleIcon, Send, Share, Share2Icon, ShieldEllipsis, Snowflake, UploadCloud, UserCheck } from 'lucide-react-native';
 import { Input } from '../global-components/input';
 import { ConversionRateController, FundCardController, GetCardDetailsController, WithdrawCardController } from '../auth/controllers';
-import { useAppActions } from '../state/state2';
+import { useAppActions, useAppState } from '../state/state2';
+import { FetchUserInfoService } from '../auth/service';
 
 const Colors = Color()
 
@@ -29,7 +30,7 @@ function Card({ navigation, disp_transactions, }) {
     const [PickedImage, setPickedImage] = React.useState({ status: false })
     const [claimCard, setclaimCard] = useState(false)
     const [conversionRate, setconversionRate] = useState(null)
-    const [CardInfo, setCardInfo] = useState(null)
+    // const [CardInfo, setCardInfo] = useState(null)
 
     // 
     const [dd, setDD] = React.useState("")
@@ -38,9 +39,9 @@ function Card({ navigation, disp_transactions, }) {
     const [nin, setNIN] = React.useState("")
     const [fundingSource, setFundingSource] = React.useState()
 
-    let { User, Loading, Transactions, CardWithdrawal, SaveTrxn, VerifyNIN, CreateCard, ConversionRate, GetCardDetails, FundCard, GetAllTransactions } = appState()
-    // const { User, Loading } = useAppState();
-    const { login, logout } = useAppActions();
+
+    const { User, Loading, Transactions, CardInfo } = useAppState();
+    const { login, logout, CardWithdrawal, SaveTrxn, VerifyNIN, CreateCard, ConversionRate, GetCardDetails, FundCard, GetAllTransactions, handleSaveCardDetails } = useAppActions();
 
     const requestNotificationPermission = async () => {
         if (Platform.OS == "android") {
@@ -72,18 +73,12 @@ function Card({ navigation, disp_transactions, }) {
 
 
     function GetCardDetailsHandler() {
-        User.card && GetCardDetailsController(setLoading, User.card.reference, setCardInfo);
+        User.card && GetCardDetailsController(setLoading, User.card.reference, handleSaveCardDetails);
     }
 
     function getConversionRateHandler(type) {
-        let newUser = {
-            ...User,
-            jk: 990
-        }
-        login(newUser)
-        console.log(User)
-        // setLoading(true)
-        // ConversionRateController(setLoading, 2, setconversionRate, setloadingText, setclaimCard, setbottomSheetType, type)
+        setLoading(true)
+        ConversionRateController(setLoading, 2000, setconversionRate, setloadingText, setclaimCard, setbottomSheetType, type)
     }
 
     function WithdrawCardHandler() {
@@ -97,6 +92,27 @@ function Card({ navigation, disp_transactions, }) {
         // topupAmount, topupAmount * conversionRate.rate, setCardInfo, fundingSource
         FundCardController(setLoading, setloadingText, topupAmount, topupAmount * conversionRate.rate, CardInfo.reference, GetCardDetailsHandler, User.id, fundingSource)
     }
+
+
+    const fetchUserInfo = useCallback(() => {
+        setLoading(prev => ({ ...prev, userData: true }));
+
+        FetchUserInfoService(User.id)
+            .then(response => {
+                if (response.success) {
+                    login({ ...User, ...response.data });
+                } else {
+                    Alert.alert("Error", response.message);
+                }
+                setLoading(prev => ({ ...prev, userData: false }));
+            })
+            .catch(error => {
+                console.log(error);
+                setLoading(prev => ({ ...prev, userData: false }));
+            });
+    }, [User, login]);
+
+
 
     React.useEffect(() => {
         const unsubscribe = navigation.addListener('focus', async () => {
@@ -113,7 +129,8 @@ function Card({ navigation, disp_transactions, }) {
     return !User ? navigation.replace("Login") : (
         // return (
         <>
-            {console.log(User.jk)}
+            {/* {console.log(User.jk)}
+            {console.log("CardInfoCardInfoCardInfo", CardInfo)} */}
 
             <SafeAreaView style={{
                 backgroundColor: "#fff", display: "flex", flex: 1,
@@ -132,7 +149,7 @@ function Card({ navigation, disp_transactions, }) {
                                 <CardComponent
                                     User={User}
                                     CardInfo={CardInfo}
-                                    setCardInfo={setCardInfo}
+                                    setCardInfo={handleSaveCardDetails}
                                     setclaimCard={setclaimCard}
                                     setbottomSheetType={setbottomSheetType}
                                     GetCardDetails={GetCardDetails}
@@ -162,7 +179,7 @@ function Card({ navigation, disp_transactions, }) {
                                             <HStack bg="white" space={16} alignItems="center" justifyContent="center"
                                                 style={{
                                                     marginVertical: 15,
-                                                    opacity: CardInfo ? 1 : 0.2
+                                                    // opacity: CardInfo ? 1 : 0.2
                                                 }}>
                                                 <TouchableOpacity onPress={() => {
                                                     // setclaimCard(true)
@@ -170,6 +187,7 @@ function Card({ navigation, disp_transactions, }) {
                                                     // ConversionRate(2, setconversionRate, setclaimCard, setbottomSheetType, "CARD-TOPUP")
 
                                                     getConversionRateHandler("CARD-TOPUP")
+                                                    
                                                 }} >
                                                     <VStack alignItems="center" space={2}>
                                                         <Center style={{
@@ -535,7 +553,7 @@ function Card({ navigation, disp_transactions, }) {
                             onPress={() => {
                                 setclaimCard(false)
                                 setbottomSheetType("")
-                                CreateCard(conversionRate.rate * 5, setCardInfo, GetCardDetails)
+                                CreateCard(conversionRate.rate * 5, handleSaveCardDetails, GetCardDetails)
                             }}
                             style={[{
                                 width: "95%",

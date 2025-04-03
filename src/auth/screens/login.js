@@ -19,6 +19,7 @@ import { ScrollView } from 'react-native-gesture-handler';
 import { Input } from '../../global-components/input.js';
 import { CustomButtons } from '../../global-components/buttons.js';
 import { LoginSvgs } from '../../assets/svgs.js';
+import { useAppActions, useAppState } from '../../state/state2.js';
 
 const Colors = Color()
 function LoginScreen({ navigation }) {
@@ -35,7 +36,9 @@ function LoginScreen({ navigation }) {
         callBack: null
     })
 
-    let { User, login, Initialize, Initialized, isBiometric, BiometricAuth } = appState()
+    // let { User, login, Initialize, Initialized, isBiometric, BiometricAuth } = appState()
+    let { User, Initialized, isBiometric, BiometricAuth } = useAppState()
+    let { login, Initialize } = useAppActions()
 
     async function handleLogin() {
         setloading(!loading)
