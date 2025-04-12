@@ -48,19 +48,20 @@ const TransactionDetails = ({ navigation, route }) => {
 
 
                                 {loading == false && data && <>
-                                    {/* Transaction Status */} 
+                                    {/* Transaction Status */}
                                     <Box bg="gray.100" p={4} borderRadius="lg" alignItems="center">
 
 
-                                        <Text mt={2} fontSize="lg" fontWeight="medium">
+                                        {data.data.receiver && <Text mt={2} fontSize="lg" fontWeight="medium">
                                             Transfer {data.user == User.id ? "to " : "from "}
                                             {data.user == User.id ? data.data.receiver.accountName : data.data.sender.senderFullname}
-                                        </Text>
-                                        <Text 
-                                        style={{
-                                            marginTop: 10
-                                        }}
-                                        fontSize="3xl" fontWeight="bold" color="black">₦{NumberWithCommas(data.amount)}</Text>
+                                        </Text>}
+
+                                        <Text
+                                            style={{
+                                                marginTop: 10
+                                            }}
+                                            fontSize="3xl" fontWeight="bold" color="black">{data.data.type == "USD CARD" ? "$" : "₦"}{NumberWithCommas(data.amount)}</Text>
 
                                         {data.status == "success" && <HStack space={3}>
                                             <Text color={Colors.primary}>{data.status}</Text>

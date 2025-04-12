@@ -271,7 +271,10 @@ export const CardComponent = ({ User, CardInfo, setCardInfo, setclaimCard, setbo
                             borderRadius: 10
                         }}
                         onPress={() => {
-                            CardInfo && GetCardDetails(setCardInfo, setclaimCard, setbottomSheetType)
+                            setclaimCard(true)
+                            setbottomSheetType("SHOW-DETAILS")
+
+                            // CardInfo && GetCardDetails(setCardInfo, setclaimCard, setbottomSheetType)
                         }} >
                         <Ellipsis size={25} color="white" />
                     </TouchableOpacity>

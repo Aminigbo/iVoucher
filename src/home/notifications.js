@@ -86,7 +86,7 @@ function Notification({ navigation }) {
                                             {Transactions.filter(item => item.type != "CARD").map((items, index) => {
                                                 return <TouchableOpacity
                                                     onPress={() => {
-                                                        // navigation.navigate("view-transaction", { data: items })
+                                                        navigation.navigate("view-transaction", { data: items })
                                                     }}
                                                 >
                                                     <HStack key={index} mt={7} alignItems="center" space={3} >

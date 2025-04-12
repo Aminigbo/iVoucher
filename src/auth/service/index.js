@@ -559,14 +559,15 @@ export async function FundCardService(amount, chargeAmount, card_ref, user, fund
 }
 
 // withdraw from card
-export async function CardWithdrawalService(amount, user, card_ref) {
+export async function CardWithdrawalService(amount, user, card_ref, destination) {
     var myHeaders = new Headers();
     myHeaders.append("Content-Type", "application/json");
 
     const raw = JSON.stringify({
         "user": user,
         "amount": amount,
-        "card_ref": card_ref
+        "card_ref": card_ref,
+        "destination": destination
     });
     var requestOptions = {
         method: 'POST',

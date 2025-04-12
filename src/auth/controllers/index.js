@@ -382,7 +382,7 @@ export function GetCardDetailsController(setLoading, reference, setCardInfo, set
 }
 
 // fund card controller
-export function FundCardController(setLoading, setloadingText, amount, chargeAmount, card_ref, GetCardDetailsHandler, user, fundingSource) {
+export function FundCardController(setLoading, setloadingText, amount, chargeAmount, card_ref, user, fundingSource, setModalVisible, fetchUserInfo, GetAllTransactions) {
     setloadingText("Funding your card")
     FundCardService(amount, chargeAmount, card_ref, user, fundingSource)
         .then(response => {
@@ -391,14 +391,10 @@ export function FundCardController(setLoading, setloadingText, amount, chargeAmo
                 setloadingText("")
                 return Alert.alert("Error", response.message,)
             }
-            setLoading(false)
+            // setLoading(false)
             setloadingText("")
-            GetCardDetailsHandler()
-            // login({
-            //     ...User,
-            //     ...response.data
-            // })
-            // GetAllTransactions()
+            fetchUserInfo()
+            GetAllTransactions()
         })
         .catch(error => {
             setLoading(false)
@@ -408,9 +404,9 @@ export function FundCardController(setLoading, setloadingText, amount, chargeAmo
 }
 
 // withdraw card controller
-export function WithdrawCardController(setLoading, setloadingText, User, amount, card_ref, GetCardDetailsHandler, login) {
+export function WithdrawCardController(setLoading, setloadingText, User, amount, card_ref, setModalVisible, fetchUserInfo, GetAllTransactions, destination) {
     setloadingText("Withdrawing from card")
-    CardWithdrawalService(amount, User.id, card_ref)
+    CardWithdrawalService(amount, User.id, card_ref, destination)
         .then(response => {
             if (response.success == false) {
                 setLoading(false)
@@ -419,12 +415,9 @@ export function WithdrawCardController(setLoading, setloadingText, User, amount,
             }
             setLoading(false)
             setloadingText("")
-            // login({
-            //     ...User,
-            //     // ...response.data
-            // })
-            GetCardDetailsHandler()
-            console.log(response.data)
+            fetchUserInfo()
+            GetAllTransactions()
+            // setModalVisible(true)
         })
         .catch(error => {
             console.log(error)

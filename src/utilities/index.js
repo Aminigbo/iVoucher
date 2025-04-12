@@ -13,7 +13,7 @@ import RNFS from 'react-native-fs';
 // export const BaseURL = "http://192.168.144.218:9090/APP/"   //Steawrt 
 
 
-export const BaseURL = "https://i-voucher-server.vercel.app//APP/" 
+export const BaseURL = "https://i-voucher-server.vercel.app//APP/"
 
 
 export const DpUrl = "https://awkkradstjkklsyqbkhl.supabase.co/storage/v1/object/public/dp/"   //DP

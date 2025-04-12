@@ -17,7 +17,7 @@ const ClaimCard = ({ navigation }) => {
     const { User, Loading, loadingText, ConversionRate, CreateCard, GetCardDetails } = appState();
 
     const fetchConversionRate = useCallback(() => {
-        ConversionRate(5, setConversionRate);
+        ConversionRate(5000, setConversionRate);
     }, [ConversionRate]);
 
     useEffect(() => {

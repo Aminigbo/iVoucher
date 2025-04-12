@@ -43,6 +43,8 @@ import CompleteVerification from "./src/home/complete-verification";
 import ClaimCard from "./src/home/claim-card";
 import { appState } from "./src/state";
 import CreatePin from "./src/auth/screens/create-pin";
+import CardTopup from "./src/home/card-topup";
+import CardWithdrawal from "./src/home/card-withdrawal"; 
 
 const Stack = createStackNavigator()
 const Tab = createBottomTabNavigator();
@@ -321,6 +323,10 @@ function App() {
           <Stack.Screen name="Complete-verification" component={CompleteVerification} options={{ header: () => null }} />
           <Stack.Screen name="Claim-card" component={ClaimCard} options={{ header: () => null }} />
           <Stack.Screen name="Create-pin" component={CreatePin} options={{ header: () => null }} />
+          <Stack.Screen name="Card-topup" component={CardTopup} options={{ header: () => null }} />
+          <Stack.Screen name="Card-withdrawal" component={CardWithdrawal} options={{ header: () => null }} /> 
+
+
         </Stack.Navigator>
       </NavigationContainer>
     </NativeBaseProvider>
