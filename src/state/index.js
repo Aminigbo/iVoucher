@@ -6,8 +6,7 @@ import { createVoucherController, deleteVoucherController, fetchVoucherControlle
 import { UpdateProfilePhoto } from '../services/user/controllers';
 
 // Initialize MMKV instance
-// const storage = new MMKV(); // alt async storage
-const storage =" new MMKV()"; // alt async storage
+const storage = new MMKV(); // alt async storage
 
 
 

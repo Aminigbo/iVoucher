@@ -16,7 +16,6 @@ import { Loader } from '../global-components/loader';
 import { LinkButtons } from '../global-components/buttons';
 import { ArrowBigDown, ArrowBigUp, Bell, CopyCheck, Landmark, ScanQrCode, Share2Icon, Ticket, TicketCheck, TicketCheckIcon, Trash2, Wallet } from 'lucide-react-native';
 import { CardIcon, ReferralCard } from '../assets/svgs';
-import { useAppActions, useAppState } from '../state/state2';
 
 const Colors = Color();
 
@@ -35,8 +34,7 @@ function Card({ navigation, disp_transactions }) {
         userData: false
     });
 
-    const { User, Transactions, Loading, loadingText } = useAppState();
-    const { login, SaveTrxn, handleFetchVoucher, handleDeactivateToken } = useAppActions();
+    const { User, Transactions, login, SaveTrxn, handleFetchVoucher, handleDeactivateToken, Loading, loadingText } = appState();
 
     // Memoized values
     const filteredTransactions = useMemo(() => {
@@ -50,7 +48,7 @@ function Card({ navigation, disp_transactions }) {
     // Callbacks for event handlers
     const handleFetchTransactions = useCallback(() => {
         setLoading(prev => ({ ...prev, transactions: true }));
-
+        
         FetchTransactionsModel(User.id)
             .then(response => {
                 setLoading(prev => ({ ...prev, transactions: false }));
@@ -70,7 +68,7 @@ function Card({ navigation, disp_transactions }) {
 
     const fetchUserInfo = useCallback(() => {
         setLoading(prev => ({ ...prev, userData: true }));
-
+        
         FetchUserInfoService(User.id)
             .then(response => {
                 if (response.success) {
@@ -299,8 +297,8 @@ function Card({ navigation, disp_transactions }) {
                     >
                         <HStack mt={5} alignItems="center" space={3}>
                             <Center style={styles.transactionIcon(item.type, item.user !== User.id)}>
-                                <Icon as={item.user !== User.id ? <ArrowBigDown size={19} /> : <ArrowBigUp size={19} />}
-                                    color={item.user !== User.id ? Colors.primary : Colors.danger}
+                                <Icon as={item.user !== User.id ? <ArrowBigDown size={19} /> : <ArrowBigUp size={19} />} 
+                                    color={item.user !== User.id ? Colors.primary : Colors.danger} 
                                 />
                             </Center>
 
@@ -308,7 +306,7 @@ function Card({ navigation, disp_transactions }) {
                                 <VStack>
                                     <Text>
                                         {NumberWithCommas(item.amount)} {item.user === User.id ? "to " : "from "}
-                                        {item.user === User.id
+                                        {item.user === User.id 
                                             ? item.data.receiver.accountName?.slice(0, 17) + (item.data.receiver.accountName?.length > 17 ? "..." : "")
                                             : item.data.sender.senderFullname?.slice(0, 17) + (item.data.sender.senderFullname?.length > 17 ? "..." : "")
                                         }
@@ -343,7 +341,7 @@ function Card({ navigation, disp_transactions }) {
                                 </VStack>
                             </HStack>
                         </TouchableOpacity>
-
+                        
                         {singleToken.remark && <Text fontWeight="light" style={{ margin: 10 }}>{singleToken.remark}</Text>}
                         <Text fontWeight="light" style={{ margin: 10 }}>{timeAgo(singleToken.created_at)}</Text>
                         <Divider style={{ marginVertical: 10 }} />
@@ -358,9 +356,9 @@ function Card({ navigation, disp_transactions }) {
                                     <BoldText1 text="Share Token" color={Colors.dark} />
                                 </HStack>
                             </TouchableOpacity>
-
+                            
                             <Divider orientation='vertical' style={{ height: 20 }} />
-
+                            
                             <TouchableOpacity onPress={() => {
                                 setBottomSheet(false);
                                 handleDeactivateToken(singleToken.token, setVouchers);
@@ -385,7 +383,7 @@ function Card({ navigation, disp_transactions }) {
     return (
         <>
             <SafeAreaView style={styles.container}>
-                {renderHeader}
+                {renderHeader} 
                 <FlatList
                     data={[0]} // Using a single item list to avoid unnecessary re-renders
                     renderItem={() => (
@@ -418,10 +416,7 @@ function Card({ navigation, disp_transactions }) {
                         </VStack>
                     )}
                     refreshControl={
-                        <RefreshControl
-                            //  refreshing={loadAll} 
-                            onRefresh={handleRefresh}
-                        />
+                        <RefreshControl refreshing={loadAll} onRefresh={handleRefresh} />
                     }
                 />
             </SafeAreaView>
@@ -484,8 +479,8 @@ const styles = {
         flex: 1
     },
     transactionStatus: (status) => ({
-        color: status === "processing" ? "#E0B77E" :
-            status === "success" ? "#7EE0B9" : "#E07E80",
+        color: status === "processing" ? "#E0B77E" : 
+              status === "success" ? "#7EE0B9" : "#E07E80",
         paddingHorizontal: 5,
         paddingVertical: 1,
         borderRadius: 6,

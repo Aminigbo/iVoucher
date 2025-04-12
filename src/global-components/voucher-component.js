@@ -281,14 +281,14 @@ export const CardComponent = ({ User, CardInfo, setCardInfo, setclaimCard, setbo
                     </VStack>
 
                     <Center style={{
-                        height: Platform.OS === 'ios' ? 120 : 100,
-                        width: Platform.OS === 'ios' ? 120 : 100,
+                        height: Platform.OS === 'ios' ? 150 : 120,
+                        width: Platform.OS === 'ios' ? 150 : 120,
                         borderRadius: 150,
                         backgroundColor: Colors.white,
                         opacity: 0.4,
                         position: "absolute",
                         bottom: -20,
-                        left: Platform.OS === 'ios' ? -50 : -20,
+                        left: Platform.OS === 'ios' ? -70 : -50,
                         zIndex: 1
                     }} >
                         <AppIcon color={Colors.dark} />

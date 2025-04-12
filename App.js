@@ -43,7 +43,6 @@ import CompleteVerification from "./src/home/complete-verification";
 import ClaimCard from "./src/home/claim-card";
 import { appState } from "./src/state";
 import CreatePin from "./src/auth/screens/create-pin";
-import { useAppState } from "./src/state/state2";
 
 const Stack = createStackNavigator()
 const Tab = createBottomTabNavigator();
@@ -73,7 +72,7 @@ function App() {
 
 
   const [isConnected, setIsConnected] = useState(false);
-  const { User, Initialized } = useAppState()
+  const { User, Initialized } = appState()
 
   useEffect(() => {
     const handleConnectivityChange = isConnectedNow => {
