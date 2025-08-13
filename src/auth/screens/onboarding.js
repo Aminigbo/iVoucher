@@ -147,7 +147,8 @@ const OnboardingScreen = ({ navigation }) => {
                         bgColor={currentPage === 2 ? "red.600" : "blue.700"}
                         callBack={() => {
                             if (currentPage === 2) {
-                                navigation.replace("Login");
+                                // navigation.replace("Login");
+                                navigation.replace("Login")
                             } else if (onboardingRef.current) {
                                 onboardingRef.current.goNext();
                             }

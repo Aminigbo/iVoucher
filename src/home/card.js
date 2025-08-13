@@ -90,6 +90,7 @@ function Card({ navigation, }) {
                                     setclaimCard={setclaimCard}
                                     setbottomSheetType={setbottomSheetType}
                                     GetCardDetails={GetCardDetails}
+                                    navigation={navigation}
                                 />
                                 {/* Quick Action Buttons */}
                                 <VStack bg="white" shadow={0.1}>

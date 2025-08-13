@@ -112,7 +112,7 @@ const MerchantQr = ({ navigation }) => {
                         fontSize: 20,
                         fontWeight: 'bold',
                         color: Colors.dark
-                    }]}>Aminigbo Enterprise</Text>
+                    }]}>Scan & Pay</Text>
                     <Text style={{
                         textAlign: "center",
                         marginTop: 30,
