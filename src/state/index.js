@@ -1,13 +1,11 @@
 import React, { useState, useContext, useEffect } from 'react';
-import { MMKV } from 'react-native-mmkv';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ConversionRateController, CreateCardController, FetcAllBanksController, FetchAllTransactions, FetchTransactionHistorycController, FundCardController, GetCardDetailsController, InitiatePayoutController, ResolveBankController, UpdateKycController, UpdateNINController, WithdrawCardController } from '../auth/controllers';
 import { FetcAllhUsers } from '../helpers/user';
 import { createVoucherController, deleteVoucherController, fetchVoucherController, resolveVoucherController } from '../services/voucher/voucher-controllers';
 import { UpdateProfilePhoto } from '../services/user/controllers';
 
-// Initialize MMKV instance
-const storage = new MMKV(); // alt async storage
-
+// Initialize storage instance
 
 
 const AppContext = React.createContext();
@@ -27,15 +25,15 @@ export const AppProvider = ({ children }) => {
     const [SelectedBank, setSelectedBank] = useState(null);
     const [AllUsers, setAllUsers] = useState([]);
 
-    // Load profile from MMKV on app start
+    // Load profile from AsyncStorage on app start
     useEffect(() => {
-        const loadProfile = () => {
+        const loadProfile = async () => {
             try {
-                const storedProfile = storage.getString('userProfile');
-                const storedUUID = storage.getString('uuid');
-                const storedisBiometric = storage.getString('isBiometric');
-                const storedisBanks = storage.getString('Banks');
-                const storedSelectedBank = storage.getString('SelectedBank');
+                const storedProfile = await AsyncStorage.getItem('userProfile');
+                const storedUUID = await AsyncStorage.getItem('uuid');
+                const storedisBiometric = await AsyncStorage.getItem('isBiometric');
+                const storedisBanks = await AsyncStorage.getItem('Banks');
+                const storedSelectedBank = await AsyncStorage.getItem('SelectedBank');
 
                 if (storedProfile) {
                     setUser(JSON.parse(storedProfile));
@@ -44,11 +42,11 @@ export const AppProvider = ({ children }) => {
                     setInitialized(storedUUID);
                 }
                 if (storedisBiometric) {
-                    storedisBiometric(storedisBiometric);
+                    setisBiometric(JSON.parse(storedisBiometric));
                 }
 
                 if (storedisBanks) {
-                    setAllBanks(storedisBanks);
+                    setAllBanks(JSON.parse(storedisBanks));
                 }
                 if (storedSelectedBank) {
                     setSelectedBank(JSON.parse(storedSelectedBank));
@@ -177,18 +175,18 @@ export const AppProvider = ({ children }) => {
 
     //    =======================================
 
-    const BiometricAuth = (state) => {
+    const BiometricAuth = async (state) => {
         try {
-            storage.set('isBiometric', state);
+            await AsyncStorage.setItem('isBiometric', JSON.stringify(state));
             setisBiometric(state)
         } catch (error) {
             console.error('Failed to save profile to storage:', error);
         }
     };
 
-    const Initialize = (uuid) => {
+    const Initialize = async (uuid) => {
         try {
-            storage.set('uuid', uuid);
+            await AsyncStorage.setItem('uuid', uuid);
             setInitialized(uuid)
         } catch (error) {
             console.error('Failed to save profile to storage:', error);
@@ -199,10 +197,10 @@ export const AppProvider = ({ children }) => {
 
 
 
-    // Save profile to MMKV whenever it changes
-    const login = (newProfile) => {
+    // Save profile to AsyncStorage whenever it changes
+    const login = async (newProfile) => {
         try {
-            storage.set('userProfile', JSON.stringify(newProfile));
+            await AsyncStorage.setItem('userProfile', JSON.stringify(newProfile));
             setUser(newProfile);
         } catch (error) {
             console.error('Failed to save profile to storage:', error);
@@ -210,9 +208,9 @@ export const AppProvider = ({ children }) => {
     };
 
     // Clear profile (for logout functionality)
-    const logout = () => {
+    const logout = async () => {
         try {
-            storage.delete('userProfile');
+            await AsyncStorage.removeItem('userProfile');
             setUser(null);
         } catch (error) {
             console.error('Failed to clear profile:', error);
@@ -220,30 +218,36 @@ export const AppProvider = ({ children }) => {
     };
 
     // save transactions
-    const SaveTrxn = (data) => {
+    const SaveTrxn = async (data) => {
         try {
-            storage.set('transactions', JSON.stringify(data));
+            await AsyncStorage.setItem('transactions', JSON.stringify(data));
             setTransactions(data);
         } catch (error) {
-            console.error('Failed to clear profile:', error);
+            console.error('Failed to save transactions:', error);
         }
     };
 
-    const SaveBanks = (data) => {
+    const SaveBanks = async (data) => {
         try {
-            storage.set('Banks', JSON.stringify(data));
-            setAllBanks(data);
+            if (data && data.length > 0) {
+                await AsyncStorage.setItem('Banks', JSON.stringify(data));
+                setAllBanks(data);
+            } else {
+                // If data is empty or undefined, remove the item from storage
+                await AsyncStorage.removeItem('Banks');
+                setAllBanks([]);
+            }
         } catch (error) {
-            console.error('Failed to clear profile:', error);
+            console.error('Failed to save banks:', error);
         }
     };
 
-    const SelectBank = (data) => {
+    const SelectBank = async (data) => {
         try {
-            storage.set('SelectedBank', JSON.stringify(data));
+            await AsyncStorage.setItem('SelectedBank', JSON.stringify(data));
             setSelectedBank(data);
         } catch (error) {
-            console.error('Failed to clear profile:', error);
+            console.error('Failed to select bank:', error);
         }
     };
 

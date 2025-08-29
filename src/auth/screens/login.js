@@ -41,7 +41,7 @@ function LoginScreen({ navigation }) {
         setloading(!loading)
         Keyboard.dismiss()
         console.log("Logged in")
-        LoginController({
+        LoginController({ 
             setloading,
             Alert,
             navigation,
@@ -83,17 +83,11 @@ function LoginScreen({ navigation }) {
         GetFcmToke()
     }, [])
 
-    // return User ? navigation.replace("Biometrics") : (
+    // return User ? navigation.replace("Home") : (
     return (
         <SafeAreaView style={styles.container}>
             <ScrollView style={{ padding: 20 }} >
-                {console.log(User)}
-                {/* <HStack alignItems="center" justifyContent="flex-start" space={5} >
-                    <TouchableOpacity >
-                        <BackIcon noPop={true} action={() => { navigation.replace("Onboarding") }} />
-                    </TouchableOpacity>
-                    <Text style={styles.welcomeText}>Login</Text>
-                </HStack> */}
+                {/* {console.log(Initialized)}  */}
 
                 <Center style={{ marginVertical: 70 }} >
                     <LoginSvgs />
@@ -104,6 +98,7 @@ function LoginScreen({ navigation }) {
                     Label
                     LabelText="Email"
                     onChange={setEmail}
+                    autoCapitalize
                 />
 
                 <Input
@@ -112,7 +107,7 @@ function LoginScreen({ navigation }) {
                     Label
                     LabelText="Password"
                     onChange={setPassword}
-                    secureTextEntry
+                    secureTextEntry 
                 />
 
 

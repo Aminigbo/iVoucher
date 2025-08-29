@@ -1,21 +1,21 @@
 {
   "project_info": {
-    "project_number": "147013957663",
-    "project_id": "voucher-29967",
-    "storage_bucket": "voucher-29967.firebasestorage.app"
+    "project_number": "127332228766",
+    "project_id": "medicard-b03ff",
+    "storage_bucket": "medicard-b03ff.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:147013957663:android:437121272daad9646fbd2a",
+        "mobilesdk_app_id": "1:127332228766:android:e8f0497864f4a5e562258f",
         "android_client_info": {
-          "package_name": "com.ivoucher"
+          "package_name": "com.bwh.medicard"
         }
       },
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyCfC4CUWImZr09ynTrf0i_iGRVAdRTyvhw"
+          "current_key": "AIzaSyBcFYs08HBuEl_zH8Vl3l_K4bslcEN1OSs"
         }
       ],
       "services": {

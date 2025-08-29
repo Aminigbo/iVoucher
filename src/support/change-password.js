@@ -35,9 +35,10 @@ function ServiceResetPwdScreen({ navigation, route }) {
                 Alert.alert("Error", 'Your new password length must be more than 6')
             } else {
                 setloading(true)
-                ChangePasswordAlt(User.email, password, password3, User.id)
+                ChangePasswordAlt(password3, User.uid)
                     .then(response => {
                         if (response.success == false) {
+                            console.log("response", response)
                             setloading(false)
                             Alert.alert("Error", 'The password you provided is incorrect')
                         } else {
@@ -222,7 +223,7 @@ function ServiceResetPwdScreen({ navigation, route }) {
                             <CustomButtons
                                 primary
                                 text="Reset"
-                                onPress={handleChangePwd}
+                                callBack={() => handleChangePwd()}
                                 loading={loading}
                             />
 

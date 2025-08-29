@@ -4,20 +4,21 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator,
 
 import { Actionsheet, Box, Button, Center, FlatList, HStack, Icon, Stack, VStack } from 'native-base';
 import { Color } from '../../global-components/colors';
-import { LoginController } from '../controllers';
-import { connect } from 'react-redux';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { appState } from "../../state/index.js"
-import messaging from '@react-native-firebase/messaging';
-import { Camera, BadgeCheck, ArrowBigRight, IdCard, MapPinHouse, CircleCheck, VenusAndMars, Lock } from 'lucide-react-native';
-import { BackIcon, KYCICon } from '../../global-components/icons.js';
+import { CircleCheck } from 'lucide-react-native';
+import { BackIcon } from '../../global-components/icons.js';
 import { BoldText, BoldText1 } from '../../global-components/texts.js';
 import { Loader } from '../../global-components/loader.js';
 import { Country } from '../../utilities/data.js';
 import { Input } from '../../global-components/input.js';
+import { UpdateKycController } from '../controllers/index.js';
+import DateInput from '../../global-components/date-input.js';
+
 
 const Colors = Color()
-function KYCForm({ navigation }) {
+function KYCForm({ navigation, route }) {
+    const { id, email, phone, name } = route.params
     const [proceed, setproceed] = React.useState(false)
     const [proceedType, setproceedType] = React.useState("")
     const [gender, setgender] = React.useState(null)
@@ -28,10 +29,13 @@ function KYCForm({ navigation }) {
     const [country, setcountry] = React.useState("")
     const [zipCode, setzipCode] = React.useState("")
     const [modalVisible, setModalVisible] = useState(false);
+    const [loading, setLoading] = React.useState(false)
+
+    const [dob, setDob] = useState(null); // "YYYY-MM-DD" or null
+    const [valid, setValid] = useState(false);
 
 
-
-    let { User, Loading, VerifyKYC } = appState()
+    let { User, Loading, VerifyKYC, login, Initialize } = appState()
 
     React.useEffect(() => {
 
@@ -40,7 +44,7 @@ function KYCForm({ navigation }) {
     // return User.kyc ? navigation.replace("Home") : (
     return (
         <>
-            {/* {console.log(User.kyc)} */}
+            {/* {console.log(id)} */}
             <SafeAreaView style={styles.container}>
 
                 <HStack alignItems="center" justifyContent="flex-start" space={5} mb={16} >
@@ -60,7 +64,7 @@ function KYCForm({ navigation }) {
                 <View style={{}}>
                     {/* <BoldText text="BVN" color="#000" /> */}
                     {/* <TextInput style={styles.input} placeholder="0000 0000 0000 00" onChangeText={setBvn} keyboardType='numeric' /> */}
-                    <Input
+                    {/* <Input
                         maxLength={11}
                         Placeholder="0000 0000 0000 00"
                         LabelText="BVN"
@@ -70,7 +74,7 @@ function KYCForm({ navigation }) {
                         secureTextEntry={false}
                         Style={{ marginTop: 15, paddingVertical: 15 }}
                         Label={true}
-                    />
+                    /> */}
 
                     {/* <BoldText text="Address" color="#000" style={{ marginTop: 15 }} />
                     <TextInput style={[styles.input]} placeholder="No. 14 wesham, woji, Rivers State." onChangeText={setaddress} /> */}
@@ -85,9 +89,8 @@ function KYCForm({ navigation }) {
                     />
 
 
-                    {/* <BoldText text="Postal code" color="#000" style={{ marginTop: 15 }} />
-                    <TextInput style={[styles.input, {}]} placeholder="12345" onChangeText={setzipCode} /> */}
-                    <Input
+                    {/* Postal code */}
+                    {/* <Input
                         Placeholder="5000052"
                         LabelText="Postal code"
                         LabelMargin={15}
@@ -95,7 +98,7 @@ function KYCForm({ navigation }) {
                         secureTextEntry={false}
                         Style={{ marginTop: 15, paddingVertical: 15 }}
                         Label={true}
-                    />
+                    /> */}
 
 
                     <BoldText text="Gender" color="#000" style={{ marginTop: 15 }} />
@@ -108,6 +111,18 @@ function KYCForm({ navigation }) {
                         <BoldText text={gender ? gender : "Select Gender"} color={gender ? "#000" : "grey"} />
                     </TouchableOpacity>
 
+
+                    <View style={{ paddingVertical: 16 }}>
+                        <BoldText text="Date of Birth" color="#000" style={{ marginVertical: 15 }} />
+                        <DateInput
+                            value={dob}
+                            onChange={setDob}
+                            onValidChange={setValid}
+                        />
+                        {/* <Text style={{ marginTop: 12 }}>
+                            Value: {dob ?? "(incomplete/invalid)"} | Valid: {String(valid)}
+                        </Text> */}
+                    </View>
 
                     <HStack space={4} >
 
@@ -151,16 +166,18 @@ function KYCForm({ navigation }) {
                         </VStack>
                     </HStack>
 
-
-
                     <TouchableOpacity
                         onPress={() => {
                             // setproceed(!proceed) 
                             let data = {
-                                address, bvn, gender,
-                                state: state.name, city, country: country.name, zipCode
+                                id,
+                                email,
+                                phone,
+                                name,
+                                address, gender,
+                                state: state.name, city, country: country.name, zipCode, dob
                             }
-                            VerifyKYC(data, setModalVisible)
+                            UpdateKycController(setLoading, login, data, Initialize, navigation)
                         }}
                         style={[{
                             marginTop: 80,
@@ -170,7 +187,9 @@ function KYCForm({ navigation }) {
                             alignItems: "center",
                             backgroundColor: Colors.dark,
                         }]}>
-                        <BoldText text="Submit" color="#fff" />
+                        {loading ? <ActivityIndicator color={Colors.white} /> :
+                            <BoldText text="Submit" color="#fff" />
+                        }
                     </TouchableOpacity>
 
                 </View>

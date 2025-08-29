@@ -17,7 +17,7 @@ const CustomDot = ({ selected }) => {
                 height: 8,
                 borderRadius: 4,
                 marginHorizontal: 4,
-                backgroundColor: selected ? "blue" : "#D0D0D0",
+                backgroundColor: selected ? "#611336" : "#D0D0D0",
             }}
         />
     );
@@ -29,52 +29,9 @@ const CustomDot = ({ selected }) => {
 const OnboardingScreen = ({ navigation }) => {
     const onboardingRef = useRef(null);
     const [currentPage, setCurrentPage] = useState(0);
-    const { User, Initialized } = appState()
+    const { User, Initialized, Initialize } = appState()
 
-
-    const requestNotificationPermission = async (to) => {
-        if (Platform.OS == "android") {
-            try {
-                const granted = await PermissionsAndroid.request(
-                    PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS,
-                    {
-                        title: 'Blake',
-                        message:
-                            'iVoucher needs access to ' +
-                            'send you notification',
-                        buttonNeutral: 'Ask Me Later',
-                        buttonNegative: 'Cancel',
-                        buttonPositive: 'OK',
-                    },
-                );
-                if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-                    // console.log('You can use the camera');
-                    to == "Login" ? navigation.replace("Login") : navigation.replace("Register")
-                } else {
-                    to == "Login" ? navigation.replace("Login") : navigation.replace("Register")
-                    // requestNotificationPermission(to) 
-                }
-            } catch (err) {
-                console.warn(err);
-            }
-        } else {
-            // const permissionStatus = await check(PERMISSIONS.IOS.NOTIFICATIONS);
-            // if (permissionStatus === RESULTS.DENIED) {
-            //     const result = await request(PERMISSIONS.IOS.NOTIFICATIONS);
-            //     if (result === RESULTS.GRANTED) {
-            //         console.log('Notification permission granted');
-            //     } else {
-            //         console.log('Notification permission denied', permissionStatus);
-            //     }
-            // } else {
-            //     console.log('Notification permission already granted');
-            //     to == "Login" ? navigation.replace("Login") : navigation.replace("Register")
-            // }
-            to == "Login" ? navigation.replace("Login") : navigation.replace("Register")
-        }
-    };
-
-
+ 
     // return (
     return Initialized != null ? navigation.replace("Biometrics") : (
         <>
@@ -90,7 +47,7 @@ const OnboardingScreen = ({ navigation }) => {
                         zIndex: 10,
                     }}
                 >
-                    <Text fontSize="md" color="blue.600">Skip</Text>
+                    <Text fontSize="md" color="#611336">Skip</Text>
                 </TouchableOpacity>
 
                 <Onboarding
@@ -119,20 +76,20 @@ const OnboardingScreen = ({ navigation }) => {
                         {
                             backgroundColor: "#fff",
                             image: <Onboarding1 />,
-                            title: "Welcome to Pocket Voucher!",
-                            subtitle: "Seamlessly generate vouchers, send money, and manage your funds—all in one place.",
+                            title: "Welcome to Medicard",
+                            subtitle: "Your comprehensive healthcare companion for managing medical records and expenses.",
                         },
                         {
                             backgroundColor: "#fff",
                             image: <Onboarding2 />,
-                            title: "Send & Receive Money",
-                            subtitle: "Instantly transfer funds with ease and security.",
+                            title: "Seamless Medical Tracking",
+                            subtitle: "Easily track and manage your medical history, prescriptions, and health insights.",
                         },
                         {
                             backgroundColor: "#fff",
                             image: <Onboarding3 />,
-                            title: "Create & Manage Vouchers",
-                            subtitle: "Generate vouchers and keep track of your transactions effortlessly.",
+                            title: "Simplified Healthcare Management",
+                            subtitle: "Connect with healthcare providers and manage your medical expenses effortlessly.",
                         },
                     ]}
                 />
@@ -144,7 +101,7 @@ const OnboardingScreen = ({ navigation }) => {
                         text={currentPage === 2 ? "Get Started" : "Next"}
                         width="100%"
                         style={{ marginTop: 50 }}
-                        bgColor={currentPage === 2 ? "red.600" : "blue.700"}
+                        bgColor={currentPage === 2 ? "red.600" : "#"}
                         callBack={() => {
                             if (currentPage === 2) {
                                 // navigation.replace("Login");

@@ -203,8 +203,8 @@ export const AppProvider = ({ children }) => {
 
     const SaveBanks = (data) => {
       try {
-        storage.set('Banks', JSON.stringify(data));
-        setAllBanks(data);
+        // storage.set('Banks', JSON.stringify(data));
+        // setAllBanks(data);
       } catch (error) {
         console.error('Failed to save banks:', error);
       }

@@ -13,13 +13,13 @@ import { appState } from "../state";
 const Colors = Color()
 
 const TransactionDetails = ({ navigation, route }) => {
-    const [data, setData] = useState(route.params.data)
-    const [loading, setLoading] = useState(true)
+    const data = route.params.data
+    const [loading, setLoading] = useState(false)
     let { User } = appState()
 
     React.useEffect(() => {
         const unsubscribe = navigation.addListener('focus', async () => {
-            FetchTransactionHistoryController(setData, data.type, data.ref, setLoading)
+            // FetchTransactionHistoryController(setData, data.type, data.ref, setLoading)
         });
         return unsubscribe;
     }, [navigation]);
@@ -27,7 +27,7 @@ const TransactionDetails = ({ navigation, route }) => {
 
     return (
         <>
-            {/* {console.log(data.data)} */}
+            {console.log(data)}
             <SafeAreaView flex={1} style={{
                 backgroundColor: "#fff"
             }}>
@@ -52,16 +52,16 @@ const TransactionDetails = ({ navigation, route }) => {
                                     <Box bg="gray.100" p={4} borderRadius="lg" alignItems="center">
 
 
-                                        {data.data.receiver && <Text mt={2} fontSize="lg" fontWeight="medium">
-                                            Transfer {data.user == User.id ? "to " : "from "}
-                                            {data.user == User.id ? data.data.receiver.accountName : data.data.sender.senderFullname}
+                                        {data && <Text mt={2} fontSize="lg" fontWeight="medium">
+                                           {/* Merchant */}
+                                            {data.metadata.receiver}
                                         </Text>}
 
                                         <Text
                                             style={{
                                                 marginTop: 10
                                             }}
-                                            fontSize="3xl" fontWeight="bold" color="black">{data.data.type == "USD CARD" ? "$" : "₦"}{NumberWithCommas(data.amount)}</Text>
+                                            fontSize="3xl" fontWeight="bold" color="black">{"₦"}{NumberWithCommas(data.amount)}</Text>
 
                                         {data.status == "success" && <HStack space={3}>
                                             <Text color={Colors.primary}>{data.status}</Text>
@@ -83,23 +83,23 @@ const TransactionDetails = ({ navigation, route }) => {
                                     <Box bg="gray.100" p={4} borderRadius="lg" mt={4}>
                                         <Text fontSize="md" fontWeight="medium" mb={2}>Transaction Details</Text>
                                         <VStack space={3}>
-                                            {data.data.receiverName &&
+                                            {data.metadata &&
                                                 <HStack justifyContent="space-between">
                                                     <Text color="gray.500">Recipient Details</Text>
-                                                    <Text fontWeight="medium" color="black">{data.data.receiver.accountName}</Text>
+                                                    <Text fontWeight="medium" color="black">{data.business_id}</Text>
                                                 </HStack>
                                             }
                                             <HStack justifyContent="space-between">
                                                 <Text color="gray.500">Transaction Type</Text>
-                                                <Text fontWeight="medium">{data.data.type}</Text>
+                                                <Text fontWeight="medium">{data.type}</Text>
                                             </HStack>
                                             <HStack justifyContent="space-between">
                                                 <Text color="gray.500">Transaction No.</Text>
-                                                <Text fontWeight="medium">{data.ref}</Text>
+                                                <Text fontWeight="medium">{data.transaction_ref}</Text>
                                             </HStack>
                                             <HStack justifyContent="space-between">
                                                 <Text color="gray.500">Payment Method</Text>
-                                                <Text fontWeight="medium">{data.data.method}</Text>
+                                                {/* <Text fontWeight="medium">{data.data.method}</Text> */}
                                             </HStack>
                                             <HStack justifyContent="space-between">
                                                 <Text color="gray.500">Transaction Date</Text>
@@ -114,16 +114,16 @@ const TransactionDetails = ({ navigation, route }) => {
                                         <Pressable py={2}>
                                             <HStack justifyContent="space-between">
                                                 <Text>Transaction</Text>
-                                                <Text fontWeight="bold" color="gray.500">{data.flow == "IN" ? "PAY-IN" : "PAY-OUT"}</Text>
+                                                <Text fontWeight="bold" color="gray.500">{"PAY-OUT"}</Text>
                                             </HStack>
                                         </Pressable>
                                         <Divider my={2} />
-                                        {data.data.sender &&
+                                        {data &&
                                             <HStack justifyContent="space-between" my={1} >
                                                 <Text color="gray.500">Sender Details</Text>
                                                 <VStack alignItems="flex-end">
-                                                    <Text>{data.data.sender.senderFullname}</Text>
-                                                    <Text>{data.data.sender.senderBankName.length > 10 ? data.data.sender.senderBankName.slice(0, 10) + "..." : data.data.sender.senderBankName} | {data.data.sender.senderAccountNumber}</Text>
+                                                    <Text>{data.health_id}</Text>
+                                                   {/*  <Text>{data.data.sender.senderBankName.length > 10 ? data.data.sender.senderBankName.slice(0, 10) + "..." : data.data.sender.senderBankName} | {data.data.sender.senderAccountNumber}</Text> */}
                                                 </VStack>
                                             </HStack>
                                         }
@@ -142,7 +142,7 @@ const TransactionDetails = ({ navigation, route }) => {
                     }
                 />
 
-                {loading == false && data.data.sender && <>
+                {loading == false && data && <>
                     <Box position="absolute" bottom={4} left={4} right={4}>
                         <HStack justifyContent="space-between" space={10} m={5} >
 

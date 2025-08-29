@@ -1,19 +1,20 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Modal } from 'react-native';
 
-import {Center, CheckCircleIcon, Divider, HStack} from 'native-base';
-import { Color } from '../../global-components/colors'; 
+import { Center, CheckCircleIcon, Divider, HStack } from 'native-base';
+import { Color } from '../../global-components/colors';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { appState } from "../../state/index.js"
 import { BoldText, BoldText1 } from '../../global-components/texts.js';
-import { AppIcon} from '../../global-components/icons.js';
- 
+import { AppIcon, KYCICon } from '../../global-components/icons.js';
+
 import { Loader } from '../../global-components/loader.js';
 
- 
- 
+
+
 import { CreatePinController } from '../../home/service/index.js';
 import { ArrowBigDown, ArrowBigUp, PlusCircleIcon, ShieldEllipsis } from 'lucide-react-native';
+import { LoginSvgs } from '../../assets/svgs.js';
 
 
 const Colors = Color()
@@ -58,8 +59,9 @@ function CreatePin({ navigation }) {
 
 
     function CreatePin(key) {
+        console.log(User.uid)
         setloading(true)
-        CreatePinController({ user: User.id, pin: key })
+        CreatePinController({ user: User.uid, pin: key })
             .then(response => {
                 setloading(false)
 
@@ -73,6 +75,7 @@ function CreatePin({ navigation }) {
                 })
                 // navigation.replace("Home")
                 setModalVisible(true)
+                // console.log(response)
                 setloading(false)
             })
             .catch(error => {
@@ -88,19 +91,22 @@ function CreatePin({ navigation }) {
         <>
             {User &&
                 <>
+                    {/* {console.log(User)} */}
                     <SafeAreaView style={styles.container}>
                         <Center mt={30} style={{
                             marginTop: 50,
                         }} >
 
-                            <AppIcon />
+                            <LoginSvgs />
 
                             <Center style={{
                                 marginTop: 40
                             }}>
                                 <Text style={[styles.registerText, { marginTop: 10, }]}>
-                                    {User.firstname}
                                     <BoldText1 color="#000" text={`(${User.email.slice(0, 2)}***${User.email.slice(-6)})`} />
+                                </Text>
+                                <Text style={[styles.registerText, { marginTop: 10, }]}>
+                                    Set your 4-digit pin to secure your account.
                                 </Text>
 
                                 {/* Input Boxes */}
@@ -173,51 +179,6 @@ function CreatePin({ navigation }) {
                                         }}
                                         text="Your 4-digit pin has been set successfully."
                                     />
-
-                                    <Divider my={7} />
-
-                                    <HStack space={4} style={{
-                                        alignItems: "center",
-                                        justifyContent: "space-between"
-                                    }} >
-                                        <Center style={{
-                                            borderRadius: 30,
-                                            backgroundColor: "#FEF4EA",
-                                            width: 45,
-                                            height: 45,
-                                            display: "flex",
-                                            flexDirection: "row",
-                                            justifyContent: "center",
-                                        }} >
-                                            <ArrowBigUp size={20} />
-                                            <ArrowBigDown size={20} />
-                                        </Center>
-                                        <Text flex={1} fontSize="lg" fontWeight="normal" color={Colors.dark}>
-                                            Send and receive money with your Pocket Voucher account.
-                                        </Text>
-                                    </HStack>
-
-                                    <HStack space={4} style={{
-                                        alignItems: "center",
-                                        justifyContent: "space-between",
-                                        marginTop: 30,
-                                    }} >
-                                        <Center style={{
-                                            borderRadius: 30,
-                                            backgroundColor: "#FEEAFD",
-                                            width: 45,
-                                            height: 45,
-                                            display: "flex",
-                                            flexDirection: "row",
-                                            justifyContent: "center"
-                                        }} >
-                                            <PlusCircleIcon size={25} color={Colors.primary} />
-                                        </Center>
-                                        <Text flex={1} fontSize="lg" fontWeight="normal" color={Colors.dark}>
-                                            Create and Resolve payment voucher with no hidden charges
-                                        </Text>
-                                    </HStack>
-
 
                                     <TouchableOpacity
                                         style={{
@@ -344,7 +305,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         color: Colors.dark,
     },
-   
+
     keyText: {
         fontSize: 25,
         color: Colors.dark,

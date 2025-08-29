@@ -34,13 +34,7 @@ const Address = ({ navigation }) => {
                     <Box style={Styles.box}>
                         <Text fontSize="lg" color="gray.500">City</Text>
                         <TextInput style={Styles.input} isReadOnly bg="gray.100" value={User.city} />
-                    </Box>
-
-                    {/* Landmark */}
-                    <Box style={Styles.box}>
-                        <Text fontSize="lg" color="gray.500">Postal Code</Text>
-                        <TextInput style={Styles.input} isReadOnly bg="gray.100" value={User.zipCode} />
-                    </Box>
+                    </Box> 
 
                     {/* Address */}
                     <Box style={Styles.box}>

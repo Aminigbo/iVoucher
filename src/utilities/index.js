@@ -7,15 +7,15 @@ import RNFS from 'react-native-fs';
 
 
 
-// export const BaseURL = "http://192.168.1.121:9090/APP/"   //home
-// export const BaseURL = "http://192.168.1.60:9090/APP/"  //office
-// export const BaseURL = "http://192.168.216.218:9090/APP/"   //phone  
-// export const BaseURL = "http://192.168.144.218:9090/APP/"   //Steawrt 
+// export const BaseURL = "http://192.168.1.121:1919/api/v1/"   //home
+// export const BaseURL = "http://192.168.202.218:1919/api/v1/"  //office
+export const BaseURL = "https://medicard-server.vercel.app/api/v1/"   //phone  
 
+export const FileUrl = "https://qdzfegxqpqgayosasrwo.supabase.co/storage/v1/object/public/medical-records/"
 
-export const BaseURL = "https://i-voucher-server.vercel.app//APP/"
-
-
+// export const BaseURL = "https://i-voucher-server.vercel.app//APP/"
+export const FlutterwaveKey = "FLWPUBK_TEST-1686ad8a1c3729f5bdbb61fe42458211-X"
+export const HealthstackKey = "pk_live_5da1be9d-f369-40ea-b012-4f791696daf3"
 export const DpUrl = "https://awkkradstjkklsyqbkhl.supabase.co/storage/v1/object/public/dp/"   //DP
 
 
@@ -28,7 +28,7 @@ export const formatDate = (inputDate) => {
   // Define an array to get the month name in the desired format
   const months = [
     'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec.'
   ];
 
   // Get the month in the desired format from the array
@@ -407,3 +407,7 @@ export const onShare = async ({
     Alert.alert("Error", error.message);
   }
 };
+
+export const generateTransactionRef = () => {
+  return `Medicard-${Date.now()}-${Math.random().toString(36).substring(2, 15)}`;
+}

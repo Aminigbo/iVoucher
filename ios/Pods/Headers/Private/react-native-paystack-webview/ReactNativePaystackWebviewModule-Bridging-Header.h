@@ -1,0 +1,1 @@
+../../../../../node_modules/@hurshore/react-native-paystack-webview/ios/ReactNativePaystackWebviewModule-Bridging-Header.h

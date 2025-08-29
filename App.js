@@ -1,6 +1,6 @@
 import { DefaultTheme, NavigationContainer } from "@react-navigation/native";
 import { NativeBaseProvider, StatusBar } from "native-base";
-import Home from "./src/home";
+import Home from "./src/home/card";
 import { createStackNavigator } from "@react-navigation/stack";
 import { Color } from "./src/global-components/colors";
 import Support from "./src/support/contact";
@@ -27,7 +27,7 @@ import SearchBanks from "./src/voucher/search-banks";
 import PocketVoucherTransfer from "./src/voucher/send-to-pv";
 import TransactionDetails from "./src/home/view-transaction";
 import { HandleFPN } from "./src/utilities/messaging-service";
-import { CreditCard, Ticket, User2 } from "lucide-react-native";
+import { ActivityIcon, ActivitySquare, CreditCard, Ticket, User2 } from "lucide-react-native";
 import Card from "./src/home/card";
 import Voucher from "./src/voucher/voucher";
 import ResolveToken from "./src/voucher/resolve-token";
@@ -45,6 +45,11 @@ import { appState } from "./src/state";
 import CreatePin from "./src/auth/screens/create-pin";
 import CardTopup from "./src/home/card-topup";
 import CardWithdrawal from "./src/home/card-withdrawal"; 
+import Activities from "./src/home/transactions";
+import DeactivateCard from "./src/home/deactivate-card";
+import cardLimit from "./src/home/card-limit";
+import MedicalRecordUI from "./src/home/medical-record";
+import ViewRecordUI from "./src/home/view-record";
 
 const Stack = createStackNavigator()
 const Tab = createBottomTabNavigator();
@@ -99,47 +104,12 @@ function App() {
       // Unsubscribe from network state changes on component unmount
       unsubscribe();
     };
-  }, []);
-
-
-  const requestNotificationPermission = async () => {
-    if (Platform.OS === 'android') {
-      const permissionStatus = await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS, // Change this to the appropriate permission
-        {
-          title: 'Notification Permission',
-          message: 'This app needs access to your notifications.',
-          buttonPositive: 'OK',
-        }
-      );
-      if (permissionStatus === PermissionsAndroid.RESULTS.GRANTED) {
-        console.log('Notification permission granted');
-      } else {
-        console.log('Notification permission denied', PermissionsAndroid.RESULTS);
-        // Linking.openSettings();
-      }
-    } else {
-      const permissionStatus = await check(PERMISSIONS.IOS.NOTIFICATIONS);
-      if (permissionStatus === RESULTS.DENIED) {
-        const result = await request(PERMISSIONS.IOS.NOTIFICATIONS);
-        if (result === RESULTS.GRANTED) {
-          console.log('Notification permission granted');
-        } else {
-          console.log('Notification permission denied', permissionStatus);
-        }
-      } else {
-        console.log('Notification permission already granted');
-      }
-    }
-  };
+  }, []); 
 
   useEffect(() => {
     setTimeout(() => {
       SplashScreen.hide();
-    }, 3000);
-
-    // RequestUserPermission()
-    // requestNotificationPermission();
+    }, 3000); 
 
   }, [])
 
@@ -178,9 +148,9 @@ function App() {
               //     <Ticket color="grey" status={focused} />
               //   </>
               // }
-              else if (route.name === 'Cards') {
+              else if (route.name === 'Activities') {
                 return <>
-                  <CreditCard color="grey" status={focused} />
+                  <ActivitySquare color="grey" status={focused} />
                 </>
               }
 
@@ -236,7 +206,7 @@ function App() {
                   useNativeDriver: true,
                 }).start();
               },
-            }} name="Cards" component={Card} options={{ header: () => null, tabBarLabel: "Card" }} />
+            }} name="Activities" component={Activities} options={{ header: () => null, tabBarLabel: "Activities" }} />
 
           <Tab.Screen
             listeners={{
@@ -268,7 +238,7 @@ function App() {
   }
 
   return <>
-    {console.log(Initialized == null)}
+    {/* {console.log(Initialized == null)} */}
     <StatusBar
       animated={true}
       backgroundColor={Colors.white}
@@ -282,7 +252,7 @@ function App() {
         <Stack.Navigator
           // tabBar={props => <MyTabBar {...props} />}
 
-          // initialRouteName="Onboarding"
+          // initialRouteName="Home"
           initialRouteName={Initialized == null ? "Onboarding" : "Biometrics"}
           screenOptions={({ route }) => ({
             animation: "fade_from_bottom",
@@ -325,8 +295,10 @@ function App() {
           <Stack.Screen name="Create-pin" component={CreatePin} options={{ header: () => null }} />
           <Stack.Screen name="Card-topup" component={CardTopup} options={{ header: () => null }} />
           <Stack.Screen name="Card-withdrawal" component={CardWithdrawal} options={{ header: () => null }} /> 
-
-
+          <Stack.Screen name="Deactivate-card" component={DeactivateCard} options={{ header: () => null }} />
+          <Stack.Screen name="Card-limit" component={cardLimit} options={{ header: () => null }} />
+          <Stack.Screen name="Medical-record" component={MedicalRecordUI} options={{ header: () => null }} />
+          <Stack.Screen name="View-record" component={ViewRecordUI} options={{ header: () => null }} />
         </Stack.Navigator>
       </NavigationContainer>
     </NativeBaseProvider>

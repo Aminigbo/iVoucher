@@ -47,16 +47,16 @@ const Voucher = ({ navigation }) => {
                     style={{ width: "100%", justifyContent: "space-between", paddingHorizontal: 10, paddingVertical: 19 }} >
                     <HStack space={7} alignItems="center">
                         <BackIcon />
-                        <Text fontSize="lg"  >Pocket Voucher</Text>
+                        <Text fontSize="lg">Share</Text>
                     </HStack>
-                    <TouchableOpacity
+                    {/* <TouchableOpacity
                         style={{}}
                         onPress={() => { navigation.push("Resolve-token") }} >
                         <HStack space={2} alignItems="center">
                             <Text fontSize="lg" color={Colors.dark} fontWeight="bold">Resolve</Text>
                             <Download color={Colors.dark} size={18} />
                         </HStack>
-                    </TouchableOpacity>
+                    </TouchableOpacity> */}
                 </HStack>
 
                 <FlatList

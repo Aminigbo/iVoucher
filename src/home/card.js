@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Text, VStack, HStack, Icon, Stack, Divider, AddIcon, Center, FlatList, Actionsheet, SmallCloseIcon, Select, CheckIcon } from 'native-base';
-import { RefreshControl, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { PermissionsAndroid, Platform, RefreshControl, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { BoldText, } from '../global-components/texts';
 import { ArrowForward } from '../global-components/icons';
 import { CardComponent } from '../global-components/voucher-component';
@@ -10,9 +10,13 @@ import { formatDate, NumberWithCommas } from '../utilities';
 import { appState } from '../state';
 import { Loader } from '../global-components/loader';
 import { CustomButtons, LinkButtons } from '../global-components/buttons';
-import { Activity, ArrowBigDown, ArrowBigUp, ChartPie, Copy, CreditCard, Delete, DollarSign, Download, Globe, Menu, Minus, PlusIcon, Shuffle, Snowflake } from 'lucide-react-native';
+import { Activity, ArrowBigDown, ArrowBigUp, Bell, ChartPie, Check, CheckCircle, Copy, CreditCard, Delete, DollarSign, Download, Globe, LockIcon, Menu, Minus, PlusIcon, ScanQrCode, Share, Shuffle, Snowflake, XCircle } from 'lucide-react-native';
 
 import { FundCardController, GetCardDetailsController, WithdrawCardController } from '../auth/controllers';
+import { CreateMedicardController, FetchMedicardController } from './service';
+import { FetchUserInfoService } from '../auth/service';
+import Swiper from 'react-native-swiper';
+import { CardIcon, ReferralCard } from '../assets/svgs';
 
 
 const Colors = Color()
@@ -24,59 +28,167 @@ function Card({ navigation, }) {
     const [loading, setLoading] = React.useState(false)
 
     const [claimCard, setclaimCard] = useState(false)
-    const [conversionRate, setconversionRate] = useState(null)
     const [CardInfo, setCardInfo] = useState(null)
 
-
-    const [fundingSource, setFundingSource] = React.useState()
-
-    let { User, login, Transactions, GetCardDetails, GetAllTransactions } = appState()
+    let { User, login, Transactions, GetCardDetails } = appState()
 
 
+    const fetchUserInfo = useCallback(() => {
+        setLoading(true);
+
+        FetchUserInfoService(User.uid)
+            .then(response => {
+                if (response) {
+                    login({
+                        ...response,
+                        refreshToken: User.refreshToken,
+                        accessToken: User.accessToken,
+                    });
+                    // console.log("Fetched user info")
+                } else {
+                    Alert.alert("Error", "An error occured");
+                }
+                setLoading(false);
+            })
+            .catch(error => {
+                console.log(error);
+                setLoading(false);
+            });
+    }, [User, login]);
 
 
-    function GetCardDetailsHandler() {
-        User.card && GetCardDetailsController(setLoading, User.card.reference, setCardInfo);
-    }
+    // request camera permission
+    const requestCameraPermission = useCallback(async () => {
+        if (Platform.OS === "android") {
+            try {
+                const granted = await PermissionsAndroid.request(
+                    PermissionsAndroid.PERMISSIONS.CAMERA,
+                    {
+                        title: 'Pocket Voucher',
+                        message: 'Pocket Voucher needs access to your camera',
+                        buttonNeutral: 'Ask Me Later',
+                        buttonNegative: 'Cancel',
+                        buttonPositive: 'OK',
+                    },
+                );
+                if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+                    navigation.navigate("Scan", { user: User });
+                } else {
+                    Alert.alert("Permission Error", "You need to allow us access to your camera");
+                }
+            } catch (err) {
+                console.warn(err);
+            }
+        }
+    }, [navigation, User]);
 
+    // render header
+    const renderHeader = useMemo(() => (
+        <HStack alignItems="center" justifyContent="space-between" paddingVertical={18} pt={6} pb={4} p={2}>
+            <HStack space={3} style={{ marginRight: 15, alignItems: "center" }}>
+                <TouchableOpacity onPress={() => navigation.navigate("Persona")}>
+                    <VStack>
+                        <Text fontSize="lg" fontWeight="normal">Welcome</Text>
+                        <Text fontSize="lg" fontWeight="bold">{User && `${User.name}`}</Text>
+                    </VStack>
+                </TouchableOpacity>
+            </HStack>
 
+            <HStack space={12} style={{ marginRight: 15 }}>
+                <TouchableOpacity onPress={requestCameraPermission}>
+                    <ScanQrCode size={22} color={Colors.primary} />
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => navigation.navigate("Notifications")}>
+                    <Bell size={22} color={Colors.primary} />
+                </TouchableOpacity>
+            </HStack>
+        </HStack>
+    ), [User, navigation, requestCameraPermission]);
 
-    function WithdrawCardHandler() {
+    // fetch medicard
+    const fetchMedicard = useCallback(async () => {
         setLoading(true)
-        WithdrawCardController(setLoading, setloadingText, User, topupAmount, CardInfo.reference, GetCardDetailsHandler, login)
-    }
+        // console.log("User.medicard", User.medicard)
+        FetchMedicardController(User.medicard, User.uid)
+            .then(response => {
+                if (response) {
+                    setCardInfo(response.data.data)
+                    // console.log("CardInfo", response.data.data)
+                    // console.log(response)
+                } else {
+                    // console.log(response)
+                    Alert.alert("Error", "An error occured");
+                }
+                setLoading(false)
+            })
+            .catch(error => {
+                // console.log(error);
+                setLoading(false)
+            });
+    }, [User, login]);
 
-    function FundCardHandler() {
-        setLoading(true)
-        FundCardController(setLoading, setloadingText, topupAmount, topupAmount * conversionRate.rate, CardInfo.reference, GetCardDetailsHandler, User.id, fundingSource)
-    }
+    // render referral banner
+    const renderReferralBanner = useMemo(() => (
+        <HStack space={5} style={styles.banner}>
+            <VStack space={3} style={{ flex: 2, justifyContent: "flex-start", alignItems: "flex-start" }}>
+                <BoldText
+                    color={Colors.dark}
+                    size={14}
+                    text="Refer a friend to Medicard and earn as much as ₦2,000 as a reward!"
+                />
+            </VStack>
+            <Center flex={1} style={{ marginTop: 20 }}>
+                <ReferralCard />
+            </Center>
+        </HStack>
+    ), []);
+
+    // const renderCardPromo = useMemo(() => !User.card && (
+    const renderCardPromo = useMemo(() => (
+        <HStack space={5} style={styles.banner}>
+            <VStack space={3} style={{ flex: 2, justifyContent: "flex-start", alignItems: "flex-start" }}>
+                <BoldText
+                    color={Colors.dark}
+                    size={14}
+                    text="You have access to your full medical record with your Medicard"
+                />
+                <LinkButtons
+                    Style={styles.cardButton}
+                    Color={Colors.white}
+                    callBack={() => navigation.navigate("Medical-record")}
+                    text="View Record"
+                />
+            </VStack>
+            <Center flex={1} style={{ marginTop: 20 }}>
+                <CardIcon size={70} strokeWidth={1} color={Colors.primary} />
+            </Center>
+        </HStack>
+    ), [navigation]);
+
+
+
+
 
     React.useEffect(() => {
         const unsubscribe = navigation.addListener('focus', async () => {
-            User.card && GetCardDetailsHandler();
-            // GetAllTransactions()
+            fetchMedicard();
         });
-
         return unsubscribe;
-
     }, [navigation]);
 
+    useEffect(() => {
+        fetchMedicard();
+    }, [])
 
 
-
-    return !User ? navigation.replace("Login") : (
-        // return (
+    // return !User ? navigation.replace("Login") : (
+    return (
         <>
-            {console.log(User.card)}
-
+            {/* {console.log(CardInfo)} */}
             <SafeAreaView style={{
                 backgroundColor: "#fff", display: "flex", flex: 1,
             }} >
-
-                <HStack alignItems="center" justifyContent="space-between" paddingVertical={18} pt={6} pb={4} p={2} >
-                    <Text fontSize="xl" fontWeight="bold">USD Virtual Card</Text>
-                </HStack>
-
+                {renderHeader}
 
                 <FlatList
                     data={[0]}
@@ -84,10 +196,9 @@ function Card({ navigation, }) {
                         return <>
                             <VStack space={4} >
                                 <CardComponent
-                                    User={User}
-                                    CardInfo={CardInfo}
                                     setCardInfo={setCardInfo}
                                     setclaimCard={setclaimCard}
+                                    CardInfo={CardInfo}
                                     setbottomSheetType={setbottomSheetType}
                                     GetCardDetails={GetCardDetails}
                                     navigation={navigation}
@@ -95,20 +206,22 @@ function Card({ navigation, }) {
                                 {/* Quick Action Buttons */}
                                 <VStack bg="white" shadow={0.1}>
 
-                                    {User.accountHolderReference ?
+                                    {User?.medicard && <Divider style={{ opacity: 0.4, marginTop: 10 }} />}
+
+                                    {User?.medicard ?
                                         <>
-                                            {User.card && <>
+                                            {User.medicard && <>
                                                 <Center style={{ marginVertical: 15 }} >
                                                     <Text fontSize={12}
                                                         fontWeight="light"
                                                         color="grey"
                                                     >
-                                                        USD balance
+                                                        Medicard balance
                                                     </Text>
                                                     <Text fontSize={20}
                                                         color={Colors.dark}
                                                         fontWeight="bold">
-                                                        {User.UsdBal ? `USD ${NumberWithCommas(User.UsdBal)}.00` : "USD 0.00"}
+                                                        {CardInfo ? `₦ ${NumberWithCommas(CardInfo?.balance || 0)}.00` : "₦ 0.00"}
                                                     </Text>
 
                                                 </Center>
@@ -117,16 +230,11 @@ function Card({ navigation, }) {
                                             <HStack bg="white" space={20} alignItems="center" justifyContent="center"
                                                 style={{
                                                     marginVertical: 15,
-                                                    opacity: CardInfo ? 1 : 0.2
+                                                    opacity: User.medicard ? 1 : 0.2
                                                 }}>
                                                 <TouchableOpacity onPress={() => {
-                                                    // setclaimCard(true)
-                                                    // setbottomSheetType("CARD-TOPUP")
-                                                    // ConversionRate(2, setconversionRate, setclaimCard, setbottomSheetType, "CARD-TOPUP")
 
-                                                    // getConversionRateHandler("CARD-TOPUP")
-
-                                                    navigation.navigate("Card-topup")
+                                                    navigation.navigate("Card-topup", { CardInfo })
                                                 }} >
                                                     <VStack alignItems="center" space={2}>
                                                         <Center style={{
@@ -145,7 +253,7 @@ function Card({ navigation, }) {
                                                 <TouchableOpacity onPress={() => {
                                                     // setclaimCard(true)
                                                     // setbottomSheetType("CARD-WITHDRAWAL")
-                                                    navigation.navigate("Card-withdrawal")
+                                                    navigation.navigate("Deactivate-card", { card_number: CardInfo.card_number })
                                                 }} >
                                                     <VStack alignItems="center" space={2}>
                                                         <Center style={{
@@ -155,30 +263,11 @@ function Card({ navigation, }) {
                                                             width: 40,
                                                             height: 40
                                                         }} >
-                                                            <Icon as={<Download size={20} strokeWidth={2} />} color={Colors.primary} />
+                                                            <Icon as={<LockIcon size={20} strokeWidth={2} />} color={Colors.primary} />
                                                         </Center>
-                                                        <Text fontSize="sm" light>Withdraw</Text>
+                                                        <Text fontSize="sm" light>Deactivate</Text>
                                                     </VStack>
                                                 </TouchableOpacity>
-
-                                                {/* <TouchableOpacity onPress={() => {
-                                                    // setclaimCard(true)
-                                                    // setbottomSheetType("CARD-WITHDRAWAL")
-                                                    navigation.navigate("Convert")
-                                                }} >
-                                                    <VStack alignItems="center" space={2}>
-                                                        <Center style={{
-                                                            borderWidth: 0,
-                                                            borderRadius: 50,
-                                                            backgroundColor: Colors.accent,
-                                                            width: 40,
-                                                            height: 40
-                                                        }} >
-                                                            <Icon as={<Shuffle size={20} strokeWidth={2} />} color={Colors.primary} />
-                                                        </Center>
-                                                        <Text fontSize="sm" light>Convert</Text>
-                                                    </VStack>
-                                                </TouchableOpacity> */}
 
                                                 <TouchableOpacity onPress={() => {
                                                     setclaimCard(true)
@@ -192,9 +281,9 @@ function Card({ navigation, }) {
                                                             width: 40,
                                                             height: 40
                                                         }} >
-                                                            <Icon as={<Menu size={20} strokeWidth={2} />} color={Colors.primary} />
+                                                            <Icon as={<Activity size={20} strokeWidth={2} />} color={Colors.primary} />
                                                         </Center>
-                                                        <Text fontSize="sm" light>More</Text>
+                                                        <Text fontSize="sm" light>Limits</Text>
                                                     </VStack>
 
                                                 </TouchableOpacity>
@@ -205,104 +294,38 @@ function Card({ navigation, }) {
                                             <Text fontSize="2xl"
                                                 color={Colors.dark}
                                                 fontWeight="semibold">
-                                                Pocket Voucher Card
+                                                Medicard
                                             </Text>
                                             <Text fontSize="lg"
                                                 fontWeight="medium"
                                                 color={Colors.dark}
                                             >
-                                                We designed it for your Digital Lifestyle</Text>
+                                                Designed for your Digital Medical Lifestyle</Text>
                                         </Stack>
                                     }
+                                    {User?.medicard && <Divider style={{ opacity: 0.4, marginTop: 10 }} />}
 
-                                    {User.accountHolderReference && <Divider style={{ opacity: 0.4, marginVertical: 10 }} />}
-
-                                    {User.accountHolderReference ?
-                                        <Stack p={5}>
-
-                                            <HStack style={{
-                                                justifyContent: "space-between",
-                                                alignItems: "center",
-                                                marginBottom: 10
-                                            }} >
-                                                {Transactions && Transactions.filter(e => e.type == "CARD").length > 0 && <BoldText text="Transactions" color="#000" />}
-
-                                                {Transactions && Transactions.filter(e => e.type == "CARD").length > 5 &&
-                                                    <TouchableOpacity onPress={() => navigation.navigate("Notifications")} >
-                                                        <HStack justifyContent="flex-end" alignItems="center" space={4} >
-                                                            <Text fontWeight={500} color={Colors.primary} >See All</Text>
-                                                            <ArrowForward color={Colors.primary} />
-                                                        </HStack>
-                                                    </TouchableOpacity>
-                                                }
-                                            </HStack>
-
-                                            {Transactions && Transactions.filter(e => e.type == "CARD").slice(0, 3).map((items, index) => {
-                                                return <TouchableOpacity
-                                                    onPress={() => {
-                                                        // console.log(items)
-                                                        navigation.navigate("view-transaction", { data: items })
-                                                    }}
+                                    {User?.medicard ?
+                                        <>
+                                            <VStack bg="white" shadow={0.1}>
+                                                {/* {renderQuickActions} */}
+                                                {renderCardPromo} 
+                                                <Swiper
+                                                    style={styles.swiper}
+                                                    loop={true}
+                                                    autoplay={true}
+                                                    bounces={true}
+                                                    bouncesZoom={true}
+                                                    autoplayTimeout={5}
                                                 >
-                                                    <HStack key={index} alignItems="center" space={3} style={{
-                                                        marginTop: 20
-                                                    }} >
-
-                                                        <Center style={{
-                                                            borderRadius: 30,
-                                                            backgroundColor: items.flow == "IN" ? "#EAFBF5" : "#F9F1F1",
-                                                            width: 30,
-                                                            height: 30,
-                                                        }} >
-
-                                                            {items.flow == "IN" ?
-                                                                <Icon as={<ArrowBigDown size={19} />} color={Colors.primary} /> :
-                                                                <Icon as={<ArrowBigUp size={19} />} color={Colors.primary} />
-                                                            }
-                                                        </Center>
-                                                        <HStack style={{ justifyContent: "space-between", flex: 1 }} >
-                                                            <VStack  >
-                                                                {/* {console.log(items)} */}
-                                                                <Text>{items.data.description}</Text>
-                                                                <Text fontWeight="light" fontSize="xs" >{formatDate(items.created_at)}</Text>
-                                                            </VStack>
-
-                                                            <HStack alignItems="center" space={0.3} >
-                                                                {items.flow == "IN" ?
-
-                                                                    <Icon as={<PlusIcon size={13} />} color="mediumseagreen" />
-                                                                    :
-                                                                    <Icon as={<Minus size={11} />} color="crimson" />
-                                                                }
-                                                                <Text style={{
-                                                                    paddingHorizontal: 5,
-                                                                    paddingVertical: 1,
-                                                                    // this is the end
-                                                                    borderRadius: 6,
-                                                                    fontSize: 13,
-                                                                }} >${NumberWithCommas(items.amount)}</Text>
-                                                            </HStack>
-                                                        </HStack>
-                                                    </HStack>
-
-                                                </TouchableOpacity>
-
-                                            })}
-
-                                            {Transactions && Transactions.length < 1 &&
-                                                <Center style={{
-                                                    // backgroundColor:"red",
-                                                    flex: 1,
-                                                    padding: 20,
-                                                    marginTop: 40
-                                                }} >
-                                                    <BoldText text="No transaction record" color="#000" />
-                                                </Center>}
-
-                                        </Stack>
+                                                    {renderReferralBanner}
+                                                </Swiper>
+                                            </VStack>
+                                            <Stack p={5}>
+                                            </Stack></>
                                         :
-                                        <Stack p={5} >
 
+                                        <Stack px={5}>
                                             <HStack alignItems="center" space={3} style={{
                                                 marginVertical: 10,
                                                 alignItems: "flex-start"
@@ -316,12 +339,12 @@ function Card({ navigation, }) {
                                                             fontWeight="bold"
                                                             color={Colors.dark}
                                                         >
-                                                            Shop Anywhere
+                                                            Access Anywhere
                                                         </Text>
 
                                                         <Text fontWeight="light" fontSize={14}>
-                                                            Use your Pocket Voucher card for all your online
-                                                            purchases anywhere Visa and Master cards are accepted
+                                                            Use your Medicard to share your medical history with any
+                                                            healthcare provider verified by Healthstack, anytime, anywhere.
                                                         </Text>
                                                     </VStack>
                                                 </HStack>
@@ -340,7 +363,7 @@ function Card({ navigation, }) {
                                                             fontWeight="bold"
                                                             color={Colors.dark}
                                                         >
-                                                            No Overcharge
+                                                            Controlled Access
                                                         </Text>
 
                                                         <Text fontWeight="light" fontSize={16}>
@@ -367,7 +390,8 @@ function Card({ navigation, }) {
                                                         </Text>
 
                                                         <Text fontWeight="light" fontSize={16}>
-                                                            $2.00 non-refundable card creation fee
+                                                            N1000 non-refundable card creation fee.
+                                                            No extra hidden fees.
                                                         </Text>
                                                     </VStack>
                                                 </HStack>
@@ -385,14 +409,14 @@ function Card({ navigation, }) {
                                                         marginVertical: 10,
                                                     }} />
                                                 <CustomButtons callBack={() => {
-                                                    // setbottomSheetType("Claim")
-                                                    // setclaimCard(true)
-                                                    navigation.navigate("Complete-verification")
+                                                    setbottomSheetType("Claim")
+                                                    setclaimCard(true)
+                                                    // navigation.navigate("Complete-verification")
                                                 }}
                                                     primary
                                                     Loading={false}
-                                                    LoadingText="Creating your card"
-                                                    width="100%" height={58} text="Claim USD card" />
+                                                    LoadingText="Creating your Medicard"
+                                                    width="100%" height={58} text="Claim Medicard" />
                                             </Stack>
 
                                         </Stack>
@@ -404,41 +428,12 @@ function Card({ navigation, }) {
                     }}
 
                     refreshControl={
-                        <RefreshControl refreshing={loading} onRefresh={() => {
-                            // User.card && GetCardDetails(setCardInfo)
-                            GetCardDetailsHandler()
-                            // GetAllTransactions()
+                        <RefreshControl refreshing={false} onRefresh={() => {
+                            fetchMedicard()
+                            // fetchUserInfo()
                         }} />
                     }
                 />
-
-
-                {User.accountHolderReference && <>
-
-                    {!User.card &&
-                        <Center>
-                            <TouchableOpacity
-                                onPress={() => {
-                                    navigation.navigate("Claim-card")
-                                    // ConversionRate(5, setconversionRate, setclaimCard, setbottomSheetType, 'Rate')
-                                }}
-                                style={[{
-                                    width: "90%",
-                                    alignSelf: "center",
-                                    borderRadius: 10,
-                                    paddingVertical: 17,
-                                    alignItems: "center",
-                                    backgroundColor: Colors.dark,
-                                    marginBottom: 20
-                                }]}>
-                                <BoldText text="Claim card" color="#fff" />
-                            </TouchableOpacity>
-                        </Center>
-                    }
-                </>
-
-                }
-
             </SafeAreaView>
 
 
@@ -449,68 +444,104 @@ function Card({ navigation, }) {
             }}>
                 <Actionsheet.Content>
 
+                    {bottomSheetType == "Claim" && <>
+                        <Text fontSize={17} fontWeight="bold" color={Colors.dark} style={{
+                            marginVertical: 25
+                        }} >Confirm Claim </Text>
+
+                        <TouchableOpacity
+                            onPress={() => {
+                                navigation.navigate("Complete-verification")
+                                setclaimCard(false)
+                            }}
+                            style={{
+                                paddingHorizontal: 10,
+                                width: "90%",
+                            }} >
+                            <HStack space={5}  >
+                                <CheckCircle />
+                                <VStack>
+                                    <Text fontSize={15} fontWeight="bold" color={Colors.dark} style={{}} >
+                                        Confirm Claim
+                                    </Text>
+                                    <Text fontSize={13} fontWeight="normal" color={Colors.dark} style={{}} >
+                                        Are you sure you want to claim your Medicard?
+                                    </Text>
+                                    <Text fontSize={13} fontWeight="normal" color={Colors.dark} style={{}} >
+                                        N1000 non-refundable card creation fee.
+                                    </Text>
+                                </VStack>
+                            </HStack>
+                        </TouchableOpacity>
+
+                        <Divider style={{ marginVertical: 25 }} />
+
+                        <TouchableOpacity style={{
+                            paddingHorizontal: 10,
+                            width: "90%",
+                            marginBottom: 20
+                        }} >
+                            <HStack space={5}  >
+                                <XCircle />
+                                <VStack  >
+                                    <Text fontSize={15} fontWeight="bold" color={Colors.dark} style={{}} >
+                                        Cancel
+                                    </Text>
+                                    <Text fontSize={13} fontWeight="normal" color={Colors.dark} style={{}} >
+                                        Cancel the claim process.
+                                    </Text>
+                                </VStack>
+                            </HStack>
+                        </TouchableOpacity>
+
+                    </>}
+
                     {bottomSheetType == "MORE-OPTIONS" && <>
                         <Text fontSize={17} fontWeight="bold" color={Colors.dark} style={{
                             marginVertical: 25
-                        }} > Card options </Text>
+                        }} > Card Limits</Text>
 
-                        <TouchableOpacity style={{
-                            paddingHorizontal: 10,
-                            width: "90%",
+
+                        {/* <Activity /> */}
+                        <VStack style={{
+                            padding: 10,
                         }} >
-                            <HStack space={5}  >
-                                <Delete />
-                                <VStack>
-                                    <Text fontSize={15} fontWeight="bold" color={Colors.dark} style={{}} >
-                                        Delete card
-                                    </Text>
-                                    <Text fontSize={13} fontWeight="normal" color={Colors.dark} style={{}} >
-                                        When you delete your card, all available funds will be
-                                        returned to your wallet.
-                                    </Text>
-                                </VStack>
+                            <HStack style={{ marginTop: 10, justifyContent: "space-between", width: "90%", alignItems: "center" }} >
+                                <Text fontSize={13} fontWeight="normal" color={Colors.dark} style={{ paddingRight: 10 }} >
+                                    Daily Limit
+                                </Text>
+                                <Divider style={{ width: 30 }} />
+                                <Text fontSize={13} fontWeight="normal" color={Colors.dark} style={{ paddingRight: 10 }} >
+                                    N100,000
+                                </Text>
                             </HStack>
-                        </TouchableOpacity>
 
-                        <Divider style={{ marginVertical: 25 }} />
-
-                        <TouchableOpacity style={{
-                            paddingHorizontal: 10,
-                            width: "90%",
-                        }} >
-                            <HStack space={5}  >
-                                <Snowflake />
-                                <VStack  >
-                                    <Text fontSize={15} fontWeight="bold" color={Colors.dark} style={{}} >
-                                        Freeze card
-                                    </Text>
-                                    <Text fontSize={13} fontWeight="normal" color={Colors.dark} style={{}} >
-                                        All attempted transactions to a frozen card will be declined.
-                                    </Text>
-                                </VStack>
+                            <HStack style={{ marginTop: 10, justifyContent: "space-between", width: "90%", alignItems: "center" }} >
+                                <Text fontSize={13} fontWeight="normal" color={Colors.dark} style={{ paddingRight: 10 }} >
+                                    Weekly Limit
+                                </Text>
+                                <Divider style={{ width: 30 }} />
+                                <Text fontSize={13} fontWeight="normal" color={Colors.dark} style={{ paddingRight: 10 }} >
+                                    N500,000
+                                </Text>
                             </HStack>
-                        </TouchableOpacity>
 
-                        <Divider style={{ marginVertical: 25 }} />
-
-
-                        <TouchableOpacity style={{
-                            paddingHorizontal: 10,
-                            width: "90%",
-                        }} >
-                            <HStack space={5}  >
-                                <Activity />
-                                <VStack >
-                                    <Text fontSize={15} fontWeight="bold" color={Colors.dark} style={{}} >
-                                        Card Limits
-                                    </Text>
-                                    <Text fontSize={13} fontWeight="normal" color={Colors.dark} style={{}} >
-                                        View your card limits.
-                                    </Text>
-                                </VStack>
+                            <HStack style={{ marginTop: 10, justifyContent: "space-between", width: "90%", alignItems: "center" }} >
+                                <Text fontSize={13} fontWeight="normal" color={Colors.dark} style={{ paddingRight: 10 }} >
+                                    Monthly Limit
+                                </Text>
+                                <Divider style={{ width: 30 }} />
+                                <Text fontSize={13} fontWeight="normal" color={Colors.dark} style={{ paddingRight: 10 }} >
+                                    N1,000,000
+                                </Text>
                             </HStack>
-                        </TouchableOpacity>
+                        </VStack>
 
+                        <Divider style={{ marginVertical: 15 }} />
+
+                        <Text fontSize={13} fontWeight="normal" color={Colors.dark} style={{ textAlign: "center", padding: 15 }} >
+                            Your card has spending limits that help protect your account and ensure secure transactions.
+                        </Text>
 
                     </>}
 
@@ -543,12 +574,13 @@ function Card({ navigation, }) {
                             marginBottom: 3,
                             paddingHorizontal: 20
                         }}  >
+                            {console.log(CardInfo)}
                             <VStack>
                                 <Text fontSize={15} fontWeight="thin" color={Colors.dark} style={{}} >
                                     Card Name
                                 </Text>
                                 <Text fontSize={17} fontWeight="bold" color={Colors.dark} style={{ marginTop: 5 }} >
-                                    {User.card.holder_name} 
+                                    {CardInfo.card_name}
                                 </Text>
                             </VStack>
                             <TouchableOpacity onPress={() => {
@@ -571,35 +603,11 @@ function Card({ navigation, }) {
                                     Card Number
                                 </Text>
                                 <Text fontSize={17} fontWeight="bold" color={Colors.dark} style={{ marginTop: 5 }} >
-                                    {User.card.first_six}{User.card.last_four}
+                                    {CardInfo.card_number}
                                 </Text>
                             </VStack>
                             <TouchableOpacity onPress={() => {
                                 // Clipboard.setString(CardInfo.pan)
-                            }} >
-                                <Copy />
-                            </TouchableOpacity>
-                        </HStack>
-
-                        <HStack style={{
-                            width: "100%",
-                            justifyContent: "space-between",
-                            alignItems: "center",
-                            padding: 10,
-                            marginBottom: 3,
-                            paddingHorizontal: 20
-                        }}  >
-                            <VStack>
-                                <Text fontSize={15} fontWeight="thin" color={Colors.dark} style={{}} >
-                                    CVV (Security code)
-                                </Text>
-                                <Text fontSize={17} fontWeight="bold" color={Colors.dark} style={{ marginTop: 5 }} >
-                                    {/* {"User.card.cvv"} */}
-                                    044
-                                </Text>
-                            </VStack>
-                            <TouchableOpacity onPress={() => {
-                                // Clipboard.setString(CardInfo.cvv)
                             }} >
                                 <Copy />
                             </TouchableOpacity>
@@ -618,7 +626,7 @@ function Card({ navigation, }) {
                                     Expiry Date
                                 </Text>
                                 <Text fontSize={17} fontWeight="bold" color={Colors.dark} style={{ marginTop: 5 }} >
-                                    {User.card.expiry_month} / {User.card.expiry_year}
+                                    {CardInfo.expires_at}
                                 </Text>
                             </VStack>
 
@@ -658,8 +666,34 @@ const styles = StyleSheet.create({
         color: "#000"
     },
 
-
+    swiper: {
+        height: 150,
+    },
     registerButton: { backgroundColor: Colors.dark, paddingVertical: 15, width: '90%', alignItems: 'center', borderRadius: 5, marginVertical: 10, marginTop: 50, height: 55, alignSelf: "center" },
     registerButtonText: { color: '#FFF', fontWeight: 'bold' },
+
+    banner: {
+        height: 120,
+        backgroundColor: Colors.accent,
+        margin: 15,
+        position: "relative",
+        borderRadius: 10,
+        justifyContent: "center",
+        alignItems: "center",
+        padding: 15, 
+    },
+    cardButton: {
+        backgroundColor: Colors.dark,
+        borderRadius: 5,
+        paddingHorizontal: 10,
+        paddingVertical: 5,
+    },
+    voucherItem: {
+        display: "flex",
+        flexDirection: "row",
+        justifyContent: "space-between",
+        flex: 1,
+        alignItems: "center"
+    },
 
 });

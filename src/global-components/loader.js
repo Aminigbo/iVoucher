@@ -18,6 +18,6 @@ export function Loader({ loading,text }) {
         }}
     >
         <ActivityIndicator color={Colors.white} />
-        <Text style={{ color: Colors.white }}>{text}</Text>
+        <Text style={{ color: Colors.white, width:300, textAlign:"center",marginTop:20 }}>{text}</Text>
     </Center> : ""
 }

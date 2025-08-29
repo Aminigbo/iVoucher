@@ -5,11 +5,13 @@ import { Center, HStack } from 'native-base';
 import { BackIcon } from '../../global-components/icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Color } from '../../global-components/colors';
-import { VerifyAccountController } from '../controllers';
+import { LoginWithCustomTokenController, VerifyAccountController } from '../controllers';
 import { appState } from '../../state';
 import { CircleCheck } from 'lucide-react-native';
 import { BoldText, BoldText1 } from '../../global-components/texts';
 import { Loader } from '../../global-components/loader';
+import { VerifyAccountService } from '../service';
+
 const Colors = Color()
 const OTPVerification = ({ navigation, route }) => {
     const [otp, setOtp] = useState(['', '', '', '', '']);
@@ -22,6 +24,7 @@ const OTPVerification = ({ navigation, route }) => {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [error, setError] = useState(false);
     const [modalVisible, setModalVisible] = useState(false);
+
 
 
 
@@ -42,23 +45,37 @@ const OTPVerification = ({ navigation, route }) => {
     };
 
     const handleVerify = () => {
-        // if (otp.join('').length === 5) {
-        //     Alert.alert('OTP Verified', `Entered OTP: ${otp.join('')}`);
-        // } else {
-        //     Alert.alert('Error', 'Please enter a valid 5-digit OTP.');
-        // }
-        if (data.data.OTP != otp.join('')) {
-            setError(true)
-            Alert.alert('Error', 'Please enter a valid 5-digit OTP.');
-        } else {
-            setError(false)
-            if (data.type && data.type == "RESET-PWD") {
-                navigation.replace("Reset-pwd", { data: data.data })
-            } else {
-                setloading(true)
-                VerifyAccountController({ setloading, Alert, navigation, data: data, login, setModalVisible })
-            }
-        }
+        setloading(true)
+        VerifyAccountService(data.signedOTP, otp.join(''), data.id)
+            .then(response => {
+                if (response.success == true) {
+                    // setloading(false)
+                    // console.log(response.data.customToken) 
+                    LoginWithCustomTokenController(response.data.customToken)
+                        .then(userCredential => {
+                            setloading(false)
+                            setModalVisible(true)
+                            const user = {
+                                accessToken: userCredential.user.uid,
+                                refreshToken: userCredential.user.refreshToken,
+                                ...userCredential.user.user
+                            }
+                            // login(user)
+                            console.log(user)
+                        })
+                        .catch(error => {
+                            setloading(false)
+                            console.log(error)
+                        })
+                } else {
+                    setloading(false)
+                    Alert.alert('Error', response.message)
+                }
+            })
+            .catch(error => {
+                setloading(false)
+                console.log(error)
+            }) 
     };
 
     const handleResendCode = () => {
@@ -69,7 +86,7 @@ const OTPVerification = ({ navigation, route }) => {
 
     return <>
         <SafeAreaView style={styles.container}>
-            {console.log(data)}
+            {/* {console.log(data.id, otp)} */}
             <HStack alignItems="center" justifyContent="flex-start" space={5} >
                 <TouchableOpacity onPress={() => {
                     // navigation.replace("Onboarding")
@@ -102,7 +119,7 @@ const OTPVerification = ({ navigation, route }) => {
                     text="Verify"
                     primary
                     opacity={isButtonActive ? 1 : 0.3}
-                    // Loading={loading}
+                    Loading={loading}
                     callBack={handleVerify}
                 />
 
@@ -136,7 +153,7 @@ const OTPVerification = ({ navigation, route }) => {
 
                         <TouchableOpacity style={styles.registerButton} onPress={() => {
                             setModalVisible(false);
-                            navigation.replace("kyc-onboarding")
+                            navigation.replace("kyc-onboarding", { id: data.id, name: data.name, email: data.email, phone: data.phone })
                         }} >
                             {loading ? <ActivityIndicator color={Colors.white} /> : <Text style={styles.registerButtonText}>Complete KYC</Text>}
                         </TouchableOpacity>

@@ -1,14 +1,24 @@
+import { doc, getDoc } from "firebase/firestore";
 import { BaseURL } from "../../utilities";
+import { getFirestore } from "firebase/firestore";
+import App from "../../../App";
+const db = getFirestore(App);
 
-
-export async function LoginService(email, password, fcmToken) {
+export async function VerifyKYCService(id, address, dob, gender, country, state, city, email, phone, name) {
     var myHeaders = new Headers();
     myHeaders.append("Content-Type", "application/json");
 
     const raw = JSON.stringify({
+        "uid": id,
+        "address": address,
+        "dob": dob,
+        "gender": gender,
+        "country": country,
+        "state": state,
+        "city": city,
         "email": email,
-        "password": password,
-        "fcmToken": fcmToken
+        "phone": phone,
+        "name": name
     });
 
     var requestOptions = {
@@ -19,7 +29,7 @@ export async function LoginService(email, password, fcmToken) {
     };
 
     try {
-        const response = await fetch(`${BaseURL}auth/login`, requestOptions);
+        const response = await fetch(`${BaseURL}auth/verify-kyc`, requestOptions);
         const result_1 = await response.text();
         // console.log(result_1)
         const data = JSON.parse(result_1)
@@ -30,14 +40,13 @@ export async function LoginService(email, password, fcmToken) {
 }
 
 
-export async function RegisterService({ email, phone, name, pwd1, fcmToken, lastName }) {
+export async function RegisterService({ email, phone, name, pwd1, fcmToken }) {
     var myHeaders = new Headers();
     myHeaders.append("Content-Type", "application/json");
 
     const raw = JSON.stringify({
-        "firstName": name,
-        "lastName": lastName,
-        "email": email,
+        "name": name,
+        "email": email, 
         "phone": phone,
         "password": pwd1,
         "fcmToken": fcmToken
@@ -51,7 +60,7 @@ export async function RegisterService({ email, phone, name, pwd1, fcmToken, last
     };
 
     try {
-        const response = await fetch(`${BaseURL}auth/sign-up`, requestOptions);
+        const response = await fetch(`${BaseURL}auth/signup`, requestOptions);
         const result_1 = await response.text();
         // console.log(result_1)
         const data = JSON.parse(result_1)
@@ -61,15 +70,14 @@ export async function RegisterService({ email, phone, name, pwd1, fcmToken, last
     }
 }
 
-export async function VerifyAccountService(uuid) {
+export async function VerifyAccountService(signedOtp, OTP, uid) {
     var myHeaders = new Headers();
     myHeaders.append("Content-Type", "application/json");
 
     const raw = JSON.stringify({
-        "uuid": uuid,
-        "data": {
-            "isVerified": true
-        }
+        "signedOtp": signedOtp,
+        "OTP": OTP,
+        "uid": uid
     });
 
     var requestOptions = {
@@ -80,7 +88,7 @@ export async function VerifyAccountService(uuid) {
     };
 
     try {
-        const response = await fetch(`${BaseURL}auth/verify-otp`, requestOptions);
+        const response = await fetch(`${BaseURL}auth/verify-token`, requestOptions);
         const result_1 = await response.text();
         // console.log(result_1)
         const data = JSON.parse(result_1)
@@ -91,13 +99,13 @@ export async function VerifyAccountService(uuid) {
 }
 
 
-export async function RequestOtpService(email) {
+export async function RequestOtpService(email, uid) {
     var myHeaders = new Headers();
     myHeaders.append("Content-Type", "application/json");
 
     const raw = JSON.stringify({
         "email": email,
-        "name": ""
+        "uid": uid
     });
 
     var requestOptions = {
@@ -108,7 +116,7 @@ export async function RequestOtpService(email) {
     };
 
     try {
-        const response = await fetch(`${BaseURL}auth/requet-otp`, requestOptions);
+        const response = await fetch(`${BaseURL}auth/request-otp`, requestOptions);
         const result_1 = await response.text();
         // console.log(result_1)
         const data = JSON.parse(result_1)
@@ -148,23 +156,17 @@ export async function ResetPwdService(password, user) {
 
 
 export async function FetchUserInfoService(user) {
-    var myHeaders = new Headers();
-    myHeaders.append("Content-Type", "application/json");
-
-    var requestOptions = {
-        method: 'GET',
-        redirect: 'follow'
-    };
-    // console.log("Getting user")
-
     try {
-        const response = await fetch(`${BaseURL}auth/get-user-by-uuid/${user}`, requestOptions);
-        const result_1 = await response.text();
-        // console.log(result_1)
-        const data = JSON.parse(result_1)
-        return data;
+        // Correctly fetch user document from Firestore
+        const userDocRef = doc(db, "users", user);
+        const userDocSnap = await getDoc(userDocRef);
+
+        if (userDocSnap.exists()) return userDocSnap.data()
+
+        throw new Error("User not found")
     } catch (error) {
-        return error;
+        console.error("Error fetching user document:", error);
+        throw error;
     }
 }
 
@@ -217,15 +219,13 @@ export async function DeleteAccountService(uuid) {
     }
 }
 
-export async function ChangePasswordAlt(email, password, password3, uuid) {
+export async function ChangePasswordAlt(newPassword, uuid) {
     var myHeaders = new Headers();
     myHeaders.append("Content-Type", "application/json");
 
-    const raw = JSON.stringify({
-        "email": email,
-        "password": password,
-        "password3": password3,
-        "uuid": uuid
+    const raw = JSON.stringify({  
+        "newPassword": newPassword,
+        "uid": uuid
     });
 
     var requestOptions = {
@@ -236,7 +236,7 @@ export async function ChangePasswordAlt(email, password, password3, uuid) {
     };
 
     try {
-        const response = await fetch(`${BaseURL}auth/change-pwd-alt`, requestOptions);
+        const response = await fetch(`${BaseURL}auth/change-password`, requestOptions);
         const result_1 = await response.text();
         // console.log(result_1)
         const data = JSON.parse(result_1)
@@ -247,41 +247,6 @@ export async function ChangePasswordAlt(email, password, password3, uuid) {
 }
 
 
-export async function UpdateKycModel(user, gender, address, bvn, email, name, phone, state, city, country, zipCode) {
-    var myHeaders = new Headers();
-    myHeaders.append("Content-Type", "application/json");
-
-    const raw = JSON.stringify({
-        "email": email,
-        "name": name,
-        "bvn": bvn,
-        "user": user,
-        "gender": gender,
-        "address": address,
-        "phone": phone,
-        "state": state,
-        "city": city,
-        "country": country,
-        "zipCode": zipCode
-    });
-
-    var requestOptions = {
-        method: 'POST',
-        headers: myHeaders,
-        body: raw,
-        redirect: 'follow'
-    };
-
-    try {
-        const response = await fetch(`${BaseURL}korapay/create-virtual-account`, requestOptions);
-        const result_1 = await response.text();
-        // console.log(result_1)
-        const data = JSON.parse(result_1)
-        return data;
-    } catch (error) {
-        return error;
-    }
-}
 
 
 // update NIN Model
@@ -529,16 +494,14 @@ export async function GetCardDetailsHistoryModel(reference) {
 }
 
 // fund card
-export async function FundCardService(amount, chargeAmount, card_ref, user, fundingSource) {
+export async function FundCardService(amount, card_number, uid) {
     var myHeaders = new Headers();
     myHeaders.append("Content-Type", "application/json");
 
     const raw = JSON.stringify({
-        "card_ref": card_ref,
-        "user": user,
         "amount": amount,
-        "chargeAmount": chargeAmount,
-        "fundingSource": fundingSource
+        "card_number": card_number,
+        "uid": uid
     });
     var requestOptions = {
         method: 'POST',
@@ -548,7 +511,7 @@ export async function FundCardService(amount, chargeAmount, card_ref, user, fund
     };
 
     try {
-        const response = await fetch(`${BaseURL}korapay/card/fund`, requestOptions);
+        const response = await fetch(`${BaseURL}medicard/fund-medicard`, requestOptions);
         const result_1 = await response.text();
         // console.log(result_1)
         const data = JSON.parse(result_1)

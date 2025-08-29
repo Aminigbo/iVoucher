@@ -26,7 +26,7 @@ function Notification({ navigation }) {
     const handleFetchTransactions = () => {
         setLoading(true)
 
-        FetchTransactionsModel(User.id)
+        FetchTransactionsModel(User.uid)
             .then(response => {
                 setLoading(false)
 
@@ -35,7 +35,7 @@ function Notification({ navigation }) {
                 } else {
                     settransaction(response.data)
                 }
-
+                console.log("response", response)
             })
             .catch(error => {
                 settransaction([])
@@ -60,153 +60,86 @@ function Notification({ navigation }) {
     return (
 
         <>
-            {/* {console.log(data)} */}
+            {/* {console.log(User.uid)} */}
 
 
-            <SafeAreaView style={{ display: "flex", flex: 1, backgroundColor: "#fff" }} >
+            <SafeAreaView style={{ display: "flex", flex: 1, backgroundColor: "#fff", paddingHorizontal: 15 }} >
                 <HStack space={7} alignItems="center" pt={6} p={2}>
                     <BackIcon />
-                    <Text fontSize="lg" fontWeight="bold"> Transactions </Text>
+                    <Text fontSize="lg" fontWeight="bold"> Notifications </Text>
                 </HStack>
 
 
                 <FlatList
-                    data={[0]}
-                    renderItem={() => {
-                        return <>
-                            <VStack p={2}>
-
-                                <Stack p={2}>
-                                    {Transactions.filter(item => item.type != "CARD").length > 0 ?
-                                        <Stack mt={4} style={{
-                                            // backgroundColor:"red", 
-                                        }} >
-                                            {/* <BoldText1 text="Recent activities" color="#000" /> */}
-
-                                            {Transactions.filter(item => item.type != "CARD").map((items, index) => {
-                                                return <TouchableOpacity
-                                                    onPress={() => {
-                                                        navigation.navigate("view-transaction", { data: items })
-                                                    }}
-                                                >
-                                                    <HStack key={index} mt={7} alignItems="center" space={3} >
-
-                                                        {items.type == "BANK-PAYOUT" && <Center style={{
-                                                            // borderWidth: 0.4,
-                                                            borderRadius: 30,
-                                                            backgroundColor: "#FEF4EA",
-                                                            width: 40,
-                                                            height: 40
-                                                        }} >
-                                                            <Icon as={items.user != User.id ? <ArrowBigDown size={19} color={Colors.primary} /> : <ArrowBigUp size={19} color={Colors.danger} />} />
-                                                        </Center>}
-                                                        {items.type == "MERCHANT-TOPUP" && <Center style={{
-                                                            // borderWidth: 0.4,
-                                                            borderRadius: 30,
-                                                            backgroundColor: "#FEEAFD",
-                                                            width: 40,
-                                                            height: 40
-                                                        }} >
-                                                            <Icon as={<PlusCircleIcon size={20} />} color={Colors.primary} />
-                                                        </Center>}
-
-                                                        {items.type == "PV-PAYOUT" && <Center style={{
-                                                            // borderWidth: 0.4,
-                                                            borderRadius: 30,
-                                                            backgroundColor: "#EAFBF5",
-                                                            width: 40,
-                                                            height: 40,
-                                                        }} >
-                                                            <Icon as={items.user != User.id ? <ArrowBigDown size={19} color={Colors.primary} /> : <ArrowBigUp size={19} color={Colors.danger} />} />
-                                                        </Center>}
-
-                                                        {items.message == "Merchant top-up" && <Center style={{
-                                                            // borderWidth: 0.4,
-                                                            borderRadius: 30,
-                                                            backgroundColor: "#EAFBF5",
-                                                            width: 40,
-                                                            height: 40,
-                                                        }} >
-                                                            <Icon as={<PlusSquareIcon size={20} />} color={Colors.primary} />
-                                                        </Center>}
-
-                                                        {items.type == "TOKEN-CREATED" && <Center style={{
-                                                            // borderWidth: 0.4,
-                                                            borderRadius: 30,
-                                                            backgroundColor: "#F2EAFE",
-                                                            width: 40,
-                                                            height: 40,
-                                                        }} >
-                                                            <Icon as={<TicketCheck size={20} />} color={Colors.dark} />
-                                                        </Center>}
-
-                                                        {items.type == "TOKEN-REVERSED" && <Center style={{
-                                                            // borderWidth: 0.4,
-                                                            borderRadius: 30,
-                                                            backgroundColor: "#FEEAEA",
-                                                            width: 40,
-                                                            height: 40,
-                                                        }} >
-                                                            <Icon as={<TicketX size={20} />} color={Colors.primary} />
-                                                        </Center>}
-
-
-                                                        {/* // : <OutIcon />}  <InIcon /> */}
-
-                                                        <HStack style={{ justifyContent: "space-between", flex: 1 }} >
-                                                            <VStack  >
-                                                                {items.data.receiver ?
-
-                                                                    <Text>
-                                                                        {/* {items.message} */}
-                                                                        Transfer {items.user == User.id ? "to " : "from "}
-                                                                        {items.user == User.id ?
-                                                                            items.data.receiver.accountName.length > 17 ? items.data.receiver.accountName.slice(0, 17) + "..." : items.data.receiver.accountName
-                                                                            :
-                                                                            items.data.sender.senderFullname.length > 17 ? items.data.sender.senderFullname.slice(0, 17) + "..." : items.data.sender.senderFullname
-                                                                        }
-                                                                    </Text>
-                                                                    :
-                                                                    <Text>
-                                                                        {items.data.method} 
-                                                                    </Text>
-                                                                }
-
-                                                                <Text fontWeight="light" fontSize="xs" >{formatDate(items.created_at)}</Text>
-                                                            </VStack>
-
-                                                            <VStack  >
-                                                                <Text fontWeight={700} > ₦{NumberWithCommas(items.amount)}</Text>
-                                                                <Text style={{
-                                                                    color: items.status == "processing" ? "#E0B77E" : items.status == "success" ? "#7EE0B9" : "#E07E80",
-                                                                    paddingHorizontal: 5,
-                                                                    paddingVertical: 1,
-                                                                    borderRadius: 6,
-                                                                    fontSize: 13,
-                                                                }} >{items.status}</Text>
-                                                            </VStack>
-                                                        </HStack>
-                                                    </HStack>
-                                                </TouchableOpacity>
-
-                                            })}
-
-                                        </Stack> :
-
-                                        <>
-                                            {loading == false &&
-                                                <Center mt={20} >
-                                                    <EmptyRecord />
-                                                    <BoldText text="No recent transactions" color="lightgrey" style={{ marginTop: 10 }} />
-                                                </Center>
-                                            }
-                                        </>}
-                                </Stack>
-
-                            </VStack>
-                        </>
+                    style={{
+                        paddingHorizontal: 10,
                     }}
+                    data={Transactions}
+                    renderItem={({item}) => {
+                        return <TouchableOpacity
+                            onPress={() => {
+                                // navigation.navigate("view-transaction", { data: items })
+                            }}
+                        >
+                            <HStack mt={7} alignItems="center" space={3} >
+                                {/* {items.type == "TOKEN-REVERSED" && */}
+                                    <Center style={{
+                                        // borderWidth: 0.4,
+                                        borderRadius: 30,
+                                        backgroundColor: "#FEEAEA",
+                                        width: 40,
+                                        height: 40,
+                                    }} >
+                                        <Icon as={<TicketX size={20} />} color={Colors.primary} />
+                                    </Center>
+                                {/* // } */}
 
+
+                                {/* // : <OutIcon />}  <InIcon /> */}
+                                {console.log(item)}
+                                <HStack style={{ justifyContent: "space-between", flex: 1 }} >
+                                    <VStack  >
+                                        {item.data ?
+
+                                            <Text>
+                                                {/* {items.message} */}
+                                                Transfer {item.user == User.id ? "to " : "from "}
+                                                {item.user == User.id ?
+                                                    item.data.receiver.accountName.length > 17 ? item.data.receiver.accountName.slice(0, 17) + "..." : item.data.receiver.accountName
+                                                    :
+                                                    item.data.sender.senderFullname.length > 17 ? item.data.sender.senderFullname.slice(0, 17) + "..." : item.data.sender.senderFullname
+                                                }
+                                            </Text>
+                                            :
+                                            <Text>
+                                                {item.message}
+                                            </Text>
+                                        }
+
+                                        <Text fontWeight="light" fontSize="xs" >{formatDate(item.createdAt)}</Text>
+                                    </VStack>
+
+                                    {/* <VStack>
+                                        <Text fontWeight={700} > ₦{NumberWithCommas(40000)}</Text>
+                                        <Text style={{
+                                            color: "green",
+                                            paddingHorizontal: 5,
+                                            paddingVertical: 1,
+                                            borderRadius: 6,
+                                            fontSize: 13,
+                                        }} >{item.status == "success" ? "Success" : "Pending"}</Text>
+                                    </VStack> */}
+                                </HStack>
+                            </HStack>
+                        </TouchableOpacity>
+                    }}
+                    ListEmptyComponent={
+                        <Center mt={20} >
+                            <EmptyRecord />
+                            <BoldText text="No recent notifications" color="lightgrey" style={{ marginTop: 10 }} />
+                        </Center>
+                    }
+                    keyExtractor={(item, index) => index.toString()}
                     refreshControl={
                         <RefreshControl refreshing={loading} onRefresh={() => {
                             handleFetchTransactions()
@@ -216,7 +149,7 @@ function Notification({ navigation }) {
                 />
 
             </SafeAreaView>
-            <Loader loading={loading} />
+            {/* <Loader loading={loading} /> */}
         </>
     );
 }

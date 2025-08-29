@@ -16,16 +16,16 @@ const Persona = ({ navigation }) => {
 
     return (
         <>
-            <SafeAreaView style={{ flex: 1, backgroundColor: "#F7F8FA", padding: 16 }}>
-                {/* {console.log(User.gender)} */}
-                <HStack alignItems="center" justifyContent="flex-start" space={5} mb={10} >
+            <SafeAreaView style={{ flex: 1, backgroundColor: "#F7F8FA", }}>
+                {/* {console.log(User.medicard)} */}
+                <HStack alignItems="center" justifyContent="flex-start" space={5} p={5} >
                     <TouchableOpacity onPress={() => navigation.replace("Onboarding")}>
                         <BackIcon />
                     </TouchableOpacity>
                     <Text style={Styles.headerText}>Personal Information</Text>
                 </HStack>
 
-                <ScrollView>
+                <ScrollView style={{ padding: 16 }}>
                     {/* Profile Card */}
                     <Box bg={Colors.accent} borderRadius="md" p={4} shadow={1}>
 
@@ -63,27 +63,27 @@ const Persona = ({ navigation }) => {
                                     </TouchableOpacity>
                                 </HStack>
                                 :
-                                <Text fontSize="lg" bold>{User.firstName}</Text>
+                                <Text fontSize="lg" bold>{User.name.split(" ")[0]}</Text>
                             }
 
                             {/* Account Info */}
                             <HStack justifyContent="space-between" alignItems="center" w="100%" mt={5} >
-                                <Text fontSize="md" color="gray.500">Pocket Voucher</Text>
+                                <Text fontSize="md" color="gray.500">Health ID</Text>
                                 <HStack alignItems="center">
-                                    <Text fontSize="md" bold>{User.phone}</Text>
+                                    <Text fontSize="md" bold>{User.medicard?.health_id}</Text>
                                     <TouchableOpacity>
                                         <Copy size={18} color="gray" style={{ marginLeft: 8 }} />
                                     </TouchableOpacity>
                                 </HStack>
                             </HStack>
 
-                            <HStack justifyContent="space-between" alignItems="center" w="100%" mt={5} >
+                            {/* <HStack justifyContent="space-between" alignItems="center" w="100%" mt={5} >
                                 <Text fontSize="md" color="gray.500">Account Type</Text>
                                 <HStack alignItems="center">
                                     <Medal size={18} color="orange" />
                                     <Text fontSize="md" bold color="orange.500" style={{ marginLeft: 4 }}> User Account</Text>
                                 </HStack>
-                            </HStack>
+                            </HStack> */}
                         </VStack>
                     </Box>
 
@@ -92,13 +92,13 @@ const Persona = ({ navigation }) => {
                         <VStack space={3}>
                             <HStack justifyContent="space-between">
                                 <Text color="gray.500">Full Name</Text>
-                                <Text bold color="gray.500">{`${User.firstName} ${User.lastName}`}</Text>
+                                <Text bold color="gray.500">{`${User.name}`}</Text>
                             </HStack>
                             <Divider style={Styles.divider} />
 
                             <HStack justifyContent="space-between">
                                 <Text color="gray.500">Mobile Number</Text>
-                                <Text bold color="gray.500">+234{User.phone}</Text>
+                                <Text bold color="gray.500">+234 *** *** ***</Text>
                             </HStack>
                             <Divider style={Styles.divider} />
 
@@ -124,7 +124,7 @@ const Persona = ({ navigation }) => {
 
                             <HStack justifyContent="space-between">
                                 <Text color="gray.500">Email</Text>
-                                <Text bold color="gray.500">{User.email}</Text>
+                                <Text bold color="gray.500"> *** *** ***{User.email.slice(-7)} </Text>
                             </HStack>
                             <Divider style={Styles.divider} />
 
@@ -137,12 +137,12 @@ const Persona = ({ navigation }) => {
 
                             <Divider style={Styles.divider} />
 
-                            <TouchableOpacity onPress={() => navigation.navigate("MerchantQr")}>
+                            {/* <TouchableOpacity onPress={() => navigation.navigate("MerchantQr")}>
                                 <HStack justifyContent="space-between">
                                     <Text color="gray.500">Merchant page</Text>
                                     <ChevronRight size={18} color="gray" />
                                 </HStack>
-                            </TouchableOpacity>
+                            </TouchableOpacity> */}
                         </VStack>
                     </Box>
                 </ScrollView>

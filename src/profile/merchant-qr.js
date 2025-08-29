@@ -95,11 +95,11 @@ const MerchantQr = ({ navigation }) => {
                     {console.log(User.bankInfo)}
                     <QRCode
                         value={`${JSON.stringify({
-                            bank_name: User.bankInfo.bank_name,
-                            bank_code: User.bankInfo.bank_code,
-                            account_number: User.bankInfo.account_number,
-                            account_name: User.bankInfo.account_name,
-                            logo: User.logo
+                            bank_name: User.bankInfo?.bank_name || "",
+                            bank_code: User.bankInfo?.bank_code || "hjdnemw",
+                            account_number: User.bankInfo?.account_number || "jdjbmn",
+                            account_name: User.bankInfo?.account_name || "jdjbmn",
+                            logo: User.logo ||  ""
                         })}.-.pocketvoucher`}
                         // logo={{ uri: base64Logo }}
                         logoSize={30}

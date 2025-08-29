@@ -1,0 +1,6 @@
+module Pods_Medicard_MedicardTests {
+  umbrella header "Pods-Medicard-MedicardTests-umbrella.h"
+
+  export *
+  module * { export * }
+}

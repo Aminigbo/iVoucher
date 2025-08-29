@@ -13,13 +13,14 @@ import ModalPop from '../../global-components/modal.js';
 import { BoldText, BoldText1, BoldText2 } from '../../global-components/texts.js';
 import ReactNativeBiometrics, { BiometryTypes } from 'react-native-biometrics'
 import { AppIcon, BiometricIcon, PasswordIcon, SmallAvater, UserIcon } from '../../global-components/icons.js';
-import { FetchUserInfoService, LoginService } from '../service/index.js';
+import { FetchUserInfoService } from '../service/index.js';
 import { Loader } from '../../global-components/loader.js';
 
 
 import Animated, { useSharedValue, useAnimatedProps, withRepeat, withSequence, withTiming } from 'react-native-reanimated';
 import { useEffect } from 'react';
 import { Circle } from 'react-native-svg';
+import { LoginSvgs } from '../../assets/svgs.js';
 
 
 const Colors = Color()
@@ -36,17 +37,18 @@ function Biometrics({ navigation }) {
 
     function FetchUserInfo() {
         setloading(true)
-        FetchUserInfoService(User.id)
+        FetchUserInfoService(User.uid)
             .then(response => {
                 if (response.success == false) {
                     setloading(false)
                     Alert.alert("Error", response.message)
-                } else if (response.success == true) {
+                } else if (response) {
                     login({
                         ...User,
                         ...response.data
                     })
-                    navigation.navigate("Home")
+                    setloading(false)
+                    navigation.replace("Home")
                 } else {
                     setloading(false)
                     Alert.alert("Error", "A network error occured")
@@ -121,6 +123,7 @@ function Biometrics({ navigation }) {
                 } else {
                     setError(false)
                     FetchUserInfo()
+                    // console.log("inputedPin", inputedPin)
 
                 }
             }
@@ -130,30 +133,12 @@ function Biometrics({ navigation }) {
 
 
     async function handleReAuth() {
+        console.log("handleReAuth", User.email)
         Keyboard.dismiss()
         setloading(!loading)
-        LoginService(User.email, password, User.token)
-            .then(response => {
-                if (response.success == false) {
-                    setloading(false)
-                    return Alert.alert("Error", "You entered a wrong password")
-                }
-                login({
-                    ...User,
-                    ...response.data
-                })
-
-                if (response.data.kyc == false) {
-                    navigation.replace("kyc-onboarding")
-                } else {
-                    navigation.replace("Create-pin")
-                    // console.log("User.pin", User.pin)
-                }
-                // setloading(false)
-
-                // navigation.replace("Home")
-
-            })
+        LoginController({
+            setloading, Alert, navigation, email, password, fcmToken, login
+        })
     }
 
 
@@ -167,10 +152,11 @@ function Biometrics({ navigation }) {
                             marginTop: 50,
                         }} >
 
-                            <AppIcon />
+                            {/* <AppIcon /> */}
+                            <LoginSvgs />
 
                             <View style={{
-                                marginTop: 40
+                                marginTop: 50
                             }}>
                                 {useBiomAuth ?
                                     <TouchableOpacity
@@ -249,7 +235,8 @@ function Biometrics({ navigation }) {
                                         </>
                                             : <>
                                                 <TouchableOpacity onPress={() => {
-                                                    setstartReauth(true)
+                                                    // setstartReauth(true)
+                                                    navigation.replace("Create-pin")
                                                 }} >
                                                     <VStack style={{
                                                         justifyContent: "center",

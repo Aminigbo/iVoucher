@@ -5,7 +5,8 @@ export const Input = ({
     Style, value, onChange,
     Placeholder, LabelText, Label,
     secureTextEntry, LabelMargin,
-    type, maxLength
+    type, maxLength,
+    autoCapitalize
 }) => {
     return (
         <>
@@ -19,6 +20,7 @@ export const Input = ({
                 onChangeText={onChange}
                 secureTextEntry={secureTextEntry}
                 keyboardType={type ? type : "default"}
+                autoCapitalize={autoCapitalize ? "none" : "words"}
             />
         </>
     )

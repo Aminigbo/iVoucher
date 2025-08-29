@@ -1,37 +1,37 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Text, HStack, Divider, Select, CheckIcon, Center } from 'native-base';
 import { Alert, Modal, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
 import { BoldText, } from '../global-components/texts';
 import { BackIcon } from '../global-components/icons';
 import { Color } from '../global-components/colors';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { NumberWithCommas } from '../utilities';
+import { generateTransactionRef, NumberWithCommas, FlutterwaveKey } from '../utilities';
 import { appState } from '../state';
 import { Loader } from '../global-components/loader';
 import { CustomButtons } from '../global-components/buttons';
 import { ConversionRateController, FundCardController, GetCardDetailsController, WithdrawCardController } from '../auth/controllers';
 import { ArrowBigDown, ArrowBigUp, CheckCircle2Icon, PlusCircleIcon, ShieldEllipsis } from 'lucide-react-native';
 import { FetchUserInfoService } from '../auth/service';
+import PayWithFlutterwave from 'flutterwave-react-native';
 
 
 const Colors = Color()
 
-function CardTopup({ navigation, disp_transactions, }) {
+function CardTopup({ navigation, disp_transactions, route }) {
     const [loadingText, setloadingText] = React.useState("")
     const [bottomSheetType, setbottomSheetType] = React.useState("")
     const [topupAmount, settopupAmount] = React.useState("")
     const [loading, setLoading] = React.useState(false)
     const [modalVisible, setModalVisible] = React.useState(false)
     const [claimCard, setclaimCard] = useState(false)
-    const [conversionRate, setconversionRate] = useState(null)
-    const [CardInfo, setCardInfo] = useState(null)
+    const [conversionRate, setconversionRate] = useState(null) 
 
-    // 
+    // get card info from route
+    const { CardInfo } = route.params
 
     const [fundingSource, setFundingSource] = React.useState(null)
 
     let { User, login, GetAllTransactions } = appState()
-
 
 
     const fetchUserInfo = useCallback(() => {
@@ -62,38 +62,41 @@ function CardTopup({ navigation, disp_transactions, }) {
 
 
 
-    function FundCardHandler() {
+    function FundCardHandler(data) {
         setLoading(true)
-        FundCardController(setLoading, setloadingText, topupAmount, topupAmount * conversionRate.rate, User.card.reference, User.id, fundingSource, setModalVisible, fetchUserInfo, GetAllTransactions)
+        FundCardController(setLoading, setloadingText, topupAmount, CardInfo.card_number, User, login, navigation, setModalVisible, data)
     }
 
     React.useEffect(() => {
         const unsubscribe = navigation.addListener('focus', async () => {
-            getConversionRateHandler()
+            // getConversionRateHandler()
         });
-
         return unsubscribe;
-
     }, [navigation]);
 
+
+    const handleOnRedirect = (data) => {
+        console.log(data);
+        FundCardHandler(data)
+    };
 
 
     return !User ? navigation.replace("Login") : (
         // return (
         <>
-            {/* {console.log(User.card.reference)} */}
+
 
             <SafeAreaView style={{
                 backgroundColor: "#fff", display: "flex", flex: 1,
                 padding: 15, justifyContent: "space-between"
-            }} >
+            }} > 
 
                 <View style={[{ width: "100%", }, styles.shadowBox]}>
                     <HStack style={styles.header} alignItems="center" space={10} >
                         <TouchableOpacity onPress={() => navigation.goBack()}>
                             <BackIcon />
                         </TouchableOpacity>
-                        <Text style={styles.welcomeText}>Top Up Card</Text>
+                        <Text style={styles.welcomeText}>Topup Medicard</Text>
                     </HStack>
 
 
@@ -108,8 +111,8 @@ function CardTopup({ navigation, disp_transactions, }) {
                         }} mt={1} onValueChange={itemValue => {
                             setFundingSource(itemValue)
                         }} borderWidth={0}>
-                        <Select.Item label={`NGN Balance - NGN ${NumberWithCommas(User.wallet)}`} value="NGN" />
-                        <Select.Item label={`USD Balance - USD ${NumberWithCommas(User.UsdBal ? User.UsdBal : 0)}`} value="USD" />
+                        <Select.Item label={`Flutterwave - (card, bank, etc)`} value="Flutterwave" />
+                        {/* <Select.Item label={`Request from friends`} value="Request from friends" /> */}
                     </Select>
 
                     {/* <Divider /> */}
@@ -118,7 +121,7 @@ function CardTopup({ navigation, disp_transactions, }) {
                     <HStack space={3} style={{
                         alignItems: "center",
                     }} >
-                        <Text fontSize={17} fontWeight="normal" color={Colors.dark} >  USD </Text>
+                        <Text fontSize={17} fontWeight="normal" color={Colors.dark} > ₦ </Text>
                         <TextInput style={[styles.input, { fontSize: 20, fontWeight: 300, color: "#000", width: "85%", padding: 10, borderBottomWidth: 0 }]}
                             placeholder="0.00"
                             onChangeText={settopupAmount}
@@ -135,9 +138,8 @@ function CardTopup({ navigation, disp_transactions, }) {
                             getConversionRateHandler()
                         }}>
                             <Text fontSize={15} fontWeight="thin" color={Colors.dark} style={{ marginTop: 20 }} >
-                                <Text fontSize={15} fontWeight="medium" color={Colors.dark} style={{ marginTop: 20 }} >
-                                    $1.00 = ₦
-                                    {conversionRate && NumberWithCommas(conversionRate.rate)}
+                                <Text fontSize="sm" fontWeight="light" color={Colors.dark} style={{ marginTop: 20 }} >
+                                    Your Medicard topup is secured by <Text fontSize="sm" fontWeight="bold" color="#611336" >Healthstack</Text>
                                 </Text>
                             </Text>
                         </TouchableOpacity>
@@ -145,16 +147,38 @@ function CardTopup({ navigation, disp_transactions, }) {
 
                 </View>
 
-                <CustomButtons
-                    callBack={() => {
-                        FundCardHandler()
-                        // FundCard(topupAmount, topupAmount * conversionRate.rate, setCardInfo, fundingSource)
-                        setclaimCard(false)
-                        settopupAmount("")
+                <PayWithFlutterwave
+                    onRedirect={handleOnRedirect}
+                    options={{
+                        tx_ref: generateTransactionRef(),
+                        authorization: FlutterwaveKey,
+                        amount: 1000,
+                        currency: 'NGN',
+                        customer: {
+                            email: User?.email,
+                            name: User?.name,
+                        },
+                        meta: {
+                            consumer_id: User?.uid,
+                        },
+                        payment_options: 'card, banktransfer, ussd, mobile_money',
                     }}
-                    primary={topupAmount > 4 && fundingSource != null && true}
-                    opacity={topupAmount < 5 ? 0.3 : fundingSource != null && 1}
-                    text="Top up"
+                    customButton={(props) => (
+                        <TouchableOpacity
+                            style={[styles.signInButton, props.isInitializing && styles.signInButtonDisabled]}
+                            onPress={() => {
+                                if (topupAmount < 1000 || fundingSource == null) {
+                                    Alert.alert("Error", "Please fill all fields")
+                                    return
+                                }
+                                props.onPress()
+                            }}
+                            // onPress={saveSosCredit}
+                            isBusy={props.isInitializing}
+                            disabled={props.disabled}>
+                            <Text style={{ color: "#fff", fontSize: 16, fontWeight: "600" }}>Top up</Text>
+                        </TouchableOpacity>
+                    )}
                 />
 
             </SafeAreaView>
@@ -183,7 +207,7 @@ function CardTopup({ navigation, disp_transactions, }) {
                                 textAlign: "center",
                                 marginTop: 15
                             }}
-                            text="Successfully funded card"
+                            text="Successfully funded medicard"
                         />
 
                         <Divider my={7} />
@@ -209,14 +233,14 @@ function CardTopup({ navigation, disp_transactions, }) {
                                 }}
                             >
                                 {/* Your card has been funded successfully. */}
-                                You can now make purchases from your card.
+                                You can now use your medicard for your medical expenses.
                             </Text>
                         </HStack>
 
                         <TouchableOpacity style={styles.registerButton} onPress={() => {
                             navigation.pop()
                         }} >
-                            <Text style={styles.registerButtonText}>See balance</Text>
+                            <Text style={styles.registerButtonText}>Done</Text>
                         </TouchableOpacity>
                     </View>
 
@@ -296,6 +320,28 @@ const styles = StyleSheet.create({
     modalText: {
         marginBottom: 15,
         textAlign: 'center',
+    },
+
+
+    // =====
+    signInButton: {
+        backgroundColor: Colors.primary,
+        borderRadius: 10,
+        padding: 15,
+        alignItems: 'center',
+        marginVertical: 40,
+        minHeight: 50,
+        justifyContent: 'center',
+        width: "90%",
+        alignSelf: "center"
+    },
+    signInButtonDisabled: {
+        opacity: 0.7,
+    },
+    signInButtonText: {
+        color: '#fff',
+        fontSize: 16,
+        fontWeight: '600',
     },
 
 });

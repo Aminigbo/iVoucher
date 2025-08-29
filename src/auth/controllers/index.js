@@ -1,78 +1,122 @@
 import { Alert } from "react-native";
-import { CardWithdrawalService, ConversionRateService, CreateCardService, FetchBanksModel, FetchTransactionModel, FundCardService, GetCardDetailsHistoryModel, InitiatePayout, LoginService, RegisterService, RequestOtpService, ResetPwdService, ResolveBankModel, UpdateKycModel, UpdateNINModel, VerifyAccountService } from "../service";
+import { CardWithdrawalService, ConversionRateService, CreateCardService, FetchBanksModel, FetchTransactionModel, FundCardService, GetCardDetailsHistoryModel, InitiatePayout, LoginService, RegisterService, RequestOtpService, ResetPwdService, ResolveBankModel, UpdateKycModel, UpdateNINModel, VerifyAccountService, VerifyKYCService } from "../service";
 import { FetchTransactionsModel } from "../../home/service";
 import { supabase } from "../../../configurations/supabase-config";
+import { initializeApp, getApps } from "firebase/app";
+import { getAuth, signInWithEmailAndPassword, signInWithCustomToken } from "firebase/auth";
+import { getFirestore, doc, getDoc, collection } from "firebase/firestore";
+import firebaseConfig from "../../../configurations/firebase";
+
+// Check if Firebase app is already initialized
+const firebaseApp = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
+const auth = getAuth(firebaseApp);
+
+// initialize firestore
+const db = getFirestore(firebaseApp);
+
+
 
 
 export function LoginController({ setloading, Alert, navigation, email, password, fcmToken, login, setmodalData, modalData, Initialize }) {
-    // console.log("response")
-    LoginService(email, password, fcmToken)
-        .then(response => {
-            if (response.success == false) {
-                setloading(false)
-                console.log(response)
-                return Alert.alert("Error", response.message,)
+    signInWithEmailAndPassword(auth, email, password)
+        .then(async (userCredential) => {
+            if (!userCredential.user) {
+                return Alert.alert("Error", "Your account has been disabled. Please contact support.")
             }
-            if (response.action == "ENTER OTP") {
-                navigation.navigate("Enter-otp", { data: response.data })
-            } else {
-                // console.log(response)
-                if (!response.data) {
-                    setloading(false)
-                    return setmodalData({
-                        isTrue: true,
-                        header: "Error",
-                        msg: "A network error occured, please try again",
-                        callBack: () => { },
-                        buttonText: "OK",
-                        type: "ERROR"
+            console.log("Done")
+            if (userCredential.user.emailVerified == false) {
+                RequestOtpService(email, userCredential.user.uid)
+                    .then(response => {
+                        setloading(false)
+                        if (response.success == true) {
+                            return navigation.navigate("Enter-otp", {
+                                email: userCredential.user.email,
+                                phone: userCredential.user.phoneNumber,
+                                name: userCredential.user.displayName,
+                                id: userCredential.user.uid,
+                                signedOTP: response.data
+                            })
+                        } else {
+                            // Handle unsuccessful OTP request
+                        }
                     })
-                }
-                login(response.data)
-                Initialize(response.data.id)
-                if (response.data.kyc == false) {
-                    navigation.replace("kyc-onboarding")
-                } else {
-                    navigation.replace("Home")
-                }
-                // setloading(false)
-
-
-                // setmodalData({
-                //     isTrue: true,
-                //     header: "Success",
-                //     msg: "You have successfully logged in",
-                //     callBack: () => navigation.replace("Home"),
-                //     buttonText: "Continue",
-                //     type: "SUCCESS"
-                // })
-                // 
             }
+
+            try {
+                // Correctly fetch user document from Firestore
+                const userDocRef = doc(db, "users", userCredential.user.uid);
+                const userDocSnap = await getDoc(userDocRef);
+
+                if (userDocSnap.exists()) {
+                    const Data = userDocSnap.data()
+
+                    if (!Data.kycVerified) return navigation.navigate("kyc-onboarding",
+                        {
+                            id: userCredential.user.uid,
+                            email: userCredential.user.email,
+                            phone: userCredential.user.phoneNumber,
+                            name: userCredential.user.displayName,
+                        }
+                    )
+
+                    const user = {
+                        accessToken: userCredential.user.uid,
+                        refreshToken: userCredential.user.refreshToken,
+                        ...userCredential.user.user,
+                        ...Data
+                    }
+                    // console.log(Data.uid)
+                    login(user)
+                    Initialize(Data.uid)
+                    setloading(false)
+                    navigation.replace("Home")
+                } else {
+                    console.log("No such user document!");
+                }
+            } catch (error) {
+                console.error("Error fetching user document:", error);
+            }
+
             setloading(false)
         })
         .catch(error => {
             setloading(false)
             console.log(error)
-            return Alert.alert("Error", "An error occured",)
+            return Alert.alert("Error", "Invalid email or password")
         })
 }
 
-export function RegisterController({ setloading, Alert, email, phone, name, pwd1, fcmToken, navigation, lastName }) {
-    RegisterService({ email, phone, name, pwd1, lastName, fcmToken })
+// login with custom token
+export function LoginWithCustomTokenController(customToken) {
+    return signInWithCustomToken(auth, customToken)
+}
+
+export function RegisterController({ setloading, Alert, email, phone, name, pwd1, fcmToken, navigation }) {
+    // console.log(email, phone, name, pwd1, fcmToken)
+    RegisterService({ email, phone, name, pwd1, fcmToken })
         .then(response => {
+            // console.log(response)
             if (response.success == false) {
                 setloading(false)
                 return Alert.alert("Error", response.message,)
             }
             if (response && response.data) {
-                navigation.navigate("Enter-otp", { data: response.data })
+                setloading(false)
+                navigation.navigate("Enter-otp", {
+                    signedOTP: response.data.signedOTP,
+                    id: response.data.uid,
+                    email: response.data.email,
+                    phone: response.data.phone,
+                    name: response.data.name,
+                })
+            } else {
+                setloading(false)
+                return Alert.alert("Error", "An error occured",)
             }
-            setloading(false)
-            // console.log
         })
         .catch(error => {
             setloading(false)
-            // console.log(error)
+            console.log(error)
             return Alert.alert("Error", "An error occured",)
         })
 }
@@ -140,28 +184,46 @@ export function ResetPwdController({ setloading, Alert, navigation, password, us
         })
 }
 
-export function UpdateKycController(setLoading, login, user, data, email, name, phone, User, setModalVisible) {
+export async function UpdateKycController(setLoading, login, data, Initialize, navigation) {
+    let { address, gender, state, city, country, id, dob, email, phone, name } = data
+    setLoading(true)
 
-    let { bvn, address, gender, state, city, country, zipCode } = data
+    try {
+        const response = await VerifyKYCService(id, address, dob, gender, country, state, city, email, phone, name)
 
-    UpdateKycModel(user, gender, address, bvn, email, name, phone, state, city, country, zipCode)
-        .then(response => {
-            if (response.success == false) {
-                setLoading(false)
-                return Alert.alert("Error", response.message,)
+        if (response.success == false) {
+            setLoading(false)
+            return Alert.alert("Error", response.message)
+        }
+        console.log(response)
+        const user = await signInWithCustomToken(auth, response.data.customToken)
+        // console.log(response.data.user)
+
+        const userDocRef = doc(db, "users", user.user.uid);
+        const userDocSnap = await getDoc(userDocRef);
+
+        if (userDocSnap.exists()) {
+            const Data = userDocSnap.data()
+
+            const updatedUser = {
+                accessToken: user.user.uid,
+                refreshToken: user.user.refreshToken,
+                ...user.user,
+                ...Data
             }
-            login({
-                ...User,
-                ...response.data,
-            })
-            setLoading(false)
-            setModalVisible(true)
-        })
-        .catch(error => {
-            setLoading(false)
-            // console.log(error)
-            return Alert.alert("Error", "An error occured",)
-        })
+            login(updatedUser)
+            Initialize(Data.id)
+            navigation.replace("Home")
+        } else {
+            console.log("No such user document!");
+        }
+
+        setLoading(false)
+    } catch (error) {
+        console.error("Error in UpdateKycController:", error)
+        setLoading(false)
+        return Alert.alert("Error", "An error occurred")
+    }
 }
 
 
@@ -382,19 +444,18 @@ export function GetCardDetailsController(setLoading, reference, setCardInfo, set
 }
 
 // fund card controller
-export function FundCardController(setLoading, setloadingText, amount, chargeAmount, card_ref, user, fundingSource, setModalVisible, fetchUserInfo, GetAllTransactions) {
+export function FundCardController(setLoading, setloadingText, amount, card_number, User, login, navigation, setModalVisible) {
     setloadingText("Funding your card")
-    FundCardService(amount, chargeAmount, card_ref, user, fundingSource)
+    FundCardService(amount, card_number, User.uid)
         .then(response => {
             if (response.success == false) {
                 setLoading(false)
                 setloadingText("")
                 return Alert.alert("Error", response.message,)
             }
-            // setLoading(false)
+            setLoading(false)
             setloadingText("")
-            fetchUserInfo()
-            GetAllTransactions()
+            setModalVisible(true)
         })
         .catch(error => {
             setLoading(false)

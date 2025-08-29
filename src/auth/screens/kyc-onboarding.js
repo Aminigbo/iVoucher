@@ -16,7 +16,7 @@ import { Loader } from '../../global-components/loader.js';
 import { CustomButtons } from '../../global-components/buttons.js';
 
 const Colors = Color()
-function KycOnboarding({ navigation }) {
+function KycOnboarding({ navigation, route }) {
     const [proceed, setproceed] = React.useState(false)
     const [gender, setgender] = React.useState("")
     const [bvn, setBvn] = React.useState("22222222222")
@@ -26,7 +26,7 @@ function KycOnboarding({ navigation }) {
     const [country, setcountry] = React.useState("")
     const [zipCode, setzipCode] = React.useState("")
     const [modalVisible, setModalVisible] = useState(false);
-
+    const { id, email, phone, name } = route.params
 
 
     let { User, Loading, VerifyKYC } = appState()
@@ -50,16 +50,16 @@ function KycOnboarding({ navigation }) {
                         height: "100%",
                     }}
                 >
-                    <Center marginTop={19} >
+                    <Center marginVertical={25} >
                         <KYCICon />
                     </Center>
 
                     {/* Title and Description */}
-                    <Text style={{ fontSize: 24, fontWeight: 'bold', textAlign: 'center', marginBottom: 8 }}>
-                        Verifying your identity
+                    <Text style={{ fontSize: 24, fontWeight: 'bold', textAlign: 'center', marginBottom: 8, marginTop:20 }}>
+                        Complete your verification
                     </Text>
                     <Text style={{ fontSize: 15, textAlign: 'center', color: '#6B7280', marginBottom: 20 }}>
-                        Fill in this information to complete your KYC
+                        Fill in this information to complete your verification
                     </Text>
 
                     {/* ID Card Section */}
@@ -67,9 +67,9 @@ function KycOnboarding({ navigation }) {
                         <HStack space={3} alignItems="flex-start">
                             <Icon as={<IdCard />} size={6} color={Colors.primary} />
                             <VStack paddingRight={5}>
-                                <Text style={{ fontSize: 16, fontWeight: '600' }}>Bank verification number</Text>
+                                <Text style={{ fontSize: 16, fontWeight: '600' }}>Date of birth</Text>
                                 <Text style={{ fontSize: 14, color: '#6B7280' }}>
-                                    Your BVN is required for only verification purpose
+                                    We need to verify your date of birth.
                                 </Text>
                             </VStack>
                         </HStack>
@@ -95,7 +95,7 @@ function KycOnboarding({ navigation }) {
                             <VStack paddingRight={5}>
                                 <Text style={{ fontSize: 16, fontWeight: '600' }}>Residential address</Text>
                                 <Text style={{ fontSize: 14, color: '#6B7280' }}>
-                                    We need to verify your address, city, state, country and Zip-code
+                                    We need to verify your address, city, state, and country.
                                 </Text>
                             </VStack>
                         </HStack>
@@ -114,7 +114,7 @@ function KycOnboarding({ navigation }) {
                         style={{ marginTop: 20, width: "100%", borderRadius: 10, paddingVertical: 17 }}
                         text={"Proceed to KYC"}
                         callBack={() => {
-                            navigation.navigate("kyc-form")
+                            navigation.navigate("kyc-form", { id, email, phone, name })
                         }}
                     />
                 </ScrollView>

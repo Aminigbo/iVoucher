@@ -12,13 +12,12 @@ import { CircleCheck } from 'lucide-react-native';
 import messaging from '@react-native-firebase/messaging';
 import { Input } from '../../global-components/input';
 import { CustomButtons } from '../../global-components/buttons';
-import { SignupSvgs } from '../../assets/svgs';
+import { LoginSvgs, SignupSvgs } from '../../assets/svgs';
 
 const Colors = Color()
 export default function RegisterScreen({ navigation }) {
     const [loading, setloading] = React.useState(false)
     const [name, setName] = React.useState("")
-    const [lastName, setLastname] = React.useState("")
     const [email, setEmail] = React.useState("")
     const [phone, setPhone] = React.useState("")
     const [pwd1, setPwd1] = React.useState("")
@@ -54,16 +53,16 @@ export default function RegisterScreen({ navigation }) {
 
     let handleSignup = () => {
         Keyboard.dismiss()
-        if (!name || !email || !phone || !pwd1 || !lastName) {
+        if (!name || !email || !phone || !pwd1) {
             return Alert.alert("Error", "You cannot submit an empty form")
         }
         setloading(true)
-        const fcmToken = "onfrvaer;vefbnvf;kvaefjvkdfj"
+        // const fcmToken = "onfrvaer;vefbnvf;kvaefjvkdfj"
         RegisterController({
             Alert,
             setloading,
-            email, phone, name, pwd1, lastName,
-            fcmToken: fcmToken ? fcmToken : "fcmToken",
+            email, phone, name, pwd1,
+            fcmToken: fcmToken || "fcmToken",
             navigation
 
         })
@@ -71,16 +70,10 @@ export default function RegisterScreen({ navigation }) {
 
     let inputData = [
         {
-            placeHolder: "first name",
+            placeHolder: "Fullname ",
             label: true,
-            labelText: "First name",
+            labelText: "Fullname",
             onChange: setName
-        },
-        {
-            placeHolder: "Last name",
-            label: true,
-            labelText: "Last name",
-            onChange: setLastname
         },
         {
             placeHolder: "example@gmail.com",
@@ -108,15 +101,16 @@ export default function RegisterScreen({ navigation }) {
     return (
         <SafeAreaView style={styles.container}>
             <ScrollView p={15} >
-                {/* <HStack alignItems="center" justifyContent="flex-start" space={5} >
+                <HStack alignItems="center" justifyContent="flex-start" space={5} >
                     <TouchableOpacity onPress={() => navigation.replace("Onboarding")}>
                         <BackIcon />
                     </TouchableOpacity>
                     <Text style={styles.headerText}>Sign up</Text>
-                </HStack> */}
+                </HStack>
 
-                <Center style={{ marginVertical: 40 }} >
-                    <SignupSvgs />
+                <Center style={{ marginTop: 40, marginBottom: 20 }} >
+                    {/* <SignupSvgs /> */}
+                    <LoginSvgs />
                 </Center>
 
                 {inputData.map((inputs, index) => {
@@ -128,6 +122,7 @@ export default function RegisterScreen({ navigation }) {
                         LabelMargin={15}
                         secureTextEntry={inputs.secureTextEntry}
                         type={inputs.type}
+                        autoCapitalize
                     />
                 })}
 

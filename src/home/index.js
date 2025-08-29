@@ -41,9 +41,7 @@ function Card({ navigation, disp_transactions }) {
         return Transactions?.filter(e => e.type === "BANK-PAYOUT" || e.type === "PV-PAYOUT") || [];
     }, [Transactions]);
 
-    const displayVouchers = useMemo(() => {
-        return vouchers.slice(0, 3);
-    }, [vouchers]);
+
 
     // Callbacks for event handlers
     const handleFetchTransactions = useCallback(() => {
@@ -68,13 +66,14 @@ function Card({ navigation, disp_transactions }) {
 
     const fetchUserInfo = useCallback(() => {
         setLoading(prev => ({ ...prev, userData: true }));
-
-        FetchUserInfoService(User.id)
+        console.log("User.uid", User.uid)
+        FetchUserInfoService(User.uid)
             .then(response => {
-                if (response.success) {
-                    login({ ...User, ...response.data });
+                console.log(response)
+                if (response) {
+                    login({ ...User, ...response });
                 } else {
-                    Alert.alert("Error", response.message);
+                    Alert.alert("Error", "An error occured");
                 }
                 setLoading(prev => ({ ...prev, userData: false }));
             })
@@ -149,7 +148,7 @@ function Card({ navigation, disp_transactions }) {
                 <TouchableOpacity onPress={() => navigation.navigate("Persona")}>
                     <VStack>
                         <Text fontSize="lg" fontWeight="normal">Welcome</Text>
-                        <Text fontSize="lg" fontWeight="bold">{User && `${User.firstName} ${User.lastName}`}</Text>
+                        <Text fontSize="lg" fontWeight="bold">{User && `${User.name}`}</Text>
                     </VStack>
                 </TouchableOpacity>
             </HStack>
@@ -168,9 +167,9 @@ function Card({ navigation, disp_transactions }) {
     const renderQuickActions = useMemo(() => (
         <HStack bg="white" alignItems="center" p={4} justifyContent="space-around">
             {[
-                { icon: Ticket, text: "Voucher", onPress: () => navigation.navigate("Voucher") },
-                { icon: Wallet, text: "To Pocket", onPress: () => navigation.navigate("Send-to-pv") },
-                { icon: Landmark, text: "To Bank", onPress: () => navigation.navigate("Send-to-bank") },
+                { icon: Ticket, text: "Top up", onPress: () => navigation.navigate("Voucher") },
+                { icon: Wallet, text: "Share", onPress: () => navigation.navigate("Send-to-pv") },
+                { icon: Landmark, text: "Withdraw Funds", onPress: () => navigation.navigate("Send-to-bank") },
                 // { icon: Shuffle, text: "Withdraw", onPress: () => navigation.navigate("Card-withdrawal") }
             ].map((action, index) => (
                 <TouchableOpacity key={index} onPress={action.onPress}>
@@ -227,53 +226,6 @@ function Card({ navigation, disp_transactions }) {
         </HStack>
     ), [User.card, navigation]);
 
-    const renderVoucherList = useMemo(() => vouchers.length > 0 && (
-        <>
-            <HStack justifyContent="space-between" alignItems="center" p={2} mb={-2} style={{ paddingLeft: 20, marginTop: 20 }}>
-                <BoldText text="Active vouchers" color="#000" />
-                {vouchers.length > 3 && (
-                    <TouchableOpacity onPress={() => navigation.navigate("Voucher")}>
-                        <HStack justifyContent="flex-end" alignItems="center" space={4}>
-                            <Text fontWeight={500} color={Colors.primary}>See All</Text>
-                            <ArrowForward color={Colors.primary} />
-                        </HStack>
-                    </TouchableOpacity>
-                )}
-            </HStack>
-
-            <Stack p={2} mx={4} shadow={0.5}>
-                <Box mb={11}>
-                    {displayVouchers.map((item, index) => (
-                        <HStack key={index} alignItems="center" mt={6} space={2}>
-                            <TouchableOpacity
-                                style={styles.voucherItem}
-                                onPress={() => {
-                                    setBottomSheetType("REVERSE TOKEN");
-                                    setSingleToken(item);
-                                    setBottomSheet(true);
-                                }}
-                            >
-                                <HStack space={3}>
-                                    <Center style={styles.voucherIcon(item.resolved)}>
-                                        <TicketCheckIcon size={20} color={item.resolved ? "crimson" : Colors.primary} />
-                                    </Center>
-                                    <VStack>
-                                        <HStack>
-                                            <Text fontWeight="medium" color={Colors.dark}>{item.token}</Text>
-                                        </HStack>
-                                        <Text fontWeight="light" color={Colors.primary}>
-                                            ₦{NumberWithCommas(item.amount)} {item.remark?.slice(0, 15)}{item.remark?.length > 15 && "..."}
-                                        </Text>
-                                    </VStack>
-                                </HStack>
-                                <Text fontWeight="light">{timeAgo(item.created_at)}</Text>
-                            </TouchableOpacity>
-                        </HStack>
-                    ))}
-                </Box>
-            </Stack>
-        </>
-    ), [vouchers, displayVouchers, navigation]);
 
     const renderTransactionList = useMemo(() => filteredTransactions.length > 0 && (
         <>
@@ -412,7 +364,6 @@ function Card({ navigation, disp_transactions }) {
                                 </Swiper>
 
                                 {renderCardPromo}
-                                {renderVoucherList}
                                 {renderTransactionList}
                             </VStack>
                         </VStack>

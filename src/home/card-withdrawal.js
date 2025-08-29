@@ -113,8 +113,8 @@ function CardWithdrawal({ navigation }) {
                         }} mt={1} onValueChange={itemValue => {
                             setdestination(itemValue)
                         }} borderWidth={0}>
-                        <Select.Item label={`NGN Balance - NGN ${NumberWithCommas(User.wallet)}`} value="NGN" />
-                        <Select.Item label={`USD Balance - USD ${NumberWithCommas(User.UsdBal ? User.UsdBal : 0)}`} value="USD" />
+                        <Select.Item label={`NGN Balance - NGN ${NumberWithCommas(900000)}`} value="NGN" />
+                        <Select.Item label={`USD Balance - USD ${NumberWithCommas(500000)}`} value="USD" />
                     </Select>
 
 

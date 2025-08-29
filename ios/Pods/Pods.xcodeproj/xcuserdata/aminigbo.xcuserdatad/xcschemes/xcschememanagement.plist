@@ -109,12 +109,12 @@
 			<key>isShown</key>
 			<false/>
 		</dict>
-		<key>Pods-PocketVoucher-PocketVoucherTests.xcscheme</key>
+		<key>Pods-Medicard-MedicardTests.xcscheme</key>
 		<dict>
 			<key>isShown</key>
 			<false/>
 		</dict>
-		<key>Pods-PocketVoucher.xcscheme</key>
+		<key>Pods-Medicard.xcscheme</key>
 		<dict>
 			<key>isShown</key>
 			<false/>
@@ -564,6 +564,11 @@
 			<key>isShown</key>
 			<false/>
 		</dict>
+		<key>react-native-get-random-values.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
 		<key>react-native-image-picker-RNImagePickerPrivacyInfo.xcscheme</key>
 		<dict>
 			<key>isShown</key>
@@ -585,6 +590,11 @@
 			<false/>
 		</dict>
 		<key>react-native-netinfo.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
+		<key>react-native-paystack-webview.xcscheme</key>
 		<dict>
 			<key>isShown</key>
 			<false/>
