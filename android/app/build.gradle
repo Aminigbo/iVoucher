@@ -78,9 +78,9 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace "com.ivoucher"
+    namespace "com.bwh.medicard"
     defaultConfig {
-        applicationId "com.ivoucher"
+        applicationId "com.bwh.medicard"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

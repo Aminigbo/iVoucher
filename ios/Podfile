@@ -54,7 +54,7 @@ if linkage != nil
   use_frameworks! :linkage => linkage.to_sym
 end
 
-target 'PocketVoucher' do
+target 'Medicard' do
   config = use_native_modules!
 
   use_react_native!(
@@ -63,7 +63,7 @@ target 'PocketVoucher' do
     :app_path => "#{Pod::Config.instance.installation_root}/.."
   )
 
-  target 'PocketVoucherTests' do
+  target 'MedicardTests' do
     inherit! :complete
     # Pods for testing
   end
